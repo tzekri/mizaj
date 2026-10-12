@@ -12,8 +12,10 @@ databases:
     user: mizaj
 
 services:
+  # Nom « mizaj » → adresse https://mizaj.onrender.com. Si l'ancien site statique « mizaj » existe encore
+  # sur Render, le supprimer AVANT de synchroniser ce Blueprint (un service ne peut pas changer de runtime).
   - type: web
-    name: mizaj-coffee
+    name: mizaj
     runtime: docker
     plan: free
     dockerfilePath: ./Dockerfile

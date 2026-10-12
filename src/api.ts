@@ -112,7 +112,12 @@ async function request<T>(method: string, path: string, body?: unknown, token?: 
   } catch {
     throw new ApiError(0, 'Connexion impossible. Vérifiez votre réseau et réessayez.');
   }
-  const data = res.status === 204 ? null : await res.json().catch(() => null);
+  const isJson = res.headers.get('content-type')?.includes('application/json');
+  const data = res.status === 204 || !isJson ? null : await res.json().catch(() => null);
+  // Réponse non JSON (ex. page HTML d'un hébergement sans backend) : service indisponible, pas un plantage.
+  if (res.ok && res.status !== 204 && data === null) {
+    throw new ApiError(503, 'Le service d’abonnement est momentanément indisponible. Réessayez dans quelques instants.');
+  }
   if (!res.ok) {
     const message =
       data?.message ??
