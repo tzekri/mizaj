@@ -110,7 +110,7 @@ export function Floating() {
   const [show, setShow] = useState(false);
   const { pathname } = useLocation();
   // Écrans applicatifs (carte QR, comptoir) : rien ne doit masquer le contenu.
-  const appScreen = pathname === '/ma-carte' || pathname === '/barista';
+  const appScreen = ['/ma-carte', '/barista', '/affiche'].includes(pathname);
   useEffect(() => {
     const onScroll = () => setShow(window.scrollY > 500);
     window.addEventListener('scroll', onScroll, { passive: true });

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
+import { Link } from 'react-router-dom';
 import QrScanner from 'qr-scanner';
 import {
   ApiError,
@@ -378,6 +379,10 @@ function Admin({ onAuthError }: { onAuthError: () => void }) {
           <Kpi value={stats.customers} label="comptes créés" />
         </div>
       )}
+
+      <p className="admin__links">
+        <Link to="/affiche" className="btn btn--outline btn--sm">Affiche QR « Abonnement » à imprimer</Link>
+      </p>
 
       <h2>Abonnés</h2>
       {subs.length === 0 ? (

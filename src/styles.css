@@ -502,6 +502,55 @@ h1, h2, h3 { line-height: 1.15; margin: 0 0 0.5em; }
   .customer { padding: 22px; }
 }
 
+
+/* ---------- Affiche à imprimer ---------- */
+.poster-page { display: grid; grid-template-columns: 1fr minmax(0, 520px); gap: 56px; align-items: start; padding-top: 48px; }
+.poster-tools h1 { font-size: 2rem; }
+.poster-tools p { color: var(--muted); }
+.poster-tools label { display: flex; flex-direction: column; gap: 6px; font-weight: 600; font-size: 0.88rem; margin: 22px 0 12px; }
+.poster-tools input { font: inherit; font-weight: 400; padding: 12px 16px; border: 1.5px solid #e0d6cb; border-radius: 10px; }
+.poster-tools input:focus { outline: 0; border-color: var(--accent); }
+.poster-tools__actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 18px; }
+.poster {
+  background: var(--accent); color: var(--white); border-radius: 22px; padding: 44px 40px 36px; text-align: center;
+  box-shadow: var(--shadow); aspect-ratio: 1 / 1.414; display: flex; flex-direction: column; align-items: center;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+.poster__brand { font-family: var(--arabic); font-size: 4.2rem; line-height: 1; padding-bottom: 0.25em; }
+.poster__eyebrow { text-transform: uppercase; letter-spacing: 0.18em; font-size: 0.8rem; font-weight: 600; opacity: 0.85; margin: 0 0 14px; }
+.poster h2 { font-size: 2.3rem; line-height: 1.1; margin: 0 0 22px; font-weight: 600; }
+.poster h2 strong { font-weight: 800; color: var(--accent-soft); }
+.poster__qr { background: var(--white); border-radius: 18px; padding: 14px; width: 62%; }
+.poster__qr img { width: 100%; display: block; }
+.poster__cta { font-family: var(--script); font-size: 2rem; margin: 16px 0 8px; }
+.poster__steps { list-style: none; counter-reset: step; padding: 0; margin: 0 0 auto; display: flex; gap: 14px; font-size: 0.78rem; font-weight: 600; }
+.poster__steps li { counter-increment: step; flex: 1; }
+.poster__steps li::before {
+  content: counter(step); display: block; width: 26px; height: 26px; line-height: 26px; margin: 0 auto 6px;
+  border-radius: 50%; background: var(--white); color: var(--accent); font-weight: 800;
+}
+.poster__url { font-size: 0.8rem; opacity: 0.8; margin: 16px 0 0; }
+
+@media (max-width: 960px) {
+  .poster-page { grid-template-columns: 1fr; }
+}
+
+@media print {
+  @page { size: A4; margin: 0; }
+  body { background: #fff; }
+  .no-print, .footer, .fab-wa, .go-top { display: none !important; }
+  .poster-page { display: block; padding: 0; width: auto; }
+  .poster {
+    width: 210mm; height: 297mm; aspect-ratio: auto; border-radius: 0; box-shadow: none;
+    padding: 22mm 18mm 16mm; justify-content: flex-start;
+  }
+  .poster__brand { font-size: 6rem; padding-bottom: 0.38em; }
+  .poster h2 { font-size: 3.4rem; }
+  .poster__cta { font-size: 3rem; }
+  .poster__steps { font-size: 1.1rem; }
+  .poster__url { font-size: 1rem; }
+}
+
 /* Responsive */
 @media (max-width: 960px) {
   .origin, .shop-row { grid-template-columns: 1fr; gap: 40px; }
