@@ -1,16 +1,69 @@
+# Blueprint Render : base PostgreSQL + service web (Spring Boot qui sert aussi le site React).
+# Render → New → Blueprint → choisir ce dépôt.
+# Doc : https://render.com/docs/blueprint-spec
+#
+# Attention : la base « free » de Render expire 30 jours après sa création.
+# Pour garder les abonnés, passer la base en plan payant (ou utiliser une base externe, ex. Neon).
+
+databases:
+  - name: mizaj-db
+    plan: free
+    databaseName: mizaj
+    user: mizaj
+
 services:
   - type: web
-    name: mizaj
-    runtime: static
-    buildCommand: npm ci && npm run build
-    staticPublishPath: ./dist
-    pullRequestPreviewsEnabled: false
-    routes:
-      # SPA : toutes les URLs (/menu/hot-coffee, /franchise…) servent index.html
-      - type: rewrite
-        source: /*
-        destination: /index.html
-    headers:
-      - path: /assets/*
-        name: Cache-Control
-        value: public, max-age=31536000, immutable
+    name: mizaj-coffee
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/public/health
+    autoDeploy: true
+    envVars:
+      - key: DB_HOST
+        fromDatabase:
+          name: mizaj-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: mizaj-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: mizaj-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: mizaj-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: mizaj-db
+          property: password
+      # Secret de signature des jetons, généré aléatoirement par Render.
+      - key: JWT_SECRET
+        generateValue: true
+      # Compte administrateur : Render les demande à la création (non stockés dans Git).
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      # Compte barista de démonstration (barista@mizajcoffee.ma / barista1234). Mettre "false" en production.
+      - key: SEED_DEMO
+        value: "true"
+      # true tant que Twilio n'est pas configuré : le code s'affiche à l'écran au lieu d'être envoyé.
+      # À passer à "false" dès que les variables TWILIO_* sont renseignées.
+      - key: OTP_DEV_MODE
+        value: "true"
+      # Twilio WhatsApp (à renseigner dans le tableau de bord Render).
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+      - key: TWILIO_WHATSAPP_FROM
+        sync: false
+      - key: TWILIO_CONTENT_SID
+        sync: false
+      - key: APP_TIMEZONE
+        value: Africa/Casablanca

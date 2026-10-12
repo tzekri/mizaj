@@ -1,2 +1,6 @@
 node_modules
 dist
+.vite
+backend/target
+# Rempli par le Dockerfile (build du frontend)
+backend/src/main/resources/static

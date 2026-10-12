@@ -168,6 +168,36 @@ function Products() {
   );
 }
 
+function SubscriptionTeaser() {
+  return (
+    <section className="sub-teaser">
+      <div className="container sub-teaser__inner">
+        <div className="sub-teaser__text">
+          <p className="eyebrow">Nouveau · Abonnement</p>
+          <h2>
+            30 espressos par mois
+            <br />
+            pour <strong>120 DH</strong>
+          </h2>
+          <p>
+            Soit 4 DH l’espresso. Inscrivez-vous en 30 secondes avec votre numéro WhatsApp : votre carte QR est dans votre
+            téléphone, le barista la scanne à chaque café.
+          </p>
+          <Link to="/abonnement" className="btn btn--light">Je m’abonne</Link>
+        </div>
+        <div className="sub-teaser__phone" aria-hidden>
+          <div className="mini-card">
+            <span className="mini-card__brand">{BRAND.arabic}</span>
+            <div className="mini-card__qr" />
+            <strong>27 / 30</strong>
+            <span>espressos restants</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function ShopsStrip() {
   return (
     <section className="shops-strip">
@@ -208,6 +238,7 @@ export default function Home() {
       <Craft />
       <Aroma />
       <Products />
+      <SubscriptionTeaser />
       <ShopsStrip />
     </>
   );

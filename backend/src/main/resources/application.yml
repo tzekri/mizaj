@@ -1,0 +1,53 @@
+server:
+  port: ${PORT:8095}
+  # Derrière un proxy HTTPS (Render…) : utilise X-Forwarded-Proto/Host pour connaître l'URL publique.
+  forward-headers-strategy: native
+
+spring:
+  application:
+    name: mizaj-backend
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:mizaj}?sslmode=prefer
+    username: ${DB_USER:mizaj}
+    password: ${DB_PASSWORD:mizajpwd}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+  jackson:
+    default-property-inclusion: non_null
+
+app:
+  timezone: ${APP_TIMEZONE:Africa/Casablanca}
+  cors:
+    # RENDER_EXTERNAL_URL est fournie automatiquement par Render (URL publique du service).
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5175,http://127.0.0.1:5175},${RENDER_EXTERNAL_URL:}
+  jwt:
+    # À CHANGER en production (32 caractères minimum).
+    secret: ${JWT_SECRET:dev-secret-change-me-please-0123456789abcdef}
+    staff-validity-hours: ${JWT_STAFF_VALIDITY_HOURS:12}
+    customer-validity-days: ${JWT_CUSTOMER_VALIDITY_DAYS:180}
+  # Formule d'abonnement.
+  plan:
+    price: ${PLAN_PRICE:120}
+    drinks: ${PLAN_DRINKS:30}
+    days: ${PLAN_DAYS:30}
+  otp:
+    # true : le code est aussi renvoyé dans la réponse et affiché à l'écran (démo sans WhatsApp).
+    # À mettre à false dès que Twilio est configuré.
+    dev-mode: ${OTP_DEV_MODE:true}
+  # Envoi du code par WhatsApp via Twilio (laisser vide pour ne rien envoyer).
+  twilio:
+    account-sid: ${TWILIO_ACCOUNT_SID:}
+    auth-token: ${TWILIO_AUTH_TOKEN:}
+    # Expéditeur WhatsApp Twilio, ex. whatsapp:+14155238886 (sandbox) ou votre numéro validé.
+    from: ${TWILIO_WHATSAPP_FROM:}
+    # Modèle de message approuvé (Content SID « HX… ») avec la variable {{1}} = code.
+    # Obligatoire en production ; sans lui, un message texte libre est envoyé (OK en sandbox).
+    content-sid: ${TWILIO_CONTENT_SID:}
+  # Compte administrateur créé au démarrage s'il n'existe pas.
+  admin:
+    email: ${ADMIN_EMAIL:admin@mizajcoffee.ma}
+    password: ${ADMIN_PASSWORD:mizaj1234}
+  # Crée un compte barista de démonstration (barista@mizajcoffee.ma / barista1234).
+  seed-demo: ${SEED_DEMO:true}

@@ -17,6 +17,7 @@ export function Logo({ small = false }: { small?: boolean }) {
 const NAV = [
   { to: '/', label: 'Accueil' },
   { to: '/menu', label: 'Menu' },
+  { to: '/abonnement', label: 'Abonnement' },
   { to: '/nos-cafes', label: 'Nos coffee shops' },
   { to: '/franchise', label: 'Devenez franchisé' },
 ];
@@ -95,6 +96,7 @@ export function Footer() {
             <li>{BRAND.email}</li>
           </ul>
           <Link to="/franchise" className="btn btn--accent btn--sm">Devenir investisseur</Link>
+          <p className="footer__staff"><Link to="/barista">Espace barista</Link></p>
         </div>
       </div>
       <div className="footer__bottom">
@@ -106,6 +108,9 @@ export function Footer() {
 
 export function Floating() {
   const [show, setShow] = useState(false);
+  const { pathname } = useLocation();
+  // Écrans applicatifs (carte QR, comptoir) : rien ne doit masquer le contenu.
+  const appScreen = pathname === '/ma-carte' || pathname === '/barista';
   useEffect(() => {
     const onScroll = () => setShow(window.scrollY > 500);
     window.addEventListener('scroll', onScroll, { passive: true });
@@ -113,9 +118,11 @@ export function Floating() {
   }, []);
   return (
     <>
-      <a className="fab-wa" href={`https://wa.me/${BRAND.whatsapp}`} target="_blank" rel="noreferrer" aria-label="WhatsApp">
-        <Whatsapp />
-      </a>
+      {!appScreen && (
+        <a className="fab-wa" href={`https://wa.me/${BRAND.whatsapp}`} target="_blank" rel="noreferrer" aria-label="WhatsApp">
+          <Whatsapp />
+        </a>
+      )}
       <button className={`go-top ${show ? 'go-top--show' : ''}`} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
         GO<br />TOP
       </button>
