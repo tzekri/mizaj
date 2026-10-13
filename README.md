@@ -62,4 +62,4 @@ La caméra du scanner exige HTTPS (ou localhost).
 
 `render.yaml` crée la base PostgreSQL `mizaj-db` et le service Docker `mizaj` (https://mizaj.onrender.com) (le [`Dockerfile`](Dockerfile)
 construit le site et l'embarque dans le jar Spring Boot). Render demande `ADMIN_EMAIL` / `ADMIN_PASSWORD` à la création.
-La base gratuite de Render expire après 30 jours : passer sur un plan payant pour conserver les abonnés.
+La base est en plan payant `basic-256mb` (pas d'expiration) : Render n'autorise qu'une base gratuite par compte, déjà utilisée par Nobty.

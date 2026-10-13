@@ -2,12 +2,13 @@
 # Render → New → Blueprint → choisir ce dépôt.
 # Doc : https://render.com/docs/blueprint-spec
 #
-# Attention : la base « free » de Render expire 30 jours après sa création.
-# Pour garder les abonnés, passer la base en plan payant (ou utiliser une base externe, ex. Neon).
+# Base payante « Basic 256 Mo » (≈ 6-7 $/mois) : pas d'expiration, sauvegardes quotidiennes.
+# (Render n'autorise qu'une base gratuite par compte, déjà prise par Nobty, et elle expire après 30 jours.)
 
 databases:
   - name: mizaj-db
-    plan: free
+    plan: basic-256mb
+    diskSizeGB: 1
     databaseName: mizaj
     user: mizaj
 
