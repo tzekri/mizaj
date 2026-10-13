@@ -63,7 +63,8 @@ public class AdminService {
 		Instant now = Instant.now(clock);
 		return subscriptions.findLatestPerCustomer().stream()
 				.map(s -> new SubscriberView(s.getCustomer().getId(), s.getCustomer().getFirstName(),
-						PhoneNumbers.pretty(s.getCustomer().getPhone()), s.statusAt(now), s.getDrinksLeft(), s.getExpiresAt()))
+						PhoneNumbers.pretty(s.getCustomer().getPhone()), s.getPlan() == null ? null : s.getPlan().getName(),
+						s.statusAt(now), s.getDrinksLeft(), s.getExpiresAt()))
 				.sorted(Comparator.comparing((SubscriberView v) -> v.status().ordinal()).thenComparing(SubscriberView::expiresAt,
 						Comparator.reverseOrder()))
 				.toList();

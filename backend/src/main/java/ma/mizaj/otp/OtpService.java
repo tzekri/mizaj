@@ -13,6 +13,7 @@ import ma.mizaj.domain.OtpChallenge;
 import ma.mizaj.repo.CustomerRepository;
 import ma.mizaj.repo.OtpChallengeRepository;
 import ma.mizaj.service.PhoneNumbers;
+import ma.mizaj.service.PlanService;
 import ma.mizaj.web.ApiException;
 import ma.mizaj.web.dto.Dtos.OtpStartResponse;
 import org.slf4j.Logger;
@@ -39,6 +40,7 @@ public class OtpService {
 	private final OtpChallengeRepository challenges;
 	private final CustomerRepository customers;
 	private final OtpSender sender;
+	private final PlanService plans;
 	private final IpThrottle ipThrottle;
 	private final SecretKey key;
 	private final Clock clock;
@@ -46,10 +48,11 @@ public class OtpService {
 	private final SecureRandom random = new SecureRandom();
 
 	public OtpService(OtpChallengeRepository challenges, CustomerRepository customers, OtpSender sender,
-			IpThrottle ipThrottle, SecretKey jwtKey, Clock clock, @Value("${app.otp.dev-mode}") boolean devMode) {
+			PlanService plans, IpThrottle ipThrottle, SecretKey jwtKey, Clock clock, @Value("${app.otp.dev-mode}") boolean devMode) {
 		this.challenges = challenges;
 		this.customers = customers;
 		this.sender = sender;
+		this.plans = plans;
 		this.ipThrottle = ipThrottle;
 		this.key = jwtKey;
 		this.clock = clock;
@@ -57,8 +60,9 @@ public class OtpService {
 	}
 
 	@Transactional
-	public OtpStartResponse start(String rawPhone, String firstName, String ip) {
+	public OtpStartResponse start(String rawPhone, String firstName, String planCode, String ip) {
 		String phone = PhoneNumbers.normalize(rawPhone);
+		var plan = plans.activeByCode(planCode);
 		Instant now = Instant.now(clock);
 		challenges.findFirstByPhoneOrderByCreatedAtDesc(phone).ifPresent(last -> {
 			long wait = Duration.between(now, last.getCreatedAt().plus(RESEND_DELAY)).toSeconds();
@@ -75,7 +79,7 @@ public class OtpService {
 
 		String code = "%06d".formatted(random.nextInt(1_000_000));
 		String name = firstName == null || firstName.isBlank() ? null : firstName.trim();
-		challenges.save(new OtpChallenge(phone, hash(phone, code), name, now, now.plus(VALIDITY)));
+		challenges.save(new OtpChallenge(phone, hash(phone, code), name, plan == null ? null : plan.getCode(), now, now.plus(VALIDITY)));
 		try {
 			sender.send(phone, code);
 		} catch (OtpDeliveryException e) {

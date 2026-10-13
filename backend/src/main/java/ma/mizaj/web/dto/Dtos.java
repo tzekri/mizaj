@@ -1,12 +1,15 @@
 package ma.mizaj.web.dto;
 
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.time.Instant;
 import java.util.List;
+import ma.mizaj.domain.Plan;
 import ma.mizaj.domain.StaffRole;
 import ma.mizaj.domain.SubscriptionStatus;
 
@@ -16,12 +19,31 @@ public final class Dtos {
 	private Dtos() {
 	}
 
-	// --- Public ---
+	// --- Formules ---
 
-	public record PlanView(int price, int drinks, int days) {
+	public record PlanView(String code, String name, String description, int price, int drinks, int days, String unit,
+			String unitPlural, boolean active) {
+
+		public static PlanView of(Plan p) {
+			return new PlanView(p.getCode(), p.getName(), p.getDescription(), p.getPrice(), p.getDrinks(), p.getDays(),
+					p.getUnit(), p.getUnitPlural(), p.isActive());
+		}
 	}
 
-	public record OtpStartRequest(@NotBlank String phone, @Size(max = 60) String firstName) {
+	public record PlanRequest(
+			@NotBlank @Size(max = 60) String name,
+			@Size(max = 160) String description,
+			@Min(1) @Max(100_000) int price,
+			@Min(1) @Max(1000) int drinks,
+			@Min(1) @Max(366) int days,
+			@NotBlank @Size(max = 40) String unit,
+			@NotBlank @Size(max = 40) String unitPlural,
+			boolean active) {
+	}
+
+	// --- Public ---
+
+	public record OtpStartRequest(@NotBlank String phone, @Size(max = 60) String firstName, @Size(max = 40) String planCode) {
 	}
 
 	/** devCode n'est présent qu'en mode démo (Twilio non branché). */
@@ -40,12 +62,13 @@ public final class Dtos {
 	public record HistoryEntry(Instant at, String shop) {
 	}
 
+	/** plan : formule de la période en cours, sinon celle choisie par le client. */
 	public record CardView(String firstName, String phone, String qrToken, SubscriptionStatus status,
 			int drinksLeft, int drinksTotal, Instant activatedAt, Instant expiresAt, PlanView plan,
 			List<HistoryEntry> history) {
 	}
 
-	public record UpdateProfileRequest(@Size(max = 60) String firstName) {
+	public record UpdateProfileRequest(@Size(max = 60) String firstName, @Size(max = 40) String planCode) {
 	}
 
 	// --- Personnel ---
@@ -56,9 +79,10 @@ public final class Dtos {
 	public record StaffSession(String token, String name, StaffRole role, String shop) {
 	}
 
+	/** plan : formule de la période en cours ; preferredPlan : formule à proposer à l'activation. */
 	public record StaffCardView(long customerId, String firstName, String phone, SubscriptionStatus status,
 			int drinksLeft, int drinksTotal, Instant activatedAt, Instant expiresAt, Instant lastRedemptionAt,
-			Long undoableRedemptionId, Instant memberSince, PlanView plan) {
+			Long undoableRedemptionId, Instant memberSince, PlanView plan, PlanView preferredPlan) {
 	}
 
 	public record ScanRequest(@NotBlank String token) {
@@ -67,7 +91,7 @@ public final class Dtos {
 	public record RedeemRequest(boolean force) {
 	}
 
-	public record ActivateRequest(boolean confirmReplace) {
+	public record ActivateRequest(@Size(max = 40) String planCode, boolean confirmReplace) {
 	}
 
 	public record TodayView(String shop, long redemptions, long activations) {
@@ -86,7 +110,7 @@ public final class Dtos {
 			@NotBlank @Size(min = 8, max = 72) String password, @NotNull StaffRole role, @Size(max = 60) String shop) {
 	}
 
-	public record SubscriberView(long customerId, String firstName, String phone, SubscriptionStatus status,
+	public record SubscriberView(long customerId, String firstName, String phone, String planName, SubscriptionStatus status,
 			int drinksLeft, Instant expiresAt) {
 	}
 }

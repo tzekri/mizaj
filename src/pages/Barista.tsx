@@ -15,8 +15,11 @@ import {
   type StaffSession,
   type Stats,
   type Subscriber,
+  type Plan,
+  type PlanInput,
   type Today,
 } from '../api';
+
 import { SHOPS } from '../config';
 import { Header } from '../components/Layout';
 
@@ -105,6 +108,16 @@ function Counter({ onAuthError }: { onAuthError: () => void }) {
   const [busy, setBusy] = useState(false);
   const [today, setToday] = useState<Today | null>(null);
   const [phone, setPhone] = useState('');
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [planCode, setPlanCode] = useState('');
+
+  useEffect(() => {
+    api.plans().then(setPlans).catch(() => {});
+  }, []);
+  // Nouvelle carte affichée : on propose la formule choisie par le client.
+  useEffect(() => {
+    if (card) setPlanCode(card.preferredPlan.code);
+  }, [card?.customerId, card?.preferredPlan.code]);
 
   const fail = useCallback(
     (e: unknown) => {
@@ -183,26 +196,26 @@ function Counter({ onAuthError }: { onAuthError: () => void }) {
     if (!card) return;
     run(
       (force) => api.redeem(card.customerId, force),
-      (c) => `Espresso validé ✓ — il reste ${c.drinksLeft} espresso(s).`,
+      (c) => `Validation enregistrée ✓ — reste ${c.drinksLeft} / ${c.drinksTotal} (${c.plan.unitPlural}).`,
       'RECENT',
     );
   }
 
   function activate() {
     if (!card) return;
-    const { price, drinks } = card.plan;
-    if (!confirm(`Confirmer : ${price} DH encaissés ? ${drinks} espressos seront activés.`)) return;
+    const plan = plans.find((p) => p.code === planCode) ?? card.preferredPlan;
+    if (!confirm(`Formule ${plan.name} : ${plan.price} DH encaissés ?\nLe client disposera de ${plan.drinks} ${plan.unitPlural} pendant ${plan.days} jours.`)) return;
     run(
-      (replace) => api.activate(card.customerId, replace),
-      (c) => `Abonnement activé ✓ — ${c.drinksLeft} espressos jusqu’au ${fmtDate(c.expiresAt)}.`,
+      (replace) => api.activate(card.customerId, plan.code, replace),
+      (c) => `Abonnement ${c.plan.name} activé ✓ — ${c.drinksLeft} ${c.plan.unitPlural} jusqu’au ${fmtDate(c.expiresAt)}.`,
       'STILL_ACTIVE',
     );
   }
 
   function undo() {
     if (!card?.undoableRedemptionId) return;
-    if (!confirm('Annuler le dernier espresso validé ? Il sera recrédité sur la carte.')) return;
-    run(() => api.undo(card.undoableRedemptionId!), (c) => `Validation annulée — ${c.drinksLeft} espresso(s) restant(s).`);
+    if (!confirm('Annuler la dernière validation ? La boisson sera recréditée sur la carte.')) return;
+    run(() => api.undo(card.undoableRedemptionId!), (c) => `Validation annulée — reste ${c.drinksLeft} / ${c.drinksTotal} (${c.plan.unitPlural}).`);
   }
 
   function reset() {
@@ -215,7 +228,7 @@ function Counter({ onAuthError }: { onAuthError: () => void }) {
       <div className="counter__left">
         {today && (
           <div className="today">
-            <div><strong>{today.redemptions}</strong><span>espressos aujourd’hui</span></div>
+            <div><strong>{today.redemptions}</strong><span>boissons validées aujourd’hui</span></div>
             <div><strong>{today.activations}</strong><span>abonnements activés</span></div>
           </div>
         )}
@@ -233,7 +246,16 @@ function Counter({ onAuthError }: { onAuthError: () => void }) {
       <div className="counter__right">
         {notice && <p className={`notice notice--${notice.kind}`} role="status">{notice.text}</p>}
         {card ? (
-          <CustomerPanel card={card} busy={busy} onRedeem={redeem} onActivate={activate} onUndo={undo} />
+          <CustomerPanel
+            card={card}
+            busy={busy}
+            plans={plans}
+            planCode={planCode}
+            onPlanChange={setPlanCode}
+            onRedeem={redeem}
+            onActivate={activate}
+            onUndo={undo}
+          />
         ) : (
           <div className="counter__empty">
             <h2>Scannez la carte du client</h2>
@@ -248,23 +270,32 @@ function Counter({ onAuthError }: { onAuthError: () => void }) {
 function CustomerPanel({
   card,
   busy,
+  plans,
+  planCode,
+  onPlanChange,
   onRedeem,
   onActivate,
   onUndo,
 }: {
   card: StaffCard;
   busy: boolean;
+  plans: Plan[];
+  planCode: string;
+  onPlanChange: (code: string) => void;
   onRedeem: () => void;
   onActivate: () => void;
   onUndo: () => void;
 }) {
   const active = card.status === 'ACTIVE';
+  const chosen = plans.find((p) => p.code === planCode) ?? card.preferredPlan;
+  const { unit, unitPlural } = card.plan;
   return (
     <div className={`customer customer--${card.status.toLowerCase()}`}>
       <div className="customer__head">
         <div>
           <h2>{card.firstName || 'Client sans prénom'}</h2>
           <p>{card.phone} · client depuis le {fmtDate(card.memberSince)}</p>
+          <p className="customer__plan">Formule {card.plan.name}</p>
         </div>
         <span className={`badge badge--${card.status.toLowerCase()}`}>{STATUS_LABEL[card.status]}</span>
       </div>
@@ -272,27 +303,43 @@ function CustomerPanel({
       {active && (
         <div className="customer__count">
           <strong>{card.drinksLeft}</strong>
-          <span>espresso(s) restant(s) sur {card.drinksTotal}<br />expire le {fmtDate(card.expiresAt)} ({daysLeft(card.expiresAt)} j)</span>
+          <span>sur {card.drinksTotal} {unitPlural}<br />expire le {fmtDate(card.expiresAt)} ({daysLeft(card.expiresAt)} j)</span>
         </div>
       )}
       {card.status === 'EXPIRED' && <p className="customer__msg">Abonnement terminé le {fmtDate(card.expiresAt)}.</p>}
-      {card.status === 'EMPTY' && <p className="customer__msg">Les {card.drinksTotal} espressos ont été consommés.</p>}
-      {card.status === 'NONE' && <p className="customer__msg">Compte créé, abonnement jamais activé : encaissez {card.plan.price} DH puis activez.</p>}
-      {card.lastRedemptionAt && <p className="customer__last">Dernier espresso : {fmtDateTime(card.lastRedemptionAt)}</p>}
+      {card.status === 'EMPTY' && <p className="customer__msg">Toutes les boissons de la formule ({card.drinksTotal} {unitPlural}) ont été servies.</p>}
+      {card.status === 'NONE' && <p className="customer__msg">Compte créé, abonnement jamais activé : encaissez la formule choisie puis activez.</p>}
+      {card.lastRedemptionAt && <p className="customer__last">Dernière validation : {fmtDateTime(card.lastRedemptionAt)}</p>}
+
+      {plans.length > 1 && (
+        <label className="plan-switch">
+          Formule à {active ? 'renouveler' : 'activer'}
+          <select value={planCode} onChange={(e) => onPlanChange(e.target.value)} disabled={busy}>
+            {plans.map((p) => (
+              <option key={p.code} value={p.code}>
+                {p.name} — {p.price} DH · {p.drinks} {p.unitPlural} · {p.days} j
+                {p.code === card.preferredPlan.code ? ' (choix du client)' : ''}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
 
       <div className="customer__actions">
         {active ? (
-          <button className="btn btn--accent btn--xl" disabled={busy} onClick={onRedeem}>Valider 1 espresso</button>
+          <button className="btn btn--accent btn--xl" disabled={busy} onClick={onRedeem}>Valider 1 {unit}</button>
         ) : (
           <button className="btn btn--accent btn--xl" disabled={busy} onClick={onActivate}>
-            {card.status === 'NONE' ? 'Activer' : 'Renouveler'} — {card.plan.price} DH encaissés
+            {card.status === 'NONE' ? 'Activer' : 'Renouveler'} {chosen.name} — {chosen.price} DH encaissés
           </button>
         )}
         {active && (
-          <button className="btn btn--outline btn--sm" disabled={busy} onClick={onActivate}>Renouveler par anticipation</button>
+          <button className="btn btn--outline btn--sm" disabled={busy} onClick={onActivate}>
+            Renouveler par anticipation ({chosen.name}, {chosen.price} DH)
+          </button>
         )}
         {card.undoableRedemptionId && (
-          <button className="link" disabled={busy} onClick={onUndo}>Annuler le dernier espresso</button>
+          <button className="link" disabled={busy} onClick={onUndo}>Annuler la dernière validation</button>
         )}
       </div>
     </div>
@@ -374,8 +421,8 @@ function Admin({ onAuthError }: { onAuthError: () => void }) {
         <div className="kpis">
           <Kpi value={stats.activeSubscriptions} label="abonnements actifs" />
           <Kpi value={`${stats.revenueThisMonth} DH`} label="encaissés ce mois-ci" />
-          <Kpi value={stats.redemptionsToday} label="espressos aujourd’hui" />
-          <Kpi value={stats.redemptionsThisMonth} label="espressos ce mois-ci" />
+          <Kpi value={stats.redemptionsToday} label="boissons validées aujourd’hui" />
+          <Kpi value={stats.redemptionsThisMonth} label="boissons validées ce mois-ci" />
           <Kpi value={stats.customers} label="comptes créés" />
         </div>
       )}
@@ -384,6 +431,8 @@ function Admin({ onAuthError }: { onAuthError: () => void }) {
         <Link to="/affiche" className="btn btn--outline btn--sm">Affiche QR « Abonnement » à imprimer</Link>
       </p>
 
+      <PlansEditor />
+
       <h2>Abonnés</h2>
       {subs.length === 0 ? (
         <p className="empty">Aucun abonnement activé pour l’instant.</p>
@@ -391,13 +440,14 @@ function Admin({ onAuthError }: { onAuthError: () => void }) {
         <div className="table-wrap">
           <table className="table">
             <thead>
-              <tr><th>Client</th><th>Téléphone</th><th>État</th><th>Restant</th><th>Fin</th></tr>
+              <tr><th>Client</th><th>Téléphone</th><th>Formule</th><th>État</th><th>Restant</th><th>Fin</th></tr>
             </thead>
             <tbody>
               {subs.map((s) => (
                 <tr key={s.customerId}>
                   <td>{s.firstName || '—'}</td>
                   <td>{s.phone}</td>
+                  <td>{s.planName || '—'}</td>
                   <td><span className={`badge badge--${s.status.toLowerCase()}`}>{STATUS_LABEL[s.status]}</span></td>
                   <td>{s.drinksLeft}</td>
                   <td>{fmtDate(s.expiresAt)}</td>
@@ -436,6 +486,111 @@ function Admin({ onAuthError }: { onAuthError: () => void }) {
       </div>
       <NewStaff onCreated={load} />
     </div>
+  );
+}
+
+const EMPTY_PLAN: PlanInput = {
+  name: '',
+  description: '',
+  price: 100,
+  drinks: 20,
+  days: 30,
+  unit: 'espresso',
+  unitPlural: 'espressos',
+  active: true,
+};
+
+/** Formules d'abonnement : modification (prix, boissons, durée, activation) et création. */
+function PlansEditor() {
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [editing, setEditing] = useState<string | null>(null); // code, ou 'new'
+  const [form, setForm] = useState<PlanInput>(EMPTY_PLAN);
+  const [error, setError] = useState<string | null>(null);
+
+  const load = useCallback(() => {
+    api.adminPlans().then(setPlans).catch((e) => setError((e as ApiError).message));
+  }, []);
+  useEffect(load, [load]);
+
+  function edit(p?: Plan) {
+    setError(null);
+    setEditing(p ? p.code : 'new');
+    setForm(p ? { ...p, description: p.description ?? '' } : EMPTY_PLAN);
+  }
+
+  async function save(e: FormEvent) {
+    e.preventDefault();
+    setError(null);
+    try {
+      if (editing === 'new') await api.createPlan(form);
+      else if (editing) await api.updatePlan(editing, form);
+      setEditing(null);
+      load();
+    } catch (err) {
+      setError((err as ApiError).message);
+    }
+  }
+
+  const num = (k: 'price' | 'drinks' | 'days') => (e: React.ChangeEvent<HTMLInputElement>) =>
+    setForm({ ...form, [k]: Number(e.target.value) });
+
+  return (
+    <>
+      <h2>Formules d’abonnement</h2>
+      <div className="table-wrap">
+        <table className="table">
+          <thead>
+            <tr><th>Formule</th><th>Prix</th><th>Boissons</th><th>Durée</th><th>État</th><th /></tr>
+          </thead>
+          <tbody>
+            {plans.map((p) => (
+              <tr key={p.code} className={p.active ? '' : 'muted'}>
+                <td><b>{p.name}</b>{p.description ? <><br /><small>{p.description}</small></> : null}</td>
+                <td>{p.price} DH</td>
+                <td>{p.drinks} {p.unitPlural}</td>
+                <td>{p.days} jours</td>
+                <td>{p.active ? 'Proposée' : 'Masquée'}</td>
+                <td><button className="link" onClick={() => edit(p)}>Modifier</button></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {editing ? (
+        <form className="form new-staff" onSubmit={save}>
+          <h3 className="form__full">{editing === 'new' ? 'Nouvelle formule' : `Modifier « ${form.name} »`}</h3>
+          <label>Nom<input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required maxLength={60} /></label>
+          <label>
+            Description
+            <input value={form.description ?? ''} onChange={(e) => setForm({ ...form, description: e.target.value })} maxLength={160} />
+          </label>
+          <label>Prix (DH)<input type="number" min={1} value={form.price} onChange={num('price')} required /></label>
+          <label>Nombre de boissons<input type="number" min={1} value={form.drinks} onChange={num('drinks')} required /></label>
+          <label>Durée (jours)<input type="number" min={1} max={366} value={form.days} onChange={num('days')} required /></label>
+          <label>
+            Boisson (singulier / pluriel)
+            <span className="pair">
+              <input value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })} required maxLength={40} />
+              <input value={form.unitPlural} onChange={(e) => setForm({ ...form, unitPlural: e.target.value })} required maxLength={40} />
+            </span>
+          </label>
+          <label className="check form__full">
+            <input type="checkbox" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} />
+            Proposée aux clients sur la page Abonnement
+          </label>
+          <p className="sub-fine form__full">
+            Les abonnements déjà activés gardent leurs conditions ; les changements s’appliquent aux prochaines activations.
+          </p>
+          {error && <p className="form-error form__full">{error}</p>}
+          <div className="form__full pair-actions">
+            <button className="btn btn--accent">Enregistrer</button>
+            <button type="button" className="btn btn--outline" onClick={() => setEditing(null)}>Annuler</button>
+          </div>
+        </form>
+      ) : (
+        <p><button className="btn btn--outline btn--sm" onClick={() => edit()}>+ Nouvelle formule</button></p>
+      )}
+    </>
   );
 }
 

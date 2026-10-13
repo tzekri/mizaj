@@ -13,7 +13,8 @@ class SubscriptionTest {
 
 	private Subscription newSubscription(int drinks) {
 		Customer customer = new Customer("+212612345678", "T", "token", START);
-		return new Subscription(customer, START, START.plus(Duration.ofDays(30)), drinks, 120, BARISTA);
+		Plan plan = new Plan("test", "Test", null, 120, drinks, 30, "espresso", "espressos", 1);
+		return new Subscription(customer, plan, START, BARISTA);
 	}
 
 	@Test

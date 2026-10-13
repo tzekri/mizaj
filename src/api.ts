@@ -1,7 +1,18 @@
 // Client de l'API Spring Boot (même domaine en production, proxy Vite en développement).
 
 export type Status = 'NONE' | 'ACTIVE' | 'EMPTY' | 'EXPIRED';
-export type Plan = { price: number; drinks: number; days: number };
+export type Plan = {
+  code: string;
+  name: string;
+  description?: string;
+  price: number;
+  drinks: number;
+  days: number;
+  unit: string;
+  unitPlural: string;
+  active: boolean;
+};
+export type PlanInput = Omit<Plan, 'code'>;
 
 export type Card = {
   firstName?: string;
@@ -41,6 +52,7 @@ export type StaffCard = {
   undoableRedemptionId?: number;
   memberSince: string;
   plan: Plan;
+  preferredPlan: Plan;
 };
 
 export type Today = { shop?: string; redemptions: number; activations: number };
@@ -52,7 +64,15 @@ export type Stats = {
   redemptionsToday: number;
   redemptionsThisMonth: number;
 };
-export type Subscriber = { customerId: number; firstName?: string; phone: string; status: Status; drinksLeft: number; expiresAt: string };
+export type Subscriber = {
+  customerId: number;
+  firstName?: string;
+  phone: string;
+  planName?: string;
+  status: Status;
+  drinksLeft: number;
+  expiresAt: string;
+};
 export type StaffMember = { id: number; fullName: string; email: string; role: StaffRole; shop?: string; active: boolean };
 
 export class ApiError extends Error {
@@ -128,13 +148,15 @@ async function request<T>(method: string, path: string, body?: unknown, token?: 
 }
 
 export const api = {
-  plan: () => request<Plan>('GET', '/api/public/plan'),
-  otpStart: (phone: string, firstName?: string) => request<OtpStart>('POST', '/api/public/otp/start', { phone, firstName }),
+  plans: () => request<Plan[]>('GET', '/api/public/plans'),
+  otpStart: (phone: string, firstName?: string, planCode?: string) =>
+    request<OtpStart>('POST', '/api/public/otp/start', { phone, firstName, planCode }),
   otpVerify: (phone: string, code: string) =>
     request<{ token: string; card: Card }>('POST', '/api/public/otp/verify', { phone, code }),
 
   me: () => request<Card>('GET', '/api/me', undefined, customerToken.get()),
   rotateQr: () => request<Card>('POST', '/api/me/qr/rotate', undefined, customerToken.get()),
+  updateProfile: (p: { firstName?: string; planCode?: string }) => request<Card>('PATCH', '/api/me', p, customerToken.get()),
 
   staffLogin: (email: string, password: string) => request<StaffSession>('POST', '/api/auth/staff/login', { email, password }),
   scan: (token: string) => request<StaffCard>('POST', '/api/staff/scan', { token }, staffSession.get()?.token),
@@ -142,12 +164,15 @@ export const api = {
     request<StaffCard>('GET', `/api/staff/lookup?phone=${encodeURIComponent(phone)}`, undefined, staffSession.get()?.token),
   redeem: (id: number, force = false) =>
     request<StaffCard>('POST', `/api/staff/customers/${id}/redeem`, { force }, staffSession.get()?.token),
-  activate: (id: number, confirmReplace = false) =>
-    request<StaffCard>('POST', `/api/staff/customers/${id}/activate`, { confirmReplace }, staffSession.get()?.token),
+  activate: (id: number, planCode: string, confirmReplace = false) =>
+    request<StaffCard>('POST', `/api/staff/customers/${id}/activate`, { planCode, confirmReplace }, staffSession.get()?.token),
   undo: (redemptionId: number) =>
     request<StaffCard>('POST', `/api/staff/redemptions/${redemptionId}/undo`, undefined, staffSession.get()?.token),
   today: () => request<Today>('GET', '/api/staff/today', undefined, staffSession.get()?.token),
 
+  adminPlans: () => request<Plan[]>('GET', '/api/admin/plans', undefined, staffSession.get()?.token),
+  createPlan: (p: PlanInput) => request<Plan>('POST', '/api/admin/plans', p, staffSession.get()?.token),
+  updatePlan: (code: string, p: PlanInput) => request<Plan>('PUT', `/api/admin/plans/${code}`, p, staffSession.get()?.token),
   stats: () => request<Stats>('GET', '/api/admin/stats', undefined, staffSession.get()?.token),
   subscribers: () => request<Subscriber[]>('GET', '/api/admin/subscribers', undefined, staffSession.get()?.token),
   staff: () => request<StaffMember[]>('GET', '/api/admin/staff', undefined, staffSession.get()?.token),

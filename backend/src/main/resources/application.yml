@@ -27,11 +27,6 @@ app:
     secret: ${JWT_SECRET:dev-secret-change-me-please-0123456789abcdef}
     staff-validity-hours: ${JWT_STAFF_VALIDITY_HOURS:12}
     customer-validity-days: ${JWT_CUSTOMER_VALIDITY_DAYS:180}
-  # Formule d'abonnement.
-  plan:
-    price: ${PLAN_PRICE:120}
-    drinks: ${PLAN_DRINKS:30}
-    days: ${PLAN_DAYS:30}
   otp:
     # true : le code est aussi renvoyé dans la réponse et affiché à l'écran (démo sans WhatsApp).
     # À mettre à false dès que Twilio est configuré.

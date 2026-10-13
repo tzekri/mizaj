@@ -30,7 +30,7 @@ public class CustomerController {
 
 	@PatchMapping
 	CardView update(@Valid @RequestBody UpdateProfileRequest req) {
-		return cards.updateName(Principals.currentId(), req.firstName());
+		return cards.updateProfile(Principals.currentId(), req.firstName(), req.planCode());
 	}
 
 	@PostMapping("/qr/rotate")

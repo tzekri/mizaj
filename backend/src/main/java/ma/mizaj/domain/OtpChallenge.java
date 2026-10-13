@@ -28,6 +28,10 @@ public class OtpChallenge {
 	@Column(length = 60)
 	private String firstName;
 
+	/** Formule choisie sur la page Abonnement. */
+	@Column(length = 40)
+	private String planCode;
+
 	@Column(nullable = false)
 	private Instant createdAt;
 
@@ -42,10 +46,11 @@ public class OtpChallenge {
 	protected OtpChallenge() {
 	}
 
-	public OtpChallenge(String phone, String codeHash, String firstName, Instant createdAt, Instant expiresAt) {
+	public OtpChallenge(String phone, String codeHash, String firstName, String planCode, Instant createdAt, Instant expiresAt) {
 		this.phone = phone;
 		this.codeHash = codeHash;
 		this.firstName = firstName;
+		this.planCode = planCode;
 		this.createdAt = createdAt;
 		this.expiresAt = expiresAt;
 	}
@@ -57,6 +62,7 @@ public class OtpChallenge {
 	public String getPhone() { return phone; }
 	public String getCodeHash() { return codeHash; }
 	public String getFirstName() { return firstName; }
+	public String getPlanCode() { return planCode; }
 	public Instant getCreatedAt() { return createdAt; }
 	public Instant getExpiresAt() { return expiresAt; }
 	public int getAttempts() { return attempts; }

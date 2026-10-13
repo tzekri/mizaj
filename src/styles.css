@@ -355,16 +355,6 @@ h1, h2, h3 { line-height: 1.15; margin: 0 0 0.5em; }
 .mini-card span:last-child { font-size: 0.75rem; opacity: 0.8; }
 
 .sub-intro { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: start; }
-.sub-offer { padding-top: 12px; }
-.sub-price { display: flex; align-items: flex-start; gap: 10px; color: var(--accent); margin: 6px 0 22px; }
-.sub-price strong { font-size: 6rem; font-weight: 800; line-height: 0.9; }
-.sub-price span { font-weight: 700; font-size: 1.2rem; line-height: 1.15; padding-top: 10px; }
-.sub-offer ul { list-style: none; padding: 0; margin: 0 0 18px; }
-.sub-offer li { padding: 12px 0 12px 34px; border-bottom: 1px solid #efe7df; position: relative; }
-.sub-offer li::before {
-  content: ''; position: absolute; left: 4px; top: 19px; width: 14px; height: 8px;
-  border-left: 3px solid var(--accent); border-bottom: 3px solid var(--accent); transform: rotate(-45deg);
-}
 .sub-fine { color: var(--muted); font-size: 0.85rem; }
 .sub-form, .sub-done {
   background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); padding: 36px clamp(22px, 4vw, 40px);
@@ -386,6 +376,65 @@ h1, h2, h3 { line-height: 1.15; margin: 0 0 0.5em; }
 
 /* Bandeau sombre en haut des écrans applicatifs (carte, barista) */
 .app-top { background: var(--bg-dark); padding-bottom: 22px; }
+
+/* Choix de la formule */
+.sub-plans { display: flex; flex-direction: column; gap: 12px; }
+.plan-card {
+  display: grid; grid-template-columns: auto 1fr auto; gap: 16px; align-items: center; text-align: left; width: 100%;
+  background: var(--white); border: 2px solid #ece3da; border-radius: var(--radius); padding: 18px 20px; color: var(--ink);
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+.plan-card:hover { border-color: #d8c3b4; transform: translateY(-1px); }
+.plan-card--on { border-color: var(--accent); box-shadow: 0 10px 30px rgba(123, 30, 43, 0.14); }
+.plan-card__radio { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #cdbdb0; position: relative; }
+.plan-card--on .plan-card__radio { border-color: var(--accent); }
+.plan-card--on .plan-card__radio::after { content: ''; position: absolute; inset: 4px; border-radius: 50%; background: var(--accent); }
+.plan-card__body { display: flex; flex-direction: column; gap: 2px; }
+.plan-card__body strong { font-size: 1.15rem; }
+.plan-card__body span { font-weight: 600; font-size: 0.9rem; color: var(--accent); }
+.plan-card__body em { font-style: normal; font-size: 0.82rem; color: var(--muted); }
+.plan-card__price { display: flex; flex-direction: column; align-items: flex-end; }
+.plan-card__price b { font-size: 1.6rem; font-weight: 800; color: var(--accent); line-height: 1.1; }
+.plan-card__price small { font-size: 0.75rem; color: var(--muted); }
+.plan-card__price .plan-card__save { color: #17663a; font-weight: 700; }
+.sub-recap { display: flex; justify-content: space-between; align-items: center; background: var(--bg-cream); border-radius: 10px; padding: 12px 16px; font-weight: 600; }
+.sub-recap b { color: var(--accent); font-size: 1.2rem; }
+.sub-form .eyebrow { margin: 0; }
+.plan-switch { display: flex; flex-direction: column; gap: 6px; font-weight: 600; font-size: 0.85rem; margin: 14px 0; }
+.plan-switch select { font: inherit; font-weight: 400; padding: 10px 12px; border: 1.5px solid #e0d6cb; border-radius: 10px; background: var(--white); }
+
+/* Partage gratuit de la carte */
+.btn--whatsapp { background: #25d366; color: #fff; gap: 10px; }
+.btn--whatsapp:hover { background: #1ebe5b; }
+.mycard__left { display: flex; flex-direction: column; gap: 16px; }
+.mycard__left .notice { margin: 0; }
+.share-card__hint, .share-card__msg { font-size: 0.82rem; color: var(--muted); margin: 8px 0 0; text-align: center; }
+.share-card__msg { color: #17663a; font-weight: 600; }
+.tip { background: var(--bg-cream); border-radius: 12px; padding: 12px 16px; margin: 18px 0; font-size: 0.88rem; }
+.tip summary { cursor: pointer; font-weight: 600; }
+.tip p { margin: 8px 0 0; color: var(--muted); }
+.customer__plan { font-weight: 700; color: var(--accent) !important; margin-top: 4px !important; }
+
+/* Éditeur de formules */
+.pair { display: flex; gap: 8px; }
+.pair input { flex: 1; min-width: 0; }
+.check { flex-direction: row !important; align-items: center; gap: 10px !important; font-weight: 500 !important; }
+.check input { width: 18px; height: 18px; accent-color: var(--accent); }
+.pair-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+.table small { color: var(--muted); }
+
+/* Affiche : liste des formules */
+.poster__plans { list-style: none; padding: 0; margin: 0 0 18px; width: 100%; display: flex; flex-direction: column; gap: 6px; }
+.poster__plans li {
+  display: grid; grid-template-columns: 1fr auto auto; gap: 12px; align-items: baseline; text-align: left;
+  background: rgba(255, 255, 255, 0.1); border-radius: 10px; padding: 8px 14px; font-size: 0.9rem;
+}
+.poster__plans span { opacity: 0.85; font-size: 0.8rem; }
+.poster__plans strong { color: var(--accent-soft); }
+@media print {
+  .poster__plans li { font-size: 1.3rem; padding: 12px 20px; }
+  .poster__plans span { font-size: 1.1rem; }
+}
 
 /* ---------- Ma carte ---------- */
 .mycard { display: grid; grid-template-columns: minmax(0, 420px) 1fr; gap: 56px; align-items: start; padding-top: 56px; }
@@ -490,14 +539,13 @@ h1, h2, h3 { line-height: 1.15; margin: 0 0 0.5em; }
 @media (max-width: 960px) {
   .sub-intro, .mycard, .counter, .sub-teaser__inner { grid-template-columns: 1fr; }
   .sub-form, .sub-done { margin-top: 0; }
-  .sub-form-wrap { order: -1; margin-top: -110px; position: relative; z-index: 3; }
+  .sub-plans { margin-top: -110px; position: relative; z-index: 3; background: var(--white); border-radius: var(--radius); padding: 18px 14px 6px; box-shadow: var(--shadow); }
   .kpis { grid-template-columns: repeat(3, 1fr); }
   .sub-teaser__phone { display: none; }
   .mycard { gap: 36px; }
 }
 @media (max-width: 480px) {
   .kpis { grid-template-columns: 1fr 1fr; }
-  .sub-price strong { font-size: 4.6rem; }
   .customer__count strong { font-size: 3.6rem; }
   .customer { padding: 22px; }
 }

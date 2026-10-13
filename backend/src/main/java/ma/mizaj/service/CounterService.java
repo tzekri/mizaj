@@ -6,8 +6,8 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Optional;
-import ma.mizaj.config.PlanProperties;
 import ma.mizaj.domain.Customer;
+import ma.mizaj.domain.Plan;
 import ma.mizaj.domain.Redemption;
 import ma.mizaj.domain.StaffUser;
 import ma.mizaj.domain.Subscription;
@@ -23,11 +23,11 @@ import ma.mizaj.web.dto.Dtos.TodayView;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/** Opérations du barista au comptoir : lecture de la carte, validation d'un espresso, activation après paiement. */
+/** Opérations du barista au comptoir : lecture de la carte, validation d'une boisson, activation après paiement. */
 @Service
 public class CounterService {
 
-	/** En dessous de ce délai depuis le dernier espresso, une confirmation est demandée (double scan). */
+	/** En dessous de ce délai depuis la dernière boisson, une confirmation est demandée (double scan). */
 	static final Duration DOUBLE_SCAN_WINDOW = Duration.ofMinutes(2);
 	/** Une validation peut être annulée pendant ce délai (erreur de manipulation). */
 	static final Duration UNDO_WINDOW = Duration.ofMinutes(10);
@@ -37,17 +37,17 @@ public class CounterService {
 	private final SubscriptionRepository subscriptions;
 	private final RedemptionRepository redemptions;
 	private final StaffUserRepository staffUsers;
-	private final PlanProperties plan;
+	private final PlanService plans;
 	private final Clock clock;
 	private final ZoneId zone;
 
 	public CounterService(CustomerRepository customers, SubscriptionRepository subscriptions,
-			RedemptionRepository redemptions, StaffUserRepository staffUsers, PlanProperties plan, Clock clock, ZoneId appZone) {
+			RedemptionRepository redemptions, StaffUserRepository staffUsers, PlanService plans, Clock clock, ZoneId appZone) {
 		this.customers = customers;
 		this.subscriptions = subscriptions;
 		this.redemptions = redemptions;
 		this.staffUsers = staffUsers;
-		this.plan = plan;
+		this.plans = plans;
 		this.clock = clock;
 		this.zone = appZone;
 	}
@@ -75,10 +75,11 @@ public class CounterService {
 		Customer customer = loadCustomer(customerId);
 		Instant now = Instant.now(clock);
 		Subscription sub = subscriptions.findFirstByCustomerOrderByActivatedAtDesc(customer)
-				.orElseThrow(() -> ApiException.conflict("NO_SUBSCRIPTION", "Ce client n'a pas encore d'abonnement actif. Encaissez " + plan.price() + " DH puis activez-le."));
+				.orElseThrow(() -> ApiException.conflict("NO_SUBSCRIPTION", "Ce client n'a pas encore d'abonnement actif. Encaissez la formule puis activez-la."));
+		String unitPlural = sub.getPlan() == null ? "boissons" : sub.getPlan().getUnitPlural();
 		switch (sub.statusAt(now)) {
-			case EXPIRED -> throw ApiException.conflict("EXPIRED", "Abonnement expiré. Proposez au client de le renouveler (" + plan.price() + " DH).");
-			case EMPTY -> throw ApiException.conflict("EMPTY", "Les " + sub.getDrinksTotal() + " espressos de cet abonnement ont été consommés. Proposez le renouvellement.");
+			case EXPIRED -> throw ApiException.conflict("EXPIRED", "Abonnement expiré. Proposez au client de le renouveler.");
+			case EMPTY -> throw ApiException.conflict("EMPTY", "Toutes les boissons de cet abonnement (" + sub.getDrinksTotal() + " " + unitPlural + ") ont été servies. Proposez le renouvellement.");
 			default -> {
 			}
 		}
@@ -87,7 +88,7 @@ public class CounterService {
 					.filter(r -> r.getRedeemedAt().isAfter(now.minus(DOUBLE_SCAN_WINDOW)))
 					.ifPresent(r -> {
 						long seconds = Duration.between(r.getRedeemedAt(), now).toSeconds();
-						throw ApiException.conflict("RECENT", "Un espresso a déjà été validé sur cette carte il y a " + seconds + " s. Valider quand même ?");
+						throw ApiException.conflict("RECENT", "Une boisson a déjà été validée sur cette carte il y a " + seconds + " s. Valider quand même ?");
 					});
 		}
 		sub.consumeOne();
@@ -95,21 +96,25 @@ public class CounterService {
 		return view(customer);
 	}
 
-	/** Le client a payé en caisse : nouvelle période de N espressos valables D jours. */
+	/**
+	 * Le client a payé en caisse : nouvelle période selon la formule choisie
+	 * (celle demandée par le barista, sinon celle choisie par le client à l'inscription).
+	 */
 	@Transactional
-	public StaffCardView activate(long customerId, long staffId, boolean confirmReplace) {
+	public StaffCardView activate(long customerId, long staffId, String planCode, boolean confirmReplace) {
 		Customer customer = loadCustomer(customerId);
+		Plan plan = Optional.ofNullable(plans.activeByCode(planCode)).orElseGet(() -> plans.proposed(customer));
 		Instant now = Instant.now(clock);
 		Optional<Subscription> current = subscriptions.findFirstByCustomerOrderByActivatedAtDesc(customer);
 		if (current.isPresent() && current.get().statusAt(now) == SubscriptionStatus.ACTIVE) {
 			if (!confirmReplace) {
 				throw ApiException.conflict("STILL_ACTIVE", "L'abonnement en cours a encore " + current.get().getDrinksLeft()
-						+ " espresso(s). Ils seront perdus (pas de report). Renouveler quand même ?");
+						+ " boisson(s). Elles seront perdues (pas de report). Renouveler quand même ?");
 			}
 			current.get().closeAt(now);
 		}
-		subscriptions.save(new Subscription(customer, now, now.plus(Duration.ofDays(plan.days())), plan.drinks(), plan.price(),
-				loadStaff(staffId)));
+		customer.setPreferredPlan(plan);
+		subscriptions.save(new Subscription(customer, plan, now, loadStaff(staffId)));
 		return view(customer);
 	}
 
@@ -144,22 +149,24 @@ public class CounterService {
 
 	private StaffCardView view(Customer customer) {
 		Instant now = Instant.now(clock);
-		Optional<Subscription> current = subscriptions.findFirstByCustomerOrderByActivatedAtDesc(customer);
-		Optional<Redemption> last = current.flatMap(redemptions::findFirstBySubscriptionAndCancelledAtIsNullOrderByRedeemedAtDesc);
+		Subscription current = subscriptions.findFirstByCustomerOrderByActivatedAtDesc(customer).orElse(null);
+		Optional<Redemption> last = Optional.ofNullable(current).flatMap(redemptions::findFirstBySubscriptionAndCancelledAtIsNullOrderByRedeemedAtDesc);
 		Long undoable = last.filter(r -> r.getRedeemedAt().isAfter(now.minus(UNDO_WINDOW))).map(Redemption::getId).orElse(null);
+		Plan displayed = plans.displayed(current, customer);
 		return new StaffCardView(
 				customer.getId(),
 				customer.getFirstName(),
 				PhoneNumbers.mask(customer.getPhone()),
-				current.map(s -> s.statusAt(now)).orElse(SubscriptionStatus.NONE),
-				current.map(Subscription::getDrinksLeft).orElse(0),
-				current.map(Subscription::getDrinksTotal).orElse(plan.drinks()),
-				current.map(Subscription::getActivatedAt).orElse(null),
-				current.map(Subscription::getExpiresAt).orElse(null),
+				current == null ? SubscriptionStatus.NONE : current.statusAt(now),
+				current == null ? 0 : current.getDrinksLeft(),
+				current == null ? displayed.getDrinks() : current.getDrinksTotal(),
+				current == null ? null : current.getActivatedAt(),
+				current == null ? null : current.getExpiresAt(),
 				last.map(Redemption::getRedeemedAt).orElse(null),
 				undoable,
 				customer.getCreatedAt(),
-				new PlanView(plan.price(), plan.drinks(), plan.days()));
+				PlanView.of(displayed),
+				PlanView.of(plans.proposed(customer)));
 	}
 
 	private Customer loadCustomer(long id) {

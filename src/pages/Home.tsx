@@ -175,13 +175,14 @@ function SubscriptionTeaser() {
         <div className="sub-teaser__text">
           <p className="eyebrow">Nouveau · Abonnement</p>
           <h2>
-            30 espressos par mois
+            Votre café du quotidien
             <br />
-            pour <strong>120 DH</strong>
+            dès <strong>45 DH</strong>
           </h2>
           <p>
-            Soit 4 DH l’espresso. Inscrivez-vous en 30 secondes avec votre numéro WhatsApp : votre carte QR est dans votre
-            téléphone, le barista la scanne à chaque café.
+            Trois formules : Découverte, Espresso (30 espressos pour 120 DH, soit 4 DH l’espresso) et Lait &amp; Douceur.
+            Inscrivez-vous en 30 secondes avec votre numéro WhatsApp : votre carte QR est dans votre téléphone, le barista
+            la scanne à chaque café.
           </p>
           <Link to="/abonnement" className="btn btn--light">Je m’abonne</Link>
         </div>

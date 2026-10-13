@@ -2,9 +2,11 @@ package ma.mizaj.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.Instant;
 
@@ -31,6 +33,10 @@ public class Customer {
 	@Column(nullable = false)
 	private Instant createdAt;
 
+	/** Formule choisie par le client (proposée par défaut au barista lors de l'activation). */
+	@ManyToOne(fetch = FetchType.LAZY)
+	private Plan preferredPlan;
+
 	protected Customer() {
 	}
 
@@ -48,4 +54,6 @@ public class Customer {
 	public String getQrToken() { return qrToken; }
 	public void setQrToken(String qrToken) { this.qrToken = qrToken; }
 	public Instant getCreatedAt() { return createdAt; }
+	public Plan getPreferredPlan() { return preferredPlan; }
+	public void setPreferredPlan(Plan preferredPlan) { this.preferredPlan = preferredPlan; }
 }

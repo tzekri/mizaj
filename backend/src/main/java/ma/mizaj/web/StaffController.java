@@ -65,7 +65,7 @@ public class StaffController {
 
 	@PostMapping("/api/staff/customers/{id}/activate")
 	StaffCardView activate(@PathVariable long id, @RequestBody(required = false) ActivateRequest req) {
-		return counter.activate(id, Principals.currentId(), req != null && req.confirmReplace());
+		return counter.activate(id, Principals.currentId(), req == null ? null : req.planCode(), req != null && req.confirmReplace());
 	}
 
 	@PostMapping("/api/staff/redemptions/{id}/undo")

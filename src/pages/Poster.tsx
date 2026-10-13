@@ -3,6 +3,7 @@ import QRCode from 'qrcode';
 import { api, type Plan } from '../api';
 import { BRAND } from '../config';
 import { Header } from '../components/Layout';
+import { Whatsapp } from '../components/Icons';
 
 /**
  * Affiche à imprimer pour la caisse : QR code vers la page Abonnement.
@@ -11,11 +12,13 @@ import { Header } from '../components/Layout';
 export default function Poster() {
   const [url, setUrl] = useState(`${window.location.origin}/abonnement`);
   const [qr, setQr] = useState('');
-  const [plan, setPlan] = useState<Plan>({ price: 120, drinks: 30, days: 30 });
+  const [plans, setPlans] = useState<Plan[]>([]);
 
   useEffect(() => {
-    api.plan().then(setPlan).catch(() => {});
+    api.plans().then(setPlans).catch(() => {});
   }, []);
+  const from = plans.length ? Math.min(...plans.map((p) => p.price)) : null;
+  const shareText = `☕ Mizaj Coffee lance ses abonnements${from ? ` dès ${from} DH` : ''} : votre café du quotidien à prix doux. Inscrivez-vous en 30 secondes : ${url}`;
 
   useEffect(() => {
     QRCode.toDataURL(url, { width: 1200, margin: 2, errorCorrectionLevel: 'H', color: { dark: '#14100d', light: '#ffffff' } })
@@ -49,6 +52,14 @@ export default function Poster() {
             {qr && (
               <a className="btn btn--outline" href={qr} download="mizaj-qr-abonnement.png">Télécharger le QR (PNG)</a>
             )}
+            <a
+              className="btn btn--whatsapp"
+              href={`https://wa.me/?text=${encodeURIComponent(shareText)}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <Whatsapp size={18} /> Partager sur WhatsApp
+            </a>
           </div>
         </div>
 
@@ -56,13 +67,25 @@ export default function Poster() {
           <span className="poster__brand">{BRAND.arabic}</span>
           <p className="poster__eyebrow">Mizaj Coffee · Abonnement</p>
           <h2>
-            {plan.drinks} espressos
+            Votre café
             <br />
-            <strong>{plan.price} DH</strong> / mois
+            {from ? <>dès <strong>{from} DH</strong></> : 'à prix doux'}
           </h2>
+          {plans.length > 0 && (
+            <ul className="poster__plans">
+              {plans.map((p) => (
+                <li key={p.code}>
+                  <b>{p.name}</b>
+                  <span>{p.drinks} {p.unitPlural} · {p.days} j</span>
+                  <strong>{p.price} DH</strong>
+                </li>
+              ))}
+            </ul>
+          )}
           <div className="poster__qr">{qr && <img src={qr} alt="QR code vers la page Abonnement" />}</div>
           <p className="poster__cta">Scannez pour créer votre carte</p>
           <ol className="poster__steps">
+            <li>Choisissez votre formule</li>
             <li>Entrez votre numéro WhatsApp</li>
             <li>Validez le code reçu</li>
             <li>Présentez votre QR en caisse</li>

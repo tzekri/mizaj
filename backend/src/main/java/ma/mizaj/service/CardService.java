@@ -3,10 +3,9 @@ package ma.mizaj.service;
 import java.security.SecureRandom;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Optional;
-import ma.mizaj.config.PlanProperties;
 import ma.mizaj.domain.Customer;
 import ma.mizaj.domain.OtpChallenge;
+import ma.mizaj.domain.Plan;
 import ma.mizaj.domain.Subscription;
 import ma.mizaj.domain.SubscriptionStatus;
 import ma.mizaj.repo.CustomerRepository;
@@ -29,20 +28,20 @@ public class CardService {
 	private final CustomerRepository customers;
 	private final SubscriptionRepository subscriptions;
 	private final RedemptionRepository redemptions;
-	private final PlanProperties plan;
+	private final PlanService plans;
 	private final Clock clock;
 	private final SecureRandom random = new SecureRandom();
 
 	public CardService(CustomerRepository customers, SubscriptionRepository subscriptions,
-			RedemptionRepository redemptions, PlanProperties plan, Clock clock) {
+			RedemptionRepository redemptions, PlanService plans, Clock clock) {
 		this.customers = customers;
 		this.subscriptions = subscriptions;
 		this.redemptions = redemptions;
-		this.plan = plan;
+		this.plans = plans;
 		this.clock = clock;
 	}
 
-	/** Après validation du code : retrouve le compte du numéro, ou le crée. */
+	/** Après validation du code : retrouve le compte du numéro, ou le crée, et enregistre la formule choisie. */
 	@Transactional
 	public Customer findOrCreate(OtpChallenge validated) {
 		Customer customer = customers.findByPhone(validated.getPhone())
@@ -50,6 +49,13 @@ public class CardService {
 						Instant.now(clock))));
 		if (validated.getFirstName() != null && customer.getFirstName() == null) {
 			customer.setFirstName(validated.getFirstName());
+		}
+		if (validated.getPlanCode() != null) {
+			try {
+				customer.setPreferredPlan(plans.activeByCode(validated.getPlanCode()));
+			} catch (ApiException e) {
+				// Formule désactivée entre l'envoi et la validation du code : on garde la précédente.
+			}
 		}
 		return customer;
 	}
@@ -60,9 +66,15 @@ public class CardService {
 	}
 
 	@Transactional
-	public CardView updateName(long customerId, String firstName) {
+	public CardView updateProfile(long customerId, String firstName, String planCode) {
 		Customer customer = load(customerId);
-		customer.setFirstName(firstName == null || firstName.isBlank() ? null : firstName.trim());
+		if (firstName != null) {
+			customer.setFirstName(firstName.isBlank() ? null : firstName.trim());
+		}
+		Plan plan = plans.activeByCode(planCode);
+		if (plan != null) {
+			customer.setPreferredPlan(plan);
+		}
 		return view(customer);
 	}
 
@@ -74,26 +86,23 @@ public class CardService {
 		return view(customer);
 	}
 
-	public PlanView plan() {
-		return new PlanView(plan.price(), plan.drinks(), plan.days());
-	}
-
 	CardView view(Customer customer) {
-		Optional<Subscription> current = subscriptions.findFirstByCustomerOrderByActivatedAtDesc(customer);
+		Subscription current = subscriptions.findFirstByCustomerOrderByActivatedAtDesc(customer).orElse(null);
 		Instant now = Instant.now(clock);
 		var history = redemptions.findTop10BySubscriptionCustomerAndCancelledAtIsNullOrderByRedeemedAtDesc(customer).stream()
 				.map(r -> new HistoryEntry(r.getRedeemedAt(), r.getShop()))
 				.toList();
+		Plan plan = plans.displayed(current, customer);
 		return new CardView(
 				customer.getFirstName(),
 				PhoneNumbers.pretty(customer.getPhone()),
 				customer.getQrToken(),
-				current.map(s -> s.statusAt(now)).orElse(SubscriptionStatus.NONE),
-				current.map(Subscription::getDrinksLeft).orElse(0),
-				current.map(Subscription::getDrinksTotal).orElse(plan.drinks()),
-				current.map(Subscription::getActivatedAt).orElse(null),
-				current.map(Subscription::getExpiresAt).orElse(null),
-				plan(),
+				current == null ? SubscriptionStatus.NONE : current.statusAt(now),
+				current == null ? 0 : current.getDrinksLeft(),
+				current == null ? plan.getDrinks() : current.getDrinksTotal(),
+				current == null ? null : current.getActivatedAt(),
+				current == null ? null : current.getExpiresAt(),
+				PlanView.of(plan),
 				history);
 	}
 

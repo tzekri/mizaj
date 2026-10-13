@@ -10,6 +10,7 @@ import jakarta.persistence.Index;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import java.time.Duration;
 import java.time.Instant;
 
 /**
@@ -43,6 +44,9 @@ public class Subscription {
 	@Column(nullable = false)
 	private int pricePaid;
 
+	@ManyToOne(fetch = FetchType.LAZY)
+	private Plan plan;
+
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
 	private StaffUser activatedBy;
 
@@ -56,14 +60,15 @@ public class Subscription {
 	protected Subscription() {
 	}
 
-	public Subscription(Customer customer, Instant activatedAt, Instant expiresAt, int drinks, int pricePaid,
-			StaffUser activatedBy) {
+	/** Nouvelle période à partir de {@code activatedAt}, aux conditions actuelles de la formule. */
+	public Subscription(Customer customer, Plan plan, Instant activatedAt, StaffUser activatedBy) {
 		this.customer = customer;
+		this.plan = plan;
 		this.activatedAt = activatedAt;
-		this.expiresAt = expiresAt;
-		this.drinksTotal = drinks;
-		this.drinksLeft = drinks;
-		this.pricePaid = pricePaid;
+		this.expiresAt = activatedAt.plus(Duration.ofDays(plan.getDays()));
+		this.drinksTotal = plan.getDrinks();
+		this.drinksLeft = plan.getDrinks();
+		this.pricePaid = plan.getPrice();
 		this.activatedBy = activatedBy;
 		this.shop = activatedBy.getShop();
 	}
@@ -97,6 +102,7 @@ public class Subscription {
 	public int getDrinksTotal() { return drinksTotal; }
 	public int getDrinksLeft() { return drinksLeft; }
 	public int getPricePaid() { return pricePaid; }
+	public Plan getPlan() { return plan; }
 	public StaffUser getActivatedBy() { return activatedBy; }
 	public String getShop() { return shop; }
 }

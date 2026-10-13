@@ -1,63 +1,87 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { ApiError, api, customerToken, type OtpStart, type Plan } from '../api';
 import { BRAND, PHOTOS, img } from '../config';
 import { PageHero } from '../components/Layout';
 import { Whatsapp } from '../components/Icons';
 
-const DEFAULT_PLAN: Plan = { price: 120, drinks: 30, days: 30 };
-const ESPRESSO_PRICE = 10;
+/** Prix de référence d'une boisson à l'unité, pour afficher l'économie. */
+const UNIT_PRICE: Record<string, number> = { espresso: 10, 'boisson au lait': 20 };
 
 const STEPS = [
-  { n: '01', title: 'Inscrivez-vous', text: 'Saisissez votre numéro : vous recevez un code de validation sur WhatsApp.' },
-  { n: '02', title: 'Payez en caisse', text: 'Présentez votre carte QR au barista et réglez l’abonnement. Il est activé immédiatement.' },
-  { n: '03', title: 'Scannez à chaque café', text: 'Le barista scanne votre QR et valide : un espresso est décompté de votre carte.' },
-  { n: '04', title: 'Rechargez', text: 'Après 30 jours ou 30 espressos, rechargez en caisse pour une nouvelle période.' },
+  { n: '01', title: 'Choisissez', text: 'Sélectionnez votre formule et saisissez votre numéro : un code de validation arrive sur WhatsApp.' },
+  { n: '02', title: 'Payez en caisse', text: 'Présentez votre carte QR au barista et réglez la formule. Elle est activée immédiatement.' },
+  { n: '03', title: 'Scannez à chaque café', text: 'Le barista scanne votre QR et valide : une boisson est décomptée de votre carte.' },
+  { n: '04', title: 'Rechargez', text: 'Quand la période se termine ou que vos boissons sont consommées, rechargez en caisse.' },
 ];
 
+const fmtUnit = (p: Plan) => (p.price / p.drinks).toFixed(p.price % p.drinks ? 1 : 0).replace('.', ',');
+
 export default function Subscribe() {
-  const [plan, setPlan] = useState<Plan>(DEFAULT_PLAN);
+  const [plans, setPlans] = useState<Plan[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [params, setParams] = useSearchParams();
   const loggedIn = !!customerToken.get();
 
   useEffect(() => {
-    api.plan().then(setPlan).catch(() => {});
+    api.plans().then(setPlans).catch((e) => setError((e as ApiError).message));
   }, []);
 
-  const unit = (plan.price / plan.drinks).toFixed(plan.price % plan.drinks ? 2 : 0).replace('.', ',');
-  const saving = plan.drinks * ESPRESSO_PRICE - plan.price;
+  const selectedCode = params.get('formule') ?? plans?.find((p) => p.code === 'espresso')?.code ?? plans?.[0]?.code;
+  const selected = plans?.find((p) => p.code === selectedCode) ?? plans?.[0];
+  const select = (code: string) => setParams({ formule: code }, { replace: true });
 
   return (
     <>
       <PageHero
         title="Abonnement Mizaj"
-        subtitle={`${plan.drinks} espressos par mois pour ${plan.price} DH. Votre carte est dans votre téléphone.`}
+        subtitle="Votre café du quotidien à prix doux. Votre carte d’abonné est dans votre téléphone."
         photo={img(PHOTOS.espressoPour, 1920)}
       />
 
       <section className="section container sub-intro">
-        <div className="sub-offer">
-          <p className="eyebrow">L’offre</p>
-          <div className="sub-price">
-            <strong>{plan.price}</strong>
-            <span>DH<br />/ mois</span>
-          </div>
-          <ul>
-            <li><b>{plan.drinks} espressos</b> à consommer dans nos coffee shops</li>
-            <li>Valable <b>{plan.days} jours</b> après activation</li>
-            <li>Soit <b>{unit} DH l’espresso</b> au lieu de {ESPRESSO_PRICE} DH</li>
-            <li>Jusqu’à <b>{saving} DH d’économie</b> chaque mois</li>
-          </ul>
-          <p className="sub-fine">Les espressos non consommés à la fin de la période ne sont pas reportés.</p>
+        <div className="sub-plans">
+          <p className="eyebrow">1. Choisissez votre formule</p>
+          {error && <p className="form-error">{error}</p>}
+          {!plans && !error && <p className="empty">Chargement des formules…</p>}
+          {plans?.map((p) => {
+            const ref = UNIT_PRICE[p.unit];
+            const saving = ref ? p.drinks * ref - p.price : 0;
+            return (
+              <button
+                key={p.code}
+                type="button"
+                className={`plan-card ${selected?.code === p.code ? 'plan-card--on' : ''}`}
+                onClick={() => select(p.code)}
+                aria-pressed={selected?.code === p.code}
+              >
+                <span className="plan-card__radio" aria-hidden />
+                <span className="plan-card__body">
+                  <strong>{p.name}</strong>
+                  <span>{p.drinks} {p.unitPlural} · {p.days} jours</span>
+                  {p.description && <em>{p.description}</em>}
+                </span>
+                <span className="plan-card__price">
+                  <b>{p.price} DH</b>
+                  <small>{fmtUnit(p)} DH / {p.unit}</small>
+                  {saving > 0 && <small className="plan-card__save">−{saving} DH</small>}
+                </span>
+              </button>
+            );
+          })}
+          <p className="sub-fine">
+            Le paiement se fait en caisse, à l’activation. Les boissons non consommées à la fin de la période ne sont pas reportées.
+          </p>
         </div>
         <div className="sub-form-wrap">
           {loggedIn ? (
             <div className="sub-done">
-              <h2>Vous êtes déjà abonné</h2>
-              <p>Votre carte QR vous attend.</p>
+              <h2>Vous avez déjà votre carte</h2>
+              <p>Ouvrez-la pour la présenter au barista.</p>
               <Link to="/ma-carte" className="btn btn--accent">Voir ma carte</Link>
             </div>
           ) : (
-            <SignupForm />
+            <SignupForm plan={selected} />
           )}
         </div>
       </section>
@@ -83,7 +107,7 @@ export default function Subscribe() {
   );
 }
 
-function SignupForm() {
+function SignupForm({ plan }: { plan?: Plan }) {
   const navigate = useNavigate();
   const [phone, setPhone] = useState('');
   const [firstName, setFirstName] = useState('');
@@ -105,7 +129,7 @@ function SignupForm() {
     setBusy(true);
     setError(null);
     try {
-      const res = await api.otpStart(phone, firstName);
+      const res = await api.otpStart(phone, firstName, plan?.code);
       setSent(res);
       setCode('');
       setCooldown(res.resendInSeconds);
@@ -124,7 +148,7 @@ function SignupForm() {
     try {
       const res = await api.otpVerify(phone, code);
       customerToken.set(res.token);
-      navigate('/ma-carte', { replace: true });
+      navigate('/ma-carte?bienvenue=1', { replace: true });
     } catch (err) {
       setError((err as ApiError).message);
       setBusy(false);
@@ -134,8 +158,13 @@ function SignupForm() {
   if (!sent) {
     return (
       <form className="sub-form" onSubmit={sendCode}>
-        <h2>Créer ma carte</h2>
-        <p className="sub-form__lead">Déjà inscrit ? Saisissez votre numéro pour retrouver votre carte.</p>
+        <p className="eyebrow">2. Créez votre carte</p>
+        {plan && (
+          <div className="sub-recap">
+            <span>{plan.name}</span>
+            <b>{plan.price} DH</b>
+          </div>
+        )}
         <label>
           Numéro WhatsApp
           <input
@@ -153,11 +182,12 @@ function SignupForm() {
           <input autoComplete="given-name" maxLength={60} value={firstName} onChange={(e) => setFirstName(e.target.value)} />
         </label>
         {error && <p className="form-error" role="alert">{error}</p>}
-        <button className="btn btn--accent btn--block" disabled={busy}>
+        <button className="btn btn--accent btn--block" disabled={busy || !plan}>
           <Whatsapp size={18} /> {busy ? 'Envoi…' : 'Recevoir mon code sur WhatsApp'}
         </button>
         <p className="sub-legal">
-          En continuant, vous acceptez de recevoir un message WhatsApp de {BRAND.name} Coffee contenant votre code.
+          Déjà inscrit ? Saisissez votre numéro pour retrouver votre carte. En continuant, vous acceptez de recevoir un message
+          WhatsApp de {BRAND.name} Coffee contenant votre code.
         </p>
       </form>
     );

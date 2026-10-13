@@ -1,7 +1,7 @@
 # Mizaj Coffee — مزاج
 
-Site d'une marque de café (Casablanca), inspiré de la structure de buncoffee.ma, avec un **abonnement espresso** :
-30 espressos par mois pour 120 DH, carte QR dans le téléphone.
+Site d'une marque de café (Casablanca), inspiré de la structure de buncoffee.ma, avec des **abonnements** :
+le client choisit sa formule, reçoit sa carte QR dans son téléphone et la fait scanner à chaque café.
 
 - **Frontend** (racine du dépôt) : React 18 + TypeScript + Vite + React Router.
 - **Backend** ([`backend/`](backend)) : Spring Boot 3.3 / Java 21, PostgreSQL (H2 en local), JWT HS256.
@@ -15,9 +15,10 @@ Site d'une marque de café (Casablanca), inspiré de la structure de buncoffee.m
 
 | Étape | Qui | Où |
 |---|---|---|
-| Saisit son numéro, reçoit un code à 6 chiffres sur WhatsApp, le valide → compte + carte QR | Client | `/abonnement` → `/ma-carte` |
-| Scanne le QR, encaisse 120 DH, clique « Activer » → 30 espressos valables 30 jours | Barista | `/barista` |
-| À chaque espresso : scan du QR → « Valider 1 espresso » → −1 | Barista | `/barista` |
+| Scanne l'affiche (`/affiche`), choisit sa formule, saisit son numéro, valide le code WhatsApp → compte + carte QR | Client | `/abonnement` → `/ma-carte` |
+| Envoie gratuitement sa carte (image) sur WhatsApp depuis « Ma carte » (partage du téléphone, sans Twilio) | Client | `/ma-carte` |
+| Scanne le QR, encaisse la formule (modifiable au comptoir), clique « Activer » | Barista | `/barista` |
+| À chaque boisson : scan du QR → « Valider 1 … » → −1 | Barista | `/barista` |
 | La carte se met à jour seule (rafraîchie toutes les 5 s) | Client | `/ma-carte` |
 
 Règles :
@@ -25,9 +26,9 @@ Règles :
 - Deux validations à moins de 2 minutes demandent une confirmation (double scan) ; une validation peut être annulée pendant 10 minutes.
 - Le QR contient un jeton aléatoire (pas le numéro). Le client peut le régénérer : l'ancien ne fonctionne plus.
 - Code WhatsApp : 10 min de validité, 5 essais, 60 s entre deux envois, 5 envois / heure / numéro, 15 / heure / IP.
-- Formule paramétrable : `PLAN_PRICE`, `PLAN_DRINKS`, `PLAN_DAYS`.
+- Formules en base, gérées dans Administration (prix, boissons, durée, visibilité). Au premier démarrage : Découverte (45 DH, 10 espressos, 15 j), Espresso (120 DH, 30 espressos, 30 j), Lait & Douceur (220 DH, 30 boissons au lait, 30 j).
 
-Rôles : `BARISTA` (comptoir) et `ADMIN` (comptoir + statistiques, abonnés, gestion du personnel).
+Rôles : `BARISTA` (comptoir) et `ADMIN` (comptoir + statistiques, formules, abonnés, gestion du personnel).
 
 ### WhatsApp (Twilio)
 
