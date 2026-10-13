@@ -54,7 +54,7 @@ export type MenuCategory = {
   light: string; // mot fin du titre (ex. « Hot »)
   bold: string; // mot gras du titre (ex. « Coffee »)
   arabic: string;
-  tone: 'cream' | 'garnet' | 'dark';
+  tone: 'cream' | 'accent' | 'dark';
   photo: string;
   items: MenuItem[];
 };
@@ -81,7 +81,7 @@ export const MENU: MenuCategory[] = [
     light: 'Hot',
     bold: 'Coffee',
     arabic: 'قهوة ساخنة',
-    tone: 'garnet',
+    tone: 'accent',
     photo: '1763208387697-fe0a913bfed9',
     items: [
       { name: 'Cappuccino', desc: 'Café mousseux avec une fine mousse de lait. Un grand classique équilibré.', price: 20, intensity: 3, volume: '180 ml', photo: '1558220829-4694a46bb01f' },
@@ -129,7 +129,7 @@ export const MENU: MenuCategory[] = [
     light: 'Fresh',
     bold: 'Cocktail',
     arabic: 'كوكتيل',
-    tone: 'garnet',
+    tone: 'accent',
     photo: '1654074517750-f854f7c27d62',
     items: [
       { name: 'Virgin Mojito', desc: 'Menthe fraîche, citron vert, sucre de canne et eau pétillante.', price: 28, volume: '400 ml', photo: '1634496064950-02f043806b09' },
@@ -175,7 +175,7 @@ export const MENU: MenuCategory[] = [
     light: 'Café en',
     bold: 'Grain',
     arabic: 'بن',
-    tone: 'garnet',
+    tone: 'accent',
     photo: PHOTOS.heroBeans,
     items: [
       { name: 'Mizaj Signature', desc: 'Grains 250 g — Arabica 80 % / Robusta 20 %. Chocolat, noisette.', price: 75, intensity: 4, volume: '250 g', photo: '1562051036-e0eea191d42f' },

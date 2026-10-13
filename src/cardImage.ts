@@ -14,9 +14,9 @@ export async function renderCardImage(opts: { qrToken: string; firstName?: strin
   const ctx = canvas.getContext('2d')!;
 
   const bg = ctx.createLinearGradient(0, 0, W, H);
-  bg.addColorStop(0, '#8f2433');
-  bg.addColorStop(0.45, '#7b1e2b');
-  bg.addColorStop(1, '#4a1019');
+  bg.addColorStop(0, '#2a4a75');
+  bg.addColorStop(0.45, '#1d3557');
+  bg.addColorStop(1, '#0f1d33');
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, W, H);
 
@@ -25,9 +25,8 @@ export async function renderCardImage(opts: { qrToken: string; firstName?: strin
   ctx.font = '700 150px "Aref Ruqaa", serif';
   ctx.fillText(BRAND.arabic, W / 2, 190);
   ctx.font = '600 34px Poppins, sans-serif';
-  ctx.globalAlpha = 0.8;
+  ctx.fillStyle = '#d4a95a';
   ctx.fillText('MIZAJ COFFEE · CARTE ABONNÉ', W / 2, 300);
-  ctx.globalAlpha = 1;
 
   // QR sur fond blanc arrondi
   const box = 700;
