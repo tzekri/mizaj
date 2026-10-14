@@ -86,9 +86,9 @@ export default function Poster() {
           <p className="poster__cta">Scannez pour créer votre carte</p>
           <ol className="poster__steps">
             <li>Choisissez votre formule</li>
-            <li>Entrez votre numéro WhatsApp</li>
-            <li>Validez le code reçu</li>
-            <li>Présentez votre QR en caisse</li>
+            <li>Entrez votre numéro</li>
+            <li>Recevez votre carte QR</li>
+            <li>Présentez-la en caisse</li>
           </ol>
           <p className="poster__url">{url.replace(/^https?:\/\//, '')}</p>
         </article>

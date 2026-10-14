@@ -60,6 +60,25 @@ public class CardService {
 		return customer;
 	}
 
+	/**
+	 * Inscription directe, sans code : uniquement pour un numéro inconnu.
+	 * Un numéro qui a déjà une carte ne s'ouvre pas ici (sinon n'importe qui pourrait prendre la carte d'un autre) :
+	 * le client la récupère avec un code donné en caisse.
+	 */
+	@Transactional
+	public Customer signup(String rawPhone, String firstName, String planCode) {
+		String phone = PhoneNumbers.normalize(rawPhone);
+		Plan plan = plans.activeByCode(planCode);
+		if (customers.findByPhone(phone).isPresent()) {
+			throw ApiException.conflict("EXISTS", "Ce numéro a déjà une carte Mizaj. Pour l'ouvrir sur ce téléphone, "
+					+ "demandez votre code de récupération au barista, puis saisissez-le ci-dessous.");
+		}
+		Customer customer = customers.save(new Customer(phone, firstName == null || firstName.isBlank() ? null : firstName.trim(),
+				newToken(), Instant.now(clock)));
+		customer.setPreferredPlan(plan);
+		return customer;
+	}
+
 	@Transactional(readOnly = true)
 	public CardView card(long customerId) {
 		return view(load(customerId));

@@ -181,8 +181,8 @@ function SubscriptionTeaser() {
           </h2>
           <p>
             Trois formules : Découverte, Espresso (30 espressos pour 120 DH, soit 4 DH l’espresso) et Lait &amp; Douceur.
-            Inscrivez-vous en 30 secondes avec votre numéro WhatsApp : votre carte QR est dans votre téléphone, le barista
-            la scanne à chaque café.
+            Inscrivez-vous en 30 secondes avec votre numéro : votre carte QR est dans votre téléphone, le barista la scanne à
+            chaque café.
           </p>
           <Link to="/abonnement" className="btn btn--light">Je m’abonne</Link>
         </div>

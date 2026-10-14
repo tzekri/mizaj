@@ -55,11 +55,8 @@ services:
       # Compte barista de démonstration (barista@mizajcoffee.ma / barista1234). Mettre "false" en production.
       - key: SEED_DEMO
         value: "true"
-      # true tant que Twilio n'est pas configuré : le code s'affiche à l'écran au lieu d'être envoyé.
-      # À passer à "false" en production (ignoré dès que Twilio Verify est configuré).
-      - key: OTP_DEV_MODE
-        value: "true"
-      # Envoi des codes : Twilio Verify (recommandé). Laisser vide (ou « - ») pour rester en mode démo.
+      # Code de validation à l'inscription : Twilio Verify (optionnel).
+      # Laisser vide (ou « - ») : inscription directe sans code, récupération de carte par code donné en caisse.
       - key: TWILIO_ACCOUNT_SID
         sync: false
       - key: TWILIO_AUTH_TOKEN

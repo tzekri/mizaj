@@ -15,7 +15,8 @@ le client choisit sa formule, reçoit sa carte QR dans son téléphone et la fai
 
 | Étape | Qui | Où |
 |---|---|---|
-| Scanne l'affiche (`/affiche`), choisit sa formule, saisit son numéro, valide le code WhatsApp → compte + carte QR | Client | `/abonnement` → `/ma-carte` |
+| Scanne l'affiche (`/affiche`), choisit sa formule, saisit son numéro → carte QR créée immédiatement | Client | `/abonnement` → `/ma-carte` |
+| Nouveau téléphone / carte perdue : le barista donne en caisse un code de récupération (6 chiffres, 10 min) que le client saisit | Barista + client | `/barista` → `/abonnement` « J'ai déjà une carte » |
 | Envoie gratuitement sa carte (image) sur WhatsApp depuis « Ma carte » (partage du téléphone, sans Twilio) | Client | `/ma-carte` |
 | Scanne le QR, encaisse la formule (modifiable au comptoir), clique « Activer » | Barista | `/barista` |
 | À chaque boisson : scan du QR → « Valider 1 … » → −1 | Barista | `/barista` |
@@ -25,22 +26,24 @@ Règles :
 - Les espressos non consommés à l'échéance **ne sont pas reportés** ; un renouvellement anticipé (confirmé par le barista) clôt la période en cours.
 - Deux validations à moins de 2 minutes demandent une confirmation (double scan) ; une validation peut être annulée pendant 10 minutes.
 - Le QR contient un jeton aléatoire (pas le numéro). Le client peut le régénérer : l'ancien ne fonctionne plus.
-- Code (WhatsApp ou SMS) : 10 min de validité, 5 essais, 60 s entre deux envois, 5 envois / heure / numéro, 15 / heure / IP.
+- **Pas de code à l'inscription** (sans Twilio) : un numéro déjà inscrit ne s'ouvre jamais à distance, seulement avec le code de récupération donné en caisse (usage unique, 10 min, 5 essais). Inscriptions limitées à 40 / heure / IP (Wi-Fi partagé du coffee shop).
+- Si Twilio est configuré : code envoyé à l'inscription (10 min, 5 essais, 60 s entre deux envois, 5 / heure / numéro, 15 / heure / IP).
 - Formules en base, gérées dans Administration (prix, boissons, durée, visibilité). Au premier démarrage : Découverte (45 DH, 10 espressos, 15 j), Espresso (120 DH, 30 espressos, 30 j), Lait & Douceur (220 DH, 30 boissons au lait, 30 j).
 
 Rôles : `BARISTA` (comptoir) et `ADMIN` (comptoir + statistiques, formules, abonnés, gestion du personnel).
 
-### Envoi du code : Twilio Verify
+### Option : code de validation par Twilio Verify
 
-Le code est envoyé par **Twilio Verify** : Twilio génère, envoie et vérifie le code (anti-fraude, limites d'envoi),
+Par défaut, l'inscription se fait **sans code**. Si Twilio est configuré, un code est envoyé par **Twilio Verify** : Twilio génère, envoie et vérifie le code (anti-fraude, limites d'envoi),
 **WhatsApp d'abord, SMS en secours**. Le client peut aussi demander le SMS (« Pas de WhatsApp ? »).
-Sans configuration Twilio, le site reste en **mode démo** : le code est affiché à l'écran (`OTP_DEV_MODE=true`).
+Sans configuration Twilio : inscription directe, récupération de carte en caisse.
 
 Mise en place :
 
 1. Compte Twilio → **Verify → Services → Create** : nom « Mizaj Coffee », canaux **SMS** et **WhatsApp** → copier le SID `VA…`.
-2. Sur Render (service `mizaj` → Environment) : `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_VERIFY_SID`,
-   puis `OTP_DEV_MODE=false`. **Le SMS fonctionne immédiatement.**
+2. Sur Render (service `mizaj` → Environment) : `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_VERIFY_SID`.
+   Le code est alors demandé automatiquement à l'inscription. **Le SMS fonctionne immédiatement**
+   (vérifier dans Verify → Geo permissions que le Maroc est autorisé).
 3. WhatsApp (optionnel, moins cher que le SMS) : Verify exige **votre propre expéditeur WhatsApp**
    (« Bring Your Own WhatsApp Sender ») : compte WhatsApp Business + numéro dans Twilio (Messaging → Senders → WhatsApp),
    rattaché à un Messaging Service, lui-même sélectionné dans l'onglet *WhatsApp* du service Verify.

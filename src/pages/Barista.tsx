@@ -338,11 +338,50 @@ function CustomerPanel({
             Renouveler par anticipation ({chosen.name}, {chosen.price} DH)
           </button>
         )}
+        <RecoveryCode customerId={card.customerId} />
         {card.undoableRedemptionId && (
           <button className="link" disabled={busy} onClick={onUndo}>Annuler la dernière validation</button>
         )}
       </div>
     </div>
+  );
+}
+
+/** Code à lire au client (présent en caisse) pour qu'il ouvre sa carte sur un nouveau téléphone. */
+function RecoveryCode({ customerId }: { customerId: number }) {
+  const [code, setCode] = useState<{ code: string; expiresAt: string } | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    setCode(null);
+    setError(null);
+  }, [customerId]);
+
+  async function generate() {
+    setError(null);
+    try {
+      setCode(await api.recoveryCode(customerId));
+    } catch (e) {
+      setError((e as ApiError).message);
+    }
+  }
+
+  if (code) {
+    return (
+      <div className="recovery">
+        <span>Code de récupération à donner au client :</span>
+        <strong>{code.code.replace(/(\d{3})(\d{3})/, '$1 $2')}</strong>
+        <small>
+          Valable jusqu’à {new Date(code.expiresAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', timeZone: 'Africa/Casablanca' })}.
+          Le client le saisit sur la page Abonnement → « J’ai déjà une carte ». Vérifiez qu’il s’agit bien du titulaire.
+        </small>
+      </div>
+    );
+  }
+  return (
+    <>
+      <button className="link" onClick={generate}>Nouveau téléphone ? Donner un code de récupération</button>
+      {error && <p className="form-error">{error}</p>}
+    </>
   );
 }
 

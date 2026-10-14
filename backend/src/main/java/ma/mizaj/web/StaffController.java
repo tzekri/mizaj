@@ -7,6 +7,9 @@ import ma.mizaj.security.Principals;
 import ma.mizaj.security.TokenService;
 import ma.mizaj.service.CounterService;
 import ma.mizaj.web.dto.Dtos.ActivateRequest;
+import ma.mizaj.otp.OtpService;
+import ma.mizaj.repo.CustomerRepository;
+import ma.mizaj.web.dto.Dtos.RecoveryCodeView;
 import ma.mizaj.web.dto.Dtos.RedeemRequest;
 import ma.mizaj.web.dto.Dtos.ScanRequest;
 import ma.mizaj.web.dto.Dtos.StaffCardView;
@@ -29,13 +32,17 @@ public class StaffController {
 	private final StaffUserRepository staffUsers;
 	private final PasswordEncoder passwordEncoder;
 	private final TokenService tokens;
+	private final OtpService otp;
+	private final CustomerRepository customers;
 
 	public StaffController(CounterService counter, StaffUserRepository staffUsers, PasswordEncoder passwordEncoder,
-			TokenService tokens) {
+			TokenService tokens, OtpService otp, CustomerRepository customers) {
 		this.counter = counter;
 		this.staffUsers = staffUsers;
 		this.passwordEncoder = passwordEncoder;
 		this.tokens = tokens;
+		this.otp = otp;
+		this.customers = customers;
 	}
 
 	@PostMapping("/api/auth/staff/login")
@@ -66,6 +73,14 @@ public class StaffController {
 	@PostMapping("/api/staff/customers/{id}/activate")
 	StaffCardView activate(@PathVariable long id, @RequestBody(required = false) ActivateRequest req) {
 		return counter.activate(id, Principals.currentId(), req == null ? null : req.planCode(), req != null && req.confirmReplace());
+	}
+
+	/** Le barista lit ce code au client présent en caisse, qui le saisit pour ouvrir sa carte sur son téléphone. */
+	@PostMapping("/api/staff/customers/{id}/recovery-code")
+	RecoveryCodeView recoveryCode(@PathVariable long id) {
+		var customer = customers.findById(id).orElseThrow(() -> ApiException.notFound("Client introuvable."));
+		var code = otp.issueRecoveryCode(customer.getPhone());
+		return new RecoveryCodeView(code.code(), code.expiresAt());
 	}
 
 	@PostMapping("/api/staff/redemptions/{id}/undo")

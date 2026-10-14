@@ -10,10 +10,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Choix du prestataire d'envoi des codes, par ordre de préférence :
- * 1. Twilio Verify (TWILIO_VERIFY_SID) : solution professionnelle, Twilio gère le code et l'anti-fraude ;
+ * Validation du numéro à l'inscription, selon la configuration Twilio :
+ * 1. Twilio Verify (TWILIO_VERIFY_SID) : code envoyé par WhatsApp ou SMS, vérifié par Twilio ;
  * 2. Twilio Messages WhatsApp (TWILIO_WHATSAPP_FROM) : code généré par Mizaj, modèle WhatsApp à fournir ;
- * 3. rien : mode démo, le code est affiché à l'écran (OTP_DEV_MODE=true).
+ * 3. rien : inscription directe sans code ; une carte existante ne se récupère qu'avec un code donné en caisse.
  */
 @Configuration
 public class OtpConfig {
@@ -28,8 +28,7 @@ public class OtpConfig {
 			@Value("${app.twilio.verify-channels}") String verifyChannels,
 			@Value("${app.twilio.verify-url}") String verifyUrl,
 			@Value("${app.twilio.from}") String from,
-			@Value("${app.twilio.content-sid}") String contentSid,
-			@Value("${app.otp.dev-mode}") boolean devMode) {
+			@Value("${app.twilio.content-sid}") String contentSid) {
 		sid = clean(sid);
 		token = clean(token);
 		verifySid = clean(verifySid);
@@ -43,25 +42,18 @@ public class OtpConfig {
 			if (channels.isEmpty()) {
 				channels = List.of(OtpChannel.WHATSAPP, OtpChannel.SMS);
 			}
-			log.info("Codes de validation envoyés par Twilio Verify ({}), canaux : {}", verifySid, channels);
-			if (devMode) {
-				log.warn("OTP_DEV_MODE=true est ignoré avec Twilio Verify : le code n'est connu que de Twilio.");
-			}
-			return new OtpProviders(new TwilioVerifyClient(verifyUrl, sid, token, verifySid, channels), new LoggingOtpSender());
+			log.info("Inscription avec code : Twilio Verify ({}), canaux {}", verifySid, channels);
+			return new OtpProviders(new TwilioVerifyClient(verifyUrl, sid, token, verifySid, channels), null);
 		}
 
 		if (credentials && !from.isEmpty()) {
-			log.info("Codes de validation envoyés par WhatsApp via Twilio Messages depuis {}{}", from,
+			log.info("Inscription avec code : WhatsApp via Twilio Messages depuis {}{}", from,
 					contentSid.isEmpty() ? " (texte libre : sandbox uniquement)" : " (modèle " + contentSid + ")");
 			return new OtpProviders(null, new TwilioWhatsAppSender(sid, token, from, contentSid));
 		}
 
-		if (devMode) {
-			log.info("Twilio non configuré : mode démo, les codes sont affichés à l'écran.");
-		} else {
-			log.warn("Twilio n'est pas configuré et OTP_DEV_MODE=false : aucun client ne pourra recevoir de code !");
-		}
-		return new OtpProviders(null, new LoggingOtpSender());
+		log.info("Twilio non configuré : inscription directe sans code, récupération de carte par code donné en caisse.");
+		return new OtpProviders(null, null);
 	}
 
 	/** Vide si non renseigné ; « - » est accepté comme valeur de remplissage (formulaires exigeant un champ non vide). */

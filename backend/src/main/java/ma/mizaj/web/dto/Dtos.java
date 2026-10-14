@@ -48,12 +48,17 @@ public final class Dtos {
 			@Size(max = 20) String channel) {
 	}
 
-	/**
-	 * channel : canal réellement utilisé (whatsapp / sms) ; smsAvailable : le client peut demander le SMS.
-	 * devCode n'est présent qu'en mode démo (Twilio non branché).
-	 */
+	/** channel : canal réellement utilisé (whatsapp / sms) ; smsAvailable : le client peut demander le SMS. */
 	public record OtpStartResponse(String phone, boolean newAccount, int expiresInSeconds, int resendInSeconds,
-			boolean delivered, String channel, boolean smsAvailable, String devCode) {
+			String channel, boolean smsAvailable) {
+	}
+
+	/** verification : true si un code est envoyé au client à l'inscription ; false : inscription directe. */
+	public record SignupConfig(boolean verification) {
+	}
+
+	/** Inscription directe (sans code), quand l'envoi de code n'est pas configuré. */
+	public record SignupRequest(@NotBlank String phone, @Size(max = 60) String firstName, @Size(max = 40) String planCode) {
 	}
 
 	public record OtpVerifyRequest(@NotBlank String phone, @NotBlank @Pattern(regexp = "\\d{6}") String code) {
@@ -91,6 +96,10 @@ public final class Dtos {
 	}
 
 	public record ScanRequest(@NotBlank String token) {
+	}
+
+	/** Code donné de vive voix au client pour récupérer sa carte sur un nouveau téléphone. */
+	public record RecoveryCodeView(String code, Instant expiresAt) {
 	}
 
 	public record RedeemRequest(boolean force) {

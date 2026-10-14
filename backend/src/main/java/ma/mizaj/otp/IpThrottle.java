@@ -11,7 +11,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 /**
- * Limite le nombre de demandes de code par adresse IP (chaque envoi WhatsApp est facturé par Twilio) :
+ * Limite le nombre de demandes (codes, inscriptions) par adresse IP — chaque envoi par Twilio est facturé :
  * au plus {@value #MAX_PER_HOUR} par heure. En mémoire : valable pour une instance.
  */
 @Component
@@ -29,10 +29,18 @@ public class IpThrottle {
 
 	/** Enregistre une tentative et indique si elle dépasse la limite. */
 	public boolean tryAcquire(String ip) {
-		Deque<Instant> deque = hits.computeIfAbsent(ip, k -> new ArrayDeque<>());
+		return tryAcquire(ip, MAX_PER_HOUR);
+	}
+
+	/**
+	 * Variante avec sa propre limite horaire, comptée à part (clé préfixée par l'appelant).
+	 * Ex. inscriptions : plus permissif, car tous les clients d'un coffee shop partagent l'IP du Wi-Fi.
+	 */
+	public boolean tryAcquire(String key, int maxPerHour) {
+		Deque<Instant> deque = hits.computeIfAbsent(key, k -> new ArrayDeque<>());
 		synchronized (deque) {
 			prune(deque);
-			if (deque.size() >= MAX_PER_HOUR) {
+			if (deque.size() >= maxPerHour) {
 				return false;
 			}
 			deque.addLast(Instant.now(clock));

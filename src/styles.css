@@ -370,6 +370,8 @@ h1, h2, h3 { line-height: 1.15; margin: 0 0 0.5em; }
   font: inherit; font-weight: 400; padding: 13px 16px; border: 1.5px solid #e0d6cb; border-radius: 10px; color: var(--ink); background: var(--white);
 }
 .sub-form input:focus { outline: 0; border-color: var(--accent); }
+/* Champs à la largeur du formulaire (un input garde sinon sa largeur intrinsèque et déborde sur mobile) */
+.sub-form input { width: 100%; min-width: 0; }
 .sub-form .otp-input { text-align: center; font-size: 2rem; letter-spacing: 0.5em; font-weight: 700; padding: 14px 0 14px 0.5em; }
 .dev-code { background: #fff7e6; border: 1px dashed #d99a2b; color: #7a4a00; border-radius: 10px; padding: 10px 14px; font-size: 0.88rem; margin: 0; }
 .dev-code b { font-size: 1.1rem; letter-spacing: 0.15em; }
@@ -505,6 +507,13 @@ h1, h2, h3 { line-height: 1.15; margin: 0 0 0.5em; }
 .notice { border-radius: 12px; padding: 14px 18px; font-weight: 600; margin: 0 0 16px; }
 .notice--ok { background: #e3f6e8; color: #17663a; }
 .notice--error { background: #fdecea; color: #b42318; }
+.notice--info { background: var(--accent-soft); color: var(--accent); font-weight: 500; margin: 0; }
+.recovery { width: 100%; background: var(--accent-soft); border-radius: 12px; padding: 14px 18px; display: flex; flex-direction: column; gap: 4px; }
+.recovery span { font-size: 0.85rem; font-weight: 600; color: var(--accent); }
+.recovery strong { font-size: 2.4rem; letter-spacing: 0.12em; color: var(--accent); line-height: 1.1; }
+.recovery small { color: var(--muted); font-size: 0.78rem; }
+.sub-form .otp-input { margin-top: 6px; }
+.anchor { scroll-margin-top: 16px; height: 0; margin: -16px 0 0; }
 .counter__empty { border: 2px dashed #e6dcd2; border-radius: var(--radius); padding: 48px 32px; text-align: center; color: var(--muted); }
 .counter__empty h2 { color: var(--ink); }
 .customer { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px; border-top: 6px solid #e6dcd2; }

@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
 import ma.mizaj.domain.Customer;
+import ma.mizaj.otp.IpThrottle;
 import ma.mizaj.otp.OtpService;
 import ma.mizaj.security.TokenService;
 import ma.mizaj.service.CardService;
@@ -14,6 +15,8 @@ import ma.mizaj.web.dto.Dtos.OtpStartRequest;
 import ma.mizaj.web.dto.Dtos.OtpStartResponse;
 import ma.mizaj.web.dto.Dtos.OtpVerifyRequest;
 import ma.mizaj.web.dto.Dtos.PlanView;
+import ma.mizaj.web.dto.Dtos.SignupConfig;
+import ma.mizaj.web.dto.Dtos.SignupRequest;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,12 +32,17 @@ public class PublicController {
 	private final CardService cards;
 	private final TokenService tokens;
 	private final PlanService plans;
+	private final IpThrottle ipThrottle;
 
-	public PublicController(OtpService otp, CardService cards, TokenService tokens, PlanService plans) {
+	/** Inscriptions directes par heure et par IP : large, les clients d'un coffee shop partagent le même Wi-Fi. */
+	static final int SIGNUPS_PER_HOUR_PER_IP = 40;
+
+	public PublicController(OtpService otp, CardService cards, TokenService tokens, PlanService plans, IpThrottle ipThrottle) {
 		this.otp = otp;
 		this.cards = cards;
 		this.tokens = tokens;
 		this.plans = plans;
+		this.ipThrottle = ipThrottle;
 	}
 
 	@GetMapping("/health")
@@ -46,6 +54,24 @@ public class PublicController {
 	@GetMapping("/plans")
 	List<PlanView> plans() {
 		return plans.activePlans();
+	}
+
+	@GetMapping("/config")
+	SignupConfig config() {
+		return new SignupConfig(otp.verificationEnabled());
+	}
+
+	/** Inscription directe (sans code) : disponible seulement quand l'envoi de code n'est pas configuré. */
+	@PostMapping("/signup")
+	CustomerSession signup(@Valid @RequestBody SignupRequest req, HttpServletRequest http) {
+		if (otp.verificationEnabled()) {
+			throw ApiException.badRequest("Un code de validation est requis : utilisez « Recevoir mon code ».");
+		}
+		if (!ipThrottle.tryAcquire("signup:" + http.getRemoteAddr(), SIGNUPS_PER_HOUR_PER_IP)) {
+			throw ApiException.tooMany("Trop d'inscriptions depuis ce réseau. Réessayez dans un moment.");
+		}
+		Customer customer = cards.signup(req.phone(), req.firstName(), req.planCode());
+		return new CustomerSession(tokens.issue(customer), cards.card(customer.getId()));
 	}
 
 	@PostMapping("/otp/start")

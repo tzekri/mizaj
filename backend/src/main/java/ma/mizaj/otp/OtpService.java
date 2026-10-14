@@ -18,17 +18,17 @@ import ma.mizaj.web.ApiException;
 import ma.mizaj.web.dto.Dtos.OtpStartResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Codes de validation à 6 chiffres (WhatsApp, ou SMS en secours).
+ * Codes à 6 chiffres : validation du numéro à l'inscription (si Twilio est configuré) et codes de récupération
+ * donnés en caisse par le barista.
  * <p>
- * Deux modes : avec Twilio Verify, Twilio génère et vérifie le code ; sinon Mizaj le génère et n'en garde que l'empreinte.
- * Dans les deux cas, mêmes garde-fous : 10 min de validité, 5 essais par code, 60 s entre deux envois,
+ * Avec Twilio Verify, Twilio génère et vérifie le code ; sinon Mizaj le génère et n'en garde que l'empreinte.
+ * Garde-fous : 10 min de validité, 5 essais par code, 60 s entre deux envois,
  * 5 envois par heure et par numéro, 15 par heure et par adresse IP.
  */
 @Service
@@ -47,11 +47,10 @@ public class OtpService {
 	private final IpThrottle ipThrottle;
 	private final SecretKey key;
 	private final Clock clock;
-	private final boolean devMode;
 	private final SecureRandom random = new SecureRandom();
 
 	public OtpService(OtpChallengeRepository challenges, CustomerRepository customers, OtpProviders providers,
-			PlanService plans, IpThrottle ipThrottle, SecretKey jwtKey, Clock clock, @Value("${app.otp.dev-mode}") boolean devMode) {
+			PlanService plans, IpThrottle ipThrottle, SecretKey jwtKey, Clock clock) {
 		this.challenges = challenges;
 		this.customers = customers;
 		this.providers = providers;
@@ -59,11 +58,18 @@ public class OtpService {
 		this.ipThrottle = ipThrottle;
 		this.key = jwtKey;
 		this.clock = clock;
-		this.devMode = devMode;
+	}
+
+	/** true : un code est envoyé au client à l'inscription (Twilio configuré) ; false : inscription directe. */
+	public boolean verificationEnabled() {
+		return providers.enabled();
 	}
 
 	@Transactional
 	public OtpStartResponse start(String rawPhone, String firstName, String planCode, String rawChannel, String ip) {
+		if (!providers.enabled()) {
+			throw ApiException.notFound("L'envoi de code n'est pas activé : inscrivez-vous directement avec votre numéro.");
+		}
 		String phone = PhoneNumbers.normalize(rawPhone);
 		var plan = plans.activeByCode(planCode);
 		OtpChannel requested = OtpChannel.parse(rawChannel);
@@ -96,24 +102,42 @@ public class OtpService {
 			challenge.deliveredBy(used.twilio, true);
 			challenges.save(challenge);
 			return new OtpStartResponse(PhoneNumbers.pretty(phone), newAccount, (int) VALIDITY.toSeconds(),
-					(int) RESEND_DELAY.toSeconds(), true, used.twilio, providers.verify().channels().contains(OtpChannel.SMS), null);
+					(int) RESEND_DELAY.toSeconds(), used.twilio, providers.verify().channels().contains(OtpChannel.SMS));
 		}
 
-		// Sans Verify : code généré ici, seule son empreinte est stockée.
-		String code = "%06d".formatted(random.nextInt(1_000_000));
+		// Twilio Messages : code généré ici, seule son empreinte est stockée.
+		String code = newCode();
 		OtpChallenge challenge = new OtpChallenge(phone, hash(phone, code), name, planKey, now, now.plus(VALIDITY));
-		OtpChannel used = providers.local().delivers() ? OtpChannel.WHATSAPP : requested == null ? OtpChannel.WHATSAPP : requested;
-		challenge.deliveredBy(used.twilio, false);
+		challenge.deliveredBy(OtpChannel.WHATSAPP.twilio, false);
 		challenges.save(challenge);
 		try {
-			providers.local().send(phone, code);
+			providers.messages().send(phone, code);
 		} catch (OtpDeliveryException e) {
 			throw deliveryError(phone, e);
 		}
-		// En démo (aucun envoi réel), le bouton SMS reste proposé pour tester le parcours.
-		boolean smsAvailable = !providers.local().delivers();
 		return new OtpStartResponse(PhoneNumbers.pretty(phone), newAccount, (int) VALIDITY.toSeconds(),
-				(int) RESEND_DELAY.toSeconds(), providers.local().delivers(), used.twilio, smsAvailable, devMode ? code : null);
+				(int) RESEND_DELAY.toSeconds(), OtpChannel.WHATSAPP.twilio, false);
+	}
+
+	/**
+	 * Code de récupération donné de vive voix par le barista au client présent en caisse
+	 * (nouveau téléphone, carte perdue). Remplace tout code en cours pour ce numéro.
+	 */
+	@Transactional
+	public RecoveryCode issueRecoveryCode(String phone) {
+		Instant now = Instant.now(clock);
+		String code = newCode();
+		OtpChallenge challenge = new OtpChallenge(phone, hash(phone, code), null, null, now, now.plus(VALIDITY));
+		challenge.deliveredBy("counter", false);
+		challenges.save(challenge);
+		return new RecoveryCode(code, challenge.getExpiresAt());
+	}
+
+	public record RecoveryCode(String code, Instant expiresAt) {
+	}
+
+	private String newCode() {
+		return "%06d".formatted(random.nextInt(1_000_000));
 	}
 
 	/**

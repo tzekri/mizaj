@@ -32,10 +32,8 @@ export type OtpStart = {
   newAccount: boolean;
   expiresInSeconds: number;
   resendInSeconds: number;
-  delivered: boolean;
   channel: 'whatsapp' | 'sms';
   smsAvailable: boolean;
-  devCode?: string;
 };
 
 export type StaffRole = 'BARISTA' | 'ADMIN';
@@ -151,6 +149,10 @@ async function request<T>(method: string, path: string, body?: unknown, token?: 
 
 export const api = {
   plans: () => request<Plan[]>('GET', '/api/public/plans'),
+  /** verification=false : inscription directe sans code (Twilio non configuré). */
+  config: () => request<{ verification: boolean }>('GET', '/api/public/config'),
+  signup: (phone: string, firstName?: string, planCode?: string) =>
+    request<{ token: string; card: Card }>('POST', '/api/public/signup', { phone, firstName, planCode }),
   otpStart: (phone: string, firstName?: string, planCode?: string, channel?: 'whatsapp' | 'sms') =>
     request<OtpStart>('POST', '/api/public/otp/start', { phone, firstName, planCode, channel }),
   otpVerify: (phone: string, code: string) =>
@@ -170,6 +172,8 @@ export const api = {
     request<StaffCard>('POST', `/api/staff/customers/${id}/activate`, { planCode, confirmReplace }, staffSession.get()?.token),
   undo: (redemptionId: number) =>
     request<StaffCard>('POST', `/api/staff/redemptions/${redemptionId}/undo`, undefined, staffSession.get()?.token),
+  recoveryCode: (customerId: number) =>
+    request<{ code: string; expiresAt: string }>('POST', `/api/staff/customers/${customerId}/recovery-code`, undefined, staffSession.get()?.token),
   today: () => request<Today>('GET', '/api/staff/today', undefined, staffSession.get()?.token),
 
   adminPlans: () => request<Plan[]>('GET', '/api/admin/plans', undefined, staffSession.get()?.token),

@@ -27,11 +27,8 @@ app:
     secret: ${JWT_SECRET:dev-secret-change-me-please-0123456789abcdef}
     staff-validity-hours: ${JWT_STAFF_VALIDITY_HOURS:12}
     customer-validity-days: ${JWT_CUSTOMER_VALIDITY_DAYS:180}
-  otp:
-    # true : le code est aussi renvoyé dans la réponse et affiché à l'écran (démo sans WhatsApp).
-    # À mettre à false dès que Twilio est configuré.
-    dev-mode: ${OTP_DEV_MODE:true}
-  # Envoi du code par WhatsApp via Twilio (laisser vide pour ne rien envoyer).
+  # Validation du numéro par code (WhatsApp / SMS) via Twilio. Laisser vide : inscription directe sans code,
+  # une carte existante ne se récupère alors qu'avec un code donné en caisse par le barista.
   twilio:
     account-sid: ${TWILIO_ACCOUNT_SID:}
     auth-token: ${TWILIO_AUTH_TOKEN:}
