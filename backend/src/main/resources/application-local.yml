@@ -9,3 +9,6 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop
+app:
+  # Données fictives (≈ 5 mois, 3 coffee shops) pour essayer le tableau de bord. Jamais en production.
+  demo-data: ${APP_DEMO_DATA:true}

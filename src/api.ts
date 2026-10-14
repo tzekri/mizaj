@@ -75,6 +75,36 @@ export type Subscriber = {
 };
 export type StaffMember = { id: number; fullName: string; email: string; role: StaffRole; shop?: string; active: boolean };
 
+export type DashboardKpis = {
+  revenue: number;
+  activations: number;
+  firstActivations: number;
+  renewals: number;
+  redemptions: number;
+  newCustomers: number;
+  activeNow: number;
+  /** Absent (null) quand aucun abonnement n'est arrivé à échéance sur la période. */
+  consumptionRate?: number | null;
+  renewalRate?: number | null;
+  redemptionsPerDay: number;
+};
+
+export type DashboardData = {
+  from: string;
+  to: string;
+  shop?: string;
+  shops: string[];
+  kpis: DashboardKpis;
+  previous: DashboardKpis;
+  daily: { date: string; redemptions: number; activations: number; revenue: number }[];
+  monthly: { month: string; revenue: number; revenueByPlan: Record<string, number> }[];
+  plans: { code: string; name: string; price: number; activeNow: number; activations: number; revenue: number; redemptions: number; consumptionRate?: number | null }[];
+  shopStats: { shop: string; redemptions: number; activations: number; revenue: number }[];
+  heatmap: number[][];
+  followUp: { customerId: number; firstName?: string; phone: string; planName?: string; drinksLeft: number; drinksTotal: number; expiresAt: string; reason: 'EXPIRING' | 'LOW' }[];
+  topCustomers: { customerId: number; firstName?: string; phone: string; planName?: string; redemptions: number }[];
+};
+
 export class ApiError extends Error {
   constructor(public status: number, message: string, public code?: string) {
     super(message);
@@ -179,6 +209,28 @@ export const api = {
   adminPlans: () => request<Plan[]>('GET', '/api/admin/plans', undefined, staffSession.get()?.token),
   createPlan: (p: PlanInput) => request<Plan>('POST', '/api/admin/plans', p, staffSession.get()?.token),
   updatePlan: (code: string, p: PlanInput) => request<Plan>('PUT', `/api/admin/plans/${code}`, p, staffSession.get()?.token),
+  dashboard: (from: string, to: string, shop?: string) =>
+    request<DashboardData>(
+      'GET',
+      `/api/admin/dashboard?from=${from}&to=${to}${shop ? `&shop=${encodeURIComponent(shop)}` : ''}`,
+      undefined,
+      staffSession.get()?.token,
+    ),
+  /** Télécharge un export CSV (le jeton est envoyé dans l'en-tête, pas dans l'URL). */
+  downloadCsv: async (kind: 'consommations' | 'abonnements', from: string, to: string, shop?: string) => {
+    const query = kind === 'consommations' ? `?from=${from}&to=${to}${shop ? `&shop=${encodeURIComponent(shop)}` : ''}` : '';
+    const res = await fetch(`/api/admin/export/${kind}.csv${query}`, {
+      headers: { Authorization: `Bearer ${staffSession.get()?.token ?? ''}` },
+    });
+    if (!res.ok) throw new ApiError(res.status, res.status === 401 ? 'Session expirée, reconnectez-vous.' : 'Export impossible.');
+    const name = /filename="([^"]+)"/.exec(res.headers.get('content-disposition') ?? '')?.[1] ?? `mizaj-${kind}.csv`;
+    const url = URL.createObjectURL(await res.blob());
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = name;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+  },
   stats: () => request<Stats>('GET', '/api/admin/stats', undefined, staffSession.get()?.token),
   subscribers: () => request<Subscriber[]>('GET', '/api/admin/subscribers', undefined, staffSession.get()?.token),
   staff: () => request<StaffMember[]>('GET', '/api/admin/staff', undefined, staffSession.get()?.token),

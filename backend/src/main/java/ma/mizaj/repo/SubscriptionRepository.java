@@ -26,4 +26,8 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
 	@Query("select s from Subscription s join fetch s.customer where s.activatedAt = "
 			+ "(select max(s2.activatedAt) from Subscription s2 where s2.customer = s.customer)")
 	List<Subscription> findLatestPerCustomer();
+
+	/** Toutes les périodes avec client et formule (tableau de bord : volumes modestes, agrégés en mémoire). */
+	@Query("select s from Subscription s join fetch s.customer left join fetch s.plan")
+	List<Subscription> findAllWithCustomerAndPlan();
 }

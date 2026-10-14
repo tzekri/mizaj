@@ -21,11 +21,12 @@ import {
 } from '../api';
 
 import { SHOPS } from '../config';
+import Dashboard from './Dashboard';
 import { Header } from '../components/Layout';
 
 export default function Barista() {
   const [session, setSession] = useState<StaffSession | null>(staffSession.get());
-  const [tab, setTab] = useState<'counter' | 'admin'>('counter');
+  const [tab, setTab] = useState<'counter' | 'dashboard' | 'admin'>('counter');
 
   const logout = useCallback(() => {
     staffSession.set(null);
@@ -51,13 +52,16 @@ export default function Barista() {
                 {session.role === 'ADMIN' && (
                   <div className="seg">
                     <button className={tab === 'counter' ? 'active' : ''} onClick={() => setTab('counter')}>Comptoir</button>
+                    <button className={tab === 'dashboard' ? 'active' : ''} onClick={() => setTab('dashboard')}>Tableau de bord</button>
                     <button className={tab === 'admin' ? 'active' : ''} onClick={() => setTab('admin')}>Administration</button>
                   </div>
                 )}
                 <button className="btn btn--outline btn--sm" onClick={logout}>Déconnexion</button>
               </div>
             </div>
-            {tab === 'counter' ? <Counter onAuthError={logout} /> : <Admin onAuthError={logout} />}
+            {tab === 'counter' && <Counter onAuthError={logout} />}
+            {tab === 'dashboard' && <Dashboard onAuthError={logout} />}
+            {tab === 'admin' && <Admin onAuthError={logout} />}
           </>
         )}
       </section>
