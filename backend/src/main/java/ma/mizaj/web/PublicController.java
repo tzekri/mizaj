@@ -50,7 +50,7 @@ public class PublicController {
 
 	@PostMapping("/otp/start")
 	OtpStartResponse start(@Valid @RequestBody OtpStartRequest req, HttpServletRequest http) {
-		return otp.start(req.phone(), req.firstName(), req.planCode(), http.getRemoteAddr());
+		return otp.start(req.phone(), req.firstName(), req.planCode(), req.channel(), http.getRemoteAddr());
 	}
 
 	@PostMapping("/otp/verify")

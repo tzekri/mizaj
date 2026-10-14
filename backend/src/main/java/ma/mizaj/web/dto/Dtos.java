@@ -43,12 +43,17 @@ public final class Dtos {
 
 	// --- Public ---
 
-	public record OtpStartRequest(@NotBlank String phone, @Size(max = 60) String firstName, @Size(max = 40) String planCode) {
+	/** channel : « sms » si le client demande explicitement le SMS ; sinon canal préféré (WhatsApp). */
+	public record OtpStartRequest(@NotBlank String phone, @Size(max = 60) String firstName, @Size(max = 40) String planCode,
+			@Size(max = 20) String channel) {
 	}
 
-	/** devCode n'est présent qu'en mode démo (Twilio non branché). */
+	/**
+	 * channel : canal réellement utilisé (whatsapp / sms) ; smsAvailable : le client peut demander le SMS.
+	 * devCode n'est présent qu'en mode démo (Twilio non branché).
+	 */
 	public record OtpStartResponse(String phone, boolean newAccount, int expiresInSeconds, int resendInSeconds,
-			boolean delivered, String devCode) {
+			boolean delivered, String channel, boolean smsAvailable, String devCode) {
 	}
 
 	public record OtpVerifyRequest(@NotBlank String phone, @NotBlank @Pattern(regexp = "\\d{6}") String code) {

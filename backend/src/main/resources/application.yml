@@ -35,6 +35,12 @@ app:
   twilio:
     account-sid: ${TWILIO_ACCOUNT_SID:}
     auth-token: ${TWILIO_AUTH_TOKEN:}
+    # Recommandé : service Twilio Verify (SID « VA… »). Twilio génère, envoie et vérifie le code.
+    verify-sid: ${TWILIO_VERIFY_SID:}
+    # Canaux Verify par ordre de préférence ; bascule automatique si le premier n'est pas configuré.
+    verify-channels: ${TWILIO_VERIFY_CHANNELS:whatsapp,sms}
+    verify-url: ${TWILIO_VERIFY_URL:https://verify.twilio.com/v2}
+    # --- Sans Verify : envoi direct par l'API Messages (code généré par Mizaj) ---
     # Expéditeur WhatsApp Twilio, ex. whatsapp:+14155238886 (sandbox) ou votre numéro validé.
     from: ${TWILIO_WHATSAPP_FROM:}
     # Modèle de message approuvé (Content SID « HX… ») avec la variable {{1}} = code.

@@ -56,17 +56,19 @@ services:
       - key: SEED_DEMO
         value: "true"
       # true tant que Twilio n'est pas configuré : le code s'affiche à l'écran au lieu d'être envoyé.
-      # À passer à "false" dès que les variables TWILIO_* sont renseignées.
+      # À passer à "false" en production (ignoré dès que Twilio Verify est configuré).
       - key: OTP_DEV_MODE
         value: "true"
-      # Twilio WhatsApp (à renseigner dans le tableau de bord Render).
+      # Envoi des codes : Twilio Verify (recommandé). Laisser vide (ou « - ») pour rester en mode démo.
       - key: TWILIO_ACCOUNT_SID
         sync: false
       - key: TWILIO_AUTH_TOKEN
         sync: false
-      - key: TWILIO_WHATSAPP_FROM
+      # SID du service Verify (« VA… »), console Twilio → Verify → Services.
+      - key: TWILIO_VERIFY_SID
         sync: false
-      - key: TWILIO_CONTENT_SID
-        sync: false
+      # WhatsApp d'abord, SMS en secours (bascule automatique tant que WhatsApp n'est pas relié à Verify).
+      - key: TWILIO_VERIFY_CHANNELS
+        value: whatsapp,sms
       - key: APP_TIMEZONE
         value: Africa/Casablanca

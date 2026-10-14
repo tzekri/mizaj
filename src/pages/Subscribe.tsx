@@ -124,12 +124,12 @@ function SignupForm({ plan }: { plan?: Plan }) {
     return () => clearTimeout(t);
   }, [cooldown]);
 
-  async function sendCode(e?: FormEvent) {
+  async function sendCode(e?: FormEvent, channel?: 'whatsapp' | 'sms') {
     e?.preventDefault();
     setBusy(true);
     setError(null);
     try {
-      const res = await api.otpStart(phone, firstName, plan?.code);
+      const res = await api.otpStart(phone, firstName, plan?.code, channel);
       setSent(res);
       setCode('');
       setCooldown(res.resendInSeconds);
@@ -183,11 +183,11 @@ function SignupForm({ plan }: { plan?: Plan }) {
         </label>
         {error && <p className="form-error" role="alert">{error}</p>}
         <button className="btn btn--accent btn--block" disabled={busy || !plan}>
-          <Whatsapp size={18} /> {busy ? 'Envoi…' : 'Recevoir mon code sur WhatsApp'}
+          <Whatsapp size={18} /> {busy ? 'Envoi…' : 'Recevoir mon code'}
         </button>
         <p className="sub-legal">
-          Déjà inscrit ? Saisissez votre numéro pour retrouver votre carte. En continuant, vous acceptez de recevoir un message
-          WhatsApp de {BRAND.name} Coffee contenant votre code.
+          Code envoyé sur WhatsApp (ou par SMS). Déjà inscrit ? Saisissez votre numéro pour retrouver votre carte. En continuant,
+          vous acceptez de recevoir un message de {BRAND.name} Coffee contenant votre code.
         </p>
       </form>
     );
@@ -197,7 +197,11 @@ function SignupForm({ plan }: { plan?: Plan }) {
     <form className="sub-form" onSubmit={verify}>
       <h2>Code de validation</h2>
       <p className="sub-form__lead">
-        {sent.delivered ? 'Nous avons envoyé un code à 6 chiffres sur WhatsApp au ' : 'Code généré pour le '}
+        {!sent.delivered
+          ? 'Code généré pour le '
+          : sent.channel === 'sms'
+            ? 'Nous avons envoyé un code à 6 chiffres par SMS au '
+            : 'Nous avons envoyé un code à 6 chiffres sur WhatsApp au '}
         <b>{sent.phone}</b>.{' '}
         <button type="button" className="link" onClick={() => { setSent(null); setError(null); }}>Modifier</button>
       </p>
@@ -223,9 +227,16 @@ function SignupForm({ plan }: { plan?: Plan }) {
       <button className="btn btn--accent btn--block" disabled={busy || code.length !== 6}>
         {busy ? 'Vérification…' : sent.newAccount ? 'Valider et créer ma carte' : 'Valider et ouvrir ma carte'}
       </button>
-      <button type="button" className="link sub-resend" disabled={cooldown > 0 || busy} onClick={() => sendCode()}>
-        {cooldown > 0 ? `Renvoyer le code dans ${cooldown} s` : 'Renvoyer le code'}
-      </button>
+      <div className="sub-resend">
+        <button type="button" className="link" disabled={cooldown > 0 || busy} onClick={() => sendCode(undefined, sent.channel)}>
+          {cooldown > 0 ? `Renvoyer le code dans ${cooldown} s` : 'Renvoyer le code'}
+        </button>
+        {sent.smsAvailable && sent.channel === 'whatsapp' && (
+          <button type="button" className="link" disabled={cooldown > 0 || busy} onClick={() => sendCode(undefined, 'sms')}>
+            Pas de WhatsApp ? Recevoir le code par SMS
+          </button>
+        )}
+      </div>
     </form>
   );
 }

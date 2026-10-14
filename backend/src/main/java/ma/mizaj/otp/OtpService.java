@@ -25,8 +25,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Codes de validation à 6 chiffres envoyés par WhatsApp.
- * Garde-fous : 10 min de validité, 5 essais par code, 60 s entre deux envois, 5 envois par heure et par numéro.
+ * Codes de validation à 6 chiffres (WhatsApp, ou SMS en secours).
+ * <p>
+ * Deux modes : avec Twilio Verify, Twilio génère et vérifie le code ; sinon Mizaj le génère et n'en garde que l'empreinte.
+ * Dans les deux cas, mêmes garde-fous : 10 min de validité, 5 essais par code, 60 s entre deux envois,
+ * 5 envois par heure et par numéro, 15 par heure et par adresse IP.
  */
 @Service
 public class OtpService {
@@ -39,7 +42,7 @@ public class OtpService {
 
 	private final OtpChallengeRepository challenges;
 	private final CustomerRepository customers;
-	private final OtpSender sender;
+	private final OtpProviders providers;
 	private final PlanService plans;
 	private final IpThrottle ipThrottle;
 	private final SecretKey key;
@@ -47,11 +50,11 @@ public class OtpService {
 	private final boolean devMode;
 	private final SecureRandom random = new SecureRandom();
 
-	public OtpService(OtpChallengeRepository challenges, CustomerRepository customers, OtpSender sender,
+	public OtpService(OtpChallengeRepository challenges, CustomerRepository customers, OtpProviders providers,
 			PlanService plans, IpThrottle ipThrottle, SecretKey jwtKey, Clock clock, @Value("${app.otp.dev-mode}") boolean devMode) {
 		this.challenges = challenges;
 		this.customers = customers;
-		this.sender = sender;
+		this.providers = providers;
 		this.plans = plans;
 		this.ipThrottle = ipThrottle;
 		this.key = jwtKey;
@@ -60,9 +63,10 @@ public class OtpService {
 	}
 
 	@Transactional
-	public OtpStartResponse start(String rawPhone, String firstName, String planCode, String ip) {
+	public OtpStartResponse start(String rawPhone, String firstName, String planCode, String rawChannel, String ip) {
 		String phone = PhoneNumbers.normalize(rawPhone);
 		var plan = plans.activeByCode(planCode);
+		OtpChannel requested = OtpChannel.parse(rawChannel);
 		Instant now = Instant.now(clock);
 		challenges.findFirstByPhoneOrderByCreatedAtDesc(phone).ifPresent(last -> {
 			long wait = Duration.between(now, last.getCreatedAt().plus(RESEND_DELAY)).toSeconds();
@@ -77,25 +81,46 @@ public class OtpService {
 			throw ApiException.tooMany("Trop de demandes depuis cet appareil. Réessayez plus tard.");
 		}
 
-		String code = "%06d".formatted(random.nextInt(1_000_000));
 		String name = firstName == null || firstName.isBlank() ? null : firstName.trim();
-		challenges.save(new OtpChallenge(phone, hash(phone, code), name, plan == null ? null : plan.getCode(), now, now.plus(VALIDITY)));
-		try {
-			sender.send(phone, code);
-		} catch (OtpDeliveryException e) {
-			log.warn("Envoi du code à {} impossible : {}", phone, e.getCause() == null ? e.getMessage() : e.getCause().getMessage());
-			throw new ApiException(HttpStatus.BAD_GATEWAY,
-					"Impossible d'envoyer le code sur WhatsApp. Vérifiez que ce numéro utilise WhatsApp, puis réessayez.");
+		String planKey = plan == null ? null : plan.getCode();
+		boolean newAccount = customers.findByPhone(phone).isEmpty();
+
+		if (providers.managed()) {
+			OtpChannel used;
+			try {
+				used = providers.verify().start(phone, requested);
+			} catch (OtpDeliveryException e) {
+				throw deliveryError(phone, e);
+			}
+			OtpChallenge challenge = new OtpChallenge(phone, "", name, planKey, now, now.plus(VALIDITY));
+			challenge.deliveredBy(used.twilio, true);
+			challenges.save(challenge);
+			return new OtpStartResponse(PhoneNumbers.pretty(phone), newAccount, (int) VALIDITY.toSeconds(),
+					(int) RESEND_DELAY.toSeconds(), true, used.twilio, providers.verify().channels().contains(OtpChannel.SMS), null);
 		}
-		return new OtpStartResponse(PhoneNumbers.pretty(phone), customers.findByPhone(phone).isEmpty(),
-				(int) VALIDITY.toSeconds(), (int) RESEND_DELAY.toSeconds(), sender.delivers(), devMode ? code : null);
+
+		// Sans Verify : code généré ici, seule son empreinte est stockée.
+		String code = "%06d".formatted(random.nextInt(1_000_000));
+		OtpChallenge challenge = new OtpChallenge(phone, hash(phone, code), name, planKey, now, now.plus(VALIDITY));
+		OtpChannel used = providers.local().delivers() ? OtpChannel.WHATSAPP : requested == null ? OtpChannel.WHATSAPP : requested;
+		challenge.deliveredBy(used.twilio, false);
+		challenges.save(challenge);
+		try {
+			providers.local().send(phone, code);
+		} catch (OtpDeliveryException e) {
+			throw deliveryError(phone, e);
+		}
+		// En démo (aucun envoi réel), le bouton SMS reste proposé pour tester le parcours.
+		boolean smsAvailable = !providers.local().delivers();
+		return new OtpStartResponse(PhoneNumbers.pretty(phone), newAccount, (int) VALIDITY.toSeconds(),
+				(int) RESEND_DELAY.toSeconds(), providers.local().delivers(), used.twilio, smsAvailable, devMode ? code : null);
 	}
 
 	/**
 	 * Vérifie le code et le consomme.
 	 * Les essais ratés sont enregistrés même si une erreur est renvoyée (pas de rollback sur ApiException).
 	 *
-	 * @return le défi validé (numéro normalisé + prénom saisi à l'inscription)
+	 * @return le défi validé (numéro normalisé + prénom et formule saisis à l'inscription)
 	 */
 	@Transactional(noRollbackFor = ApiException.class)
 	public OtpChallenge verify(String rawPhone, String code) {
@@ -108,8 +133,29 @@ public class OtpService {
 			throw ApiException.tooMany("Trop d'essais. Demandez un nouveau code.");
 		}
 		challenge.recordAttempt();
-		if (!MessageDigest.isEqual(hash(phone, code).getBytes(StandardCharsets.US_ASCII),
-				challenge.getCodeHash().getBytes(StandardCharsets.US_ASCII))) {
+
+		boolean valid;
+		if (challenge.isManaged()) {
+			if (!providers.managed()) {
+				throw ApiException.badRequest("Ce code a expiré. Demandez-en un nouveau.");
+			}
+			TwilioVerifyClient.CheckResult result;
+			try {
+				result = providers.verify().check(phone, code);
+			} catch (OtpDeliveryException e) {
+				log.warn("Vérification Twilio impossible pour {} : {}", phone, e.getMessage());
+				throw new ApiException(HttpStatus.BAD_GATEWAY, "Vérification impossible pour le moment. Réessayez dans un instant.");
+			}
+			if (result == TwilioVerifyClient.CheckResult.EXPIRED) {
+				throw ApiException.badRequest("Ce code a expiré. Demandez-en un nouveau.");
+			}
+			valid = result == TwilioVerifyClient.CheckResult.APPROVED;
+		} else {
+			valid = MessageDigest.isEqual(hash(phone, code).getBytes(StandardCharsets.US_ASCII),
+					challenge.getCodeHash().getBytes(StandardCharsets.US_ASCII));
+		}
+
+		if (!valid) {
 			int left = MAX_ATTEMPTS - challenge.getAttempts();
 			throw ApiException.badRequest(left > 0
 					? "Code incorrect. Il vous reste " + left + (left > 1 ? " essais." : " essai.")
@@ -117,6 +163,22 @@ public class OtpService {
 		}
 		challenge.markUsed(now);
 		return challenge;
+	}
+
+	private ApiException deliveryError(String phone, OtpDeliveryException e) {
+		log.warn("Envoi du code à {} impossible : {}", phone, e.getCause() == null ? e.getMessage() : e.getMessage() + " / " + e.getCause().getMessage());
+		Integer code = e.twilioCode();
+		if (code != null && code == 60200) {
+			return ApiException.badRequest("Ce numéro n'est pas valide. Vérifiez-le et réessayez.");
+		}
+		if (code != null && (code == 60203 || code == 60212)) {
+			return ApiException.tooMany("Trop de codes demandés pour ce numéro. Réessayez plus tard.");
+		}
+		if (code != null && code == 60410) {
+			return new ApiException(HttpStatus.FORBIDDEN, "Ce numéro ne peut pas recevoir de code pour le moment.");
+		}
+		return new ApiException(HttpStatus.BAD_GATEWAY,
+				"Impossible d'envoyer le code. Vérifiez le numéro (WhatsApp ou SMS), puis réessayez.");
 	}
 
 	private String hash(String phone, String code) {

@@ -28,6 +28,13 @@ public class OtpChallenge {
 	@Column(length = 60)
 	private String firstName;
 
+	/** true : le code est généré et vérifié par Twilio Verify (codeHash vide). */
+	private Boolean managed;
+
+	/** Canal utilisé (whatsapp, sms). */
+	@Column(length = 20)
+	private String channel;
+
 	/** Formule choisie sur la page Abonnement. */
 	@Column(length = 40)
 	private String planCode;
@@ -55,6 +62,11 @@ public class OtpChallenge {
 		this.expiresAt = expiresAt;
 	}
 
+	public void deliveredBy(String channel, boolean managed) {
+		this.channel = channel;
+		this.managed = managed;
+	}
+
 	public void recordAttempt() { attempts++; }
 	public void markUsed(Instant now) { usedAt = now; }
 
@@ -63,6 +75,8 @@ public class OtpChallenge {
 	public String getCodeHash() { return codeHash; }
 	public String getFirstName() { return firstName; }
 	public String getPlanCode() { return planCode; }
+	public boolean isManaged() { return Boolean.TRUE.equals(managed); }
+	public String getChannel() { return channel; }
 	public Instant getCreatedAt() { return createdAt; }
 	public Instant getExpiresAt() { return expiresAt; }
 	public int getAttempts() { return attempts; }

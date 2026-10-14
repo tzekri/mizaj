@@ -25,23 +25,29 @@ Règles :
 - Les espressos non consommés à l'échéance **ne sont pas reportés** ; un renouvellement anticipé (confirmé par le barista) clôt la période en cours.
 - Deux validations à moins de 2 minutes demandent une confirmation (double scan) ; une validation peut être annulée pendant 10 minutes.
 - Le QR contient un jeton aléatoire (pas le numéro). Le client peut le régénérer : l'ancien ne fonctionne plus.
-- Code WhatsApp : 10 min de validité, 5 essais, 60 s entre deux envois, 5 envois / heure / numéro, 15 / heure / IP.
+- Code (WhatsApp ou SMS) : 10 min de validité, 5 essais, 60 s entre deux envois, 5 envois / heure / numéro, 15 / heure / IP.
 - Formules en base, gérées dans Administration (prix, boissons, durée, visibilité). Au premier démarrage : Découverte (45 DH, 10 espressos, 15 j), Espresso (120 DH, 30 espressos, 30 j), Lait & Douceur (220 DH, 30 boissons au lait, 30 j).
 
 Rôles : `BARISTA` (comptoir) et `ADMIN` (comptoir + statistiques, formules, abonnés, gestion du personnel).
 
-### WhatsApp (Twilio)
+### Envoi du code : Twilio Verify
 
-Tant que `TWILIO_*` n'est pas renseigné, le code est **affiché à l'écran** (`OTP_DEV_MODE=true`) : pratique pour la démo,
-**à désactiver** en production. Pour l'activer :
+Le code est envoyé par **Twilio Verify** : Twilio génère, envoie et vérifie le code (anti-fraude, limites d'envoi),
+**WhatsApp d'abord, SMS en secours**. Le client peut aussi demander le SMS (« Pas de WhatsApp ? »).
+Sans configuration Twilio, le site reste en **mode démo** : le code est affiché à l'écran (`OTP_DEV_MODE=true`).
 
-1. Compte Twilio → Messaging → WhatsApp : sandbox pour tester, puis un expéditeur WhatsApp Business validé.
-2. Créer un modèle de message de type *Authentication* (Content Template Builder) avec la variable `{{1}}` = code,
-   le faire approuver par WhatsApp → récupérer son **Content SID** (`HX…`).
-3. Renseigner sur Render : `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_WHATSAPP_FROM` (ex. `whatsapp:+212…`),
-   `TWILIO_CONTENT_SID`, puis `OTP_DEV_MODE=false`.
+Mise en place :
 
-Sans `TWILIO_CONTENT_SID`, un message texte libre est envoyé : accepté uniquement par la sandbox.
+1. Compte Twilio → **Verify → Services → Create** : nom « Mizaj Coffee », canaux **SMS** et **WhatsApp** → copier le SID `VA…`.
+2. Sur Render (service `mizaj` → Environment) : `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_VERIFY_SID`,
+   puis `OTP_DEV_MODE=false`. **Le SMS fonctionne immédiatement.**
+3. WhatsApp (optionnel, moins cher que le SMS) : Verify exige **votre propre expéditeur WhatsApp**
+   (« Bring Your Own WhatsApp Sender ») : compte WhatsApp Business + numéro dans Twilio (Messaging → Senders → WhatsApp),
+   rattaché à un Messaging Service, lui-même sélectionné dans l'onglet *WhatsApp* du service Verify.
+   Tant que ce n'est pas fait, Twilio refuse le canal WhatsApp et le site bascule automatiquement sur le SMS.
+
+Ordre des canaux : `TWILIO_VERIFY_CHANNELS` (défaut `whatsapp,sms` ; `sms` seul pour n'utiliser que le SMS).
+Alternative sans Verify : `TWILIO_WHATSAPP_FROM` + `TWILIO_CONTENT_SID` (API Messages, modèle WhatsApp à faire approuver).
 
 ## Lancer en local
 

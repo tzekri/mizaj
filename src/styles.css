@@ -374,7 +374,7 @@ h1, h2, h3 { line-height: 1.15; margin: 0 0 0.5em; }
 .dev-code { background: #fff7e6; border: 1px dashed #d99a2b; color: #7a4a00; border-radius: 10px; padding: 10px 14px; font-size: 0.88rem; margin: 0; }
 .dev-code b { font-size: 1.1rem; letter-spacing: 0.15em; }
 .sub-legal { color: var(--muted); font-size: 0.75rem; margin: 0; text-align: center; }
-.sub-resend { align-self: center; font-size: 0.88rem; }
+.sub-resend { align-self: center; font-size: 0.88rem; display: flex; flex-direction: column; align-items: center; gap: 10px; }
 
 /* Bandeau sombre en haut des écrans applicatifs (carte, barista) */
 .app-top { background: var(--bg-dark); padding-bottom: 22px; }

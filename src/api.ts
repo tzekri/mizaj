@@ -33,6 +33,8 @@ export type OtpStart = {
   expiresInSeconds: number;
   resendInSeconds: number;
   delivered: boolean;
+  channel: 'whatsapp' | 'sms';
+  smsAvailable: boolean;
   devCode?: string;
 };
 
@@ -149,8 +151,8 @@ async function request<T>(method: string, path: string, body?: unknown, token?: 
 
 export const api = {
   plans: () => request<Plan[]>('GET', '/api/public/plans'),
-  otpStart: (phone: string, firstName?: string, planCode?: string) =>
-    request<OtpStart>('POST', '/api/public/otp/start', { phone, firstName, planCode }),
+  otpStart: (phone: string, firstName?: string, planCode?: string, channel?: 'whatsapp' | 'sms') =>
+    request<OtpStart>('POST', '/api/public/otp/start', { phone, firstName, planCode, channel }),
   otpVerify: (phone: string, code: string) =>
     request<{ token: string; card: Card }>('POST', '/api/public/otp/verify', { phone, code }),
 
