@@ -8,7 +8,7 @@ le client choisit sa formule, reçoit sa carte QR dans son téléphone et la fai
 - **Pages** : Accueil, Menu (bannières par catégorie + recherche) et `/menu/:slug`, Abonnement, Ma carte, Espace barista,
   Nos coffee shops, Devenez franchisé.
 - **Contenu** : [`src/config.ts`](src/config.ts) — coordonnées, coffee shops, menu, slides. Les données sont **fictives**.
-- **Couleurs** : variables CSS en haut de [`src/styles.css`](src/styles.css) (palette « bleu nuit & laiton » : `--accent` `#1d3557`, `--accent-on-dark` laiton `#d4a95a`).
+- **Couleurs** : variables CSS en haut de [`src/styles.css`](src/styles.css) (palette « pétrole, lin & caramel » : `--accent` pétrole `#0b4f5c`, `--accent-on-dark` caramel `#e3b583`, fond de page beige `--page` `#faf6f0`).
 - **Photos** : Unsplash (licence libre), chargées depuis images.unsplash.com.
 
 ## Abonnement
