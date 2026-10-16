@@ -11,12 +11,12 @@ import {
   type JuiceSize,
 } from '../api';
 import { PageHero } from '../components/Layout';
-import { JuiceGlass, JuiceTicket } from '../components/juice';
+import { IngredientThumb, JuiceGlass, JuiceTicket } from '../components/juice';
 import { img, PHOTOS } from '../config';
 
 /** Idées de départ (codes des ingrédients de départ ; ignorées si un ingrédient a été retiré). */
 const IDEAS: { name: string; size: JuiceSize; codes: string[] }[] = [
-  { name: 'Réveil vitaminé', size: 'S33', codes: ['orange', 'carotte', 'gingembre'] },
+  { name: 'Réveil vitaminé', size: 'S33', codes: ['orange', 'mangue', 'gingembre'] },
   { name: 'Douceur tropicale', size: 'S50', codes: ['ananas', 'mangue', 'banane'] },
   { name: 'Avocat royal', size: 'S50', codes: ['lait', 'avocat', 'amandes', 'miel'] },
   { name: 'Fraîcheur menthe', size: 'S33', codes: ['citronnade', 'fraise', 'menthe'] },
@@ -143,7 +143,7 @@ export default function Juice() {
                                 cat === 'BASE' ? setBase(on ? null : i.code) : toggle(selected, cat === 'FRUIT' ? setFruits : setExtras, i.code, max)
                               }
                             >
-                              <i style={{ background: i.color }} />
+                              <IngredientThumb item={i} size={44} />
                               <span>{i.name}</span>
                               <small>{i.price ? `+${i.price} DH` : 'inclus'}</small>
                             </button>

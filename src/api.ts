@@ -109,7 +109,16 @@ export type DashboardData = {
 
 export type JuiceCategory = 'BASE' | 'FRUIT' | 'EXTRA';
 export type JuiceSize = 'S33' | 'S50';
-export type JuiceIngredient = { code: string; name: string; category: JuiceCategory; price: number; color: string; available: boolean };
+export type JuiceIngredient = {
+  code: string;
+  name: string;
+  category: JuiceCategory;
+  price: number;
+  color: string;
+  /** Photo (URL) ; absente → pastille de couleur. */
+  image?: string;
+  available: boolean;
+};
 export type JuiceCatalog = {
   ingredients: JuiceIngredient[];
   sizes: { code: JuiceSize; label: string; basePrice: number; factor: number }[];

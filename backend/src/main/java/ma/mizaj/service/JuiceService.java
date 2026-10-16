@@ -166,6 +166,9 @@ public class JuiceService {
 		if (!req.available()) {
 			ing.update(ing.getName(), ing.getCategory(), ing.getPrice(), ing.getColor(), false);
 		}
+		if (req.image() != null) { // absent : photo inchangée ; vide : photo retirée
+			ing.setImage(req.image());
+		}
 		return IngredientView.of(ingredients.save(ing));
 	}
 
@@ -173,6 +176,9 @@ public class JuiceService {
 	public IngredientView updateIngredient(String code, IngredientRequest req) {
 		JuiceIngredient ing = ingredients.findByCode(code).orElseThrow(() -> ApiException.notFound("Ingrédient introuvable."));
 		ing.update(req.name().trim(), req.category(), req.price(), req.color().toLowerCase(), req.available());
+		if (req.image() != null) { // absent : photo inchangée ; vide : photo retirée
+			ing.setImage(req.image());
+		}
 		return IngredientView.of(ing);
 	}
 

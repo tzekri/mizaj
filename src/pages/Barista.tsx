@@ -25,7 +25,7 @@ import {
 
 import { SHOPS } from '../config';
 import Dashboard from './Dashboard';
-import { JuiceGlass } from '../components/juice';
+import { IngredientThumb, JuiceGlass } from '../components/juice';
 
 const JUICE_QR_PREFIX = 'MIZAJ-JUS:';
 import { Header } from '../components/Layout';
@@ -412,7 +412,7 @@ function JuicePanel({ order, busy, onServe }: { order: JuiceOrder; busy: boolean
           <ul>
             {r.ingredients.map((i) => (
               <li key={i.code}>
-                <i style={{ background: i.color }} />
+                <IngredientThumb item={i} size={36} />
                 <span>{i.name}</span>
                 <small>{i.category === 'BASE' ? 'base' : i.category === 'FRUIT' ? 'fruit' : 'extra'}</small>
               </li>
@@ -721,7 +721,7 @@ function PlansEditor() {
 }
 
 const CATEGORY_LABEL: Record<JuiceIngredient['category'], string> = { BASE: 'Base', FRUIT: 'Fruit', EXTRA: 'Extra' };
-const EMPTY_INGREDIENT: Omit<JuiceIngredient, 'code'> = { name: '', category: 'FRUIT', price: 5, color: '#f2a03d', available: true };
+const EMPTY_INGREDIENT: Omit<JuiceIngredient, 'code'> = { name: '', category: 'FRUIT', price: 5, color: '#f2a03d', image: '', available: true };
 const isoDay = (d: Date) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Africa/Casablanca' }).format(d);
 
 /** Composeur de jus : ingrédients (prix, couleur, disponibilité) et jus servis sur 30 jours. */
@@ -743,7 +743,7 @@ function JuiceAdmin() {
   function edit(i?: JuiceIngredient) {
     setError(null);
     setEditing(i ? i.code : 'new');
-    setForm(i ? { name: i.name, category: i.category, price: i.price, color: i.color, available: i.available } : EMPTY_INGREDIENT);
+    setForm(i ? { name: i.name, category: i.category, price: i.price, color: i.color, image: i.image ?? '', available: i.available } : EMPTY_INGREDIENT);
   }
 
   async function save(e: FormEvent) {
@@ -760,7 +760,7 @@ function JuiceAdmin() {
 
   async function toggle(i: JuiceIngredient) {
     try {
-      await api.saveJuiceIngredient({ name: i.name, category: i.category, price: i.price, color: i.color, available: !i.available }, i.code);
+      await api.saveJuiceIngredient({ name: i.name, category: i.category, price: i.price, color: i.color, image: i.image ?? '', available: !i.available }, i.code);
       load();
     } catch (err) {
       setError((err as ApiError).message);
@@ -795,7 +795,7 @@ function JuiceAdmin() {
           <tbody>
             {items.map((i) => (
               <tr key={i.code} className={i.available ? '' : 'muted'}>
-                <td><i className="key" style={{ background: i.color }} />{i.name}</td>
+                <td className="ing-cell"><IngredientThumb item={i} size={30} />{i.name}</td>
                 <td>{CATEGORY_LABEL[i.category]}</td>
                 <td className="num">{i.price ? `+${i.price} DH` : 'inclus'}</td>
                 <td><button className="link" onClick={() => toggle(i)}>{i.available ? 'Oui — masquer' : 'Non — proposer'}</button></td>
@@ -822,6 +822,13 @@ function JuiceAdmin() {
           <label>
             Couleur dans le verre
             <input type="color" value={form.color} onChange={(e) => setForm({ ...form, color: e.target.value })} />
+          </label>
+          <label className="form__full">
+            Photo (adresse https, ex. Unsplash) — laisser vide pour une pastille de couleur
+            <span className="pair">
+              <input type="url" value={form.image ?? ''} placeholder="https://images.unsplash.com/photo-…" onChange={(e) => setForm({ ...form, image: e.target.value })} />
+              <IngredientThumb item={{ code: 'preview', ...form }} size={44} />
+            </span>
           </label>
           <label className="check form__full">
             <input type="checkbox" checked={form.available} onChange={(e) => setForm({ ...form, available: e.target.checked })} />

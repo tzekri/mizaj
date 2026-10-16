@@ -14,7 +14,7 @@ import {
   type JuiceOrder,
   type Plan,
 } from '../api';
-import { JuiceTicket } from '../components/juice';
+import { IngredientThumb, JuiceTicket } from '../components/juice';
 import { BRAND } from '../config';
 import { Header } from '../components/Layout';
 import { Whatsapp } from '../components/Icons';
@@ -322,7 +322,7 @@ function JuiceFavorites() {
         {favorites?.map((f) => (
           <li key={f.id} className={f.recipe.available ? '' : 'muted'}>
             <span className="juice-favs__dots" aria-hidden>
-              {f.recipe.ingredients.map((i) => <i key={i.code} style={{ background: i.color }} />)}
+              {f.recipe.ingredients.map((i) => <IngredientThumb key={i.code} item={i} size={28} />)}
             </span>
             <span className="juice-favs__text">
               <b>{f.recipe.name}</b>

@@ -19,10 +19,11 @@ public final class JuiceDtos {
 	private JuiceDtos() {
 	}
 
-	public record IngredientView(String code, String name, JuiceCategory category, int price, String color, boolean available) {
+	public record IngredientView(String code, String name, JuiceCategory category, int price, String color, String image,
+			boolean available) {
 
 		public static IngredientView of(JuiceIngredient i) {
-			return new IngredientView(i.getCode(), i.getName(), i.getCategory(), i.getPrice(), i.getColor(), i.isAvailable());
+			return new IngredientView(i.getCode(), i.getName(), i.getCategory(), i.getPrice(), i.getColor(), i.getImage(), i.isAvailable());
 		}
 	}
 
@@ -38,6 +39,7 @@ public final class JuiceDtos {
 			@NotNull JuiceCategory category,
 			@Min(0) @Max(200) int price,
 			@NotBlank @Pattern(regexp = "#[0-9a-fA-F]{6}") String color,
+			@Size(max = 300) @Pattern(regexp = "^$|https://\\S+", message = "doit être une adresse https") String image,
 			boolean available) {
 	}
 

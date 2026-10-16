@@ -58,6 +58,17 @@ export function JuiceGlass({ items, size = 'S33', label }: { items: JuiceIngredi
   );
 }
 
+/** Vignette ronde d'un ingrédient : sa photo, ou une pastille de sa couleur à défaut. */
+export function IngredientThumb({ item, size = 40 }: { item: JuiceIngredient; size?: number }) {
+  const [broken, setBroken] = useState(false);
+  const style = { width: size, height: size, background: item.color };
+  return item.image && !broken ? (
+    <img className="thumb" src={item.image} alt="" style={style} loading="lazy" onError={() => setBroken(true)} />
+  ) : (
+    <i className="thumb" style={style} aria-hidden />
+  );
+}
+
 const STATUS: Record<JuiceOrder['status'], string> = {
   PENDING: 'À présenter en caisse',
   SERVED: 'Servi',
@@ -83,6 +94,9 @@ export function JuiceTicket({ order }: { order: JuiceOrder }) {
         <div>
           <span className="juice-ticket__label">Code jus</span>
           <span className="juice-ticket__code">{order.code.slice(0, 3)} {order.code.slice(3)}</span>
+          <span className="juice-ticket__thumbs" aria-hidden>
+            {order.recipe.ingredients.map((i) => <IngredientThumb key={i.code} item={i} size={30} />)}
+          </span>
           <p>{order.recipe.label}</p>
           <p>
             {order.recipe.sizeLabel} · <b>{order.recipe.price} DH</b> à régler en caisse

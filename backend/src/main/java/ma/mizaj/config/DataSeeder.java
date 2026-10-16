@@ -1,5 +1,6 @@
 package ma.mizaj.config;
 
+import java.util.Map;
 import ma.mizaj.domain.JuiceCategory;
 import ma.mizaj.domain.JuiceIngredient;
 import ma.mizaj.domain.Plan;
@@ -63,6 +64,7 @@ public class DataSeeder implements ApplicationRunner {
 		if (juiceIngredients.count() == 0) {
 			seedJuiceIngredients();
 		}
+		addMissingJuicePhotos();
 		if (adminEmail.isBlank() || adminPassword.length() < 8) {
 			log.warn("ADMIN_EMAIL / ADMIN_PASSWORD (8 caractères min.) non renseignés : aucun compte administrateur créé.");
 		} else if (!staffUsers.existsByEmailIgnoreCase(adminEmail)) {
@@ -73,6 +75,40 @@ public class DataSeeder implements ApplicationRunner {
 			staffUsers.save(new StaffUser("Barista Démo", DEMO_BARISTA, passwordEncoder.encode("barista1234"), StaffRole.BARISTA, "Maârif"));
 			log.info("Compte barista de démonstration créé : {} / barista1234", DEMO_BARISTA);
 		}
+	}
+
+	/** Photos Unsplash (licence libre) des ingrédients de départ, par code. */
+	static final Map<String, String> JUICE_PHOTOS = Map.ofEntries(
+			Map.entry("orange", "1632371027159-3e411104c6ea"),
+			Map.entry("citronnade", "1587486937303-32eaa2134b78"),
+			Map.entry("pomme", "1705147296208-dffaf3fe5d7c"),
+			Map.entry("ananas", "1490885578174-acda8905c2c6"),
+			Map.entry("carotte", "1589927986089-35812388d1f4"),
+			Map.entry("lait", "1602153508753-4ace888c10a0"),
+			Map.entry("fraise", "1640958899516-c08a59225611"),
+			Map.entry("mangue", "1553279768-865429fa0078"),
+			Map.entry("banane", "1587132137056-bfbf0166836e"),
+			Map.entry("avocat", "1519162808019-7de1683fa2ad"),
+			Map.entry("kiwi", "1662303645991-185042acc773"),
+			Map.entry("fruits-rouges", "1710528184650-fc75ae862c13"),
+			Map.entry("pasteque", "1581074817932-af423ba4566e"),
+			Map.entry("grenade", "1615485925600-97237c4fc1ec"),
+			Map.entry("menthe", "1588908933351-eeb8cd4c4521"),
+			Map.entry("gingembre", "1615484478243-c94e896edbae"),
+			Map.entry("miel", "1655169947079-5b2a38815147"),
+			Map.entry("citron-vert", "1619678544337-4a173360decd"),
+			Map.entry("amandes", "1772986796415-d38ed846bca7"),
+			Map.entry("fleur-oranger", "1780027069438-24abd628e0ba"));
+
+	static String unsplash(String id) {
+		return "https://images.unsplash.com/photo-" + id + "?auto=format&fit=crop&w=240&h=240&q=70";
+	}
+
+	/** Ajoute la photo par défaut aux ingrédients de départ qui n'en ont pas (bases créées avant l'ajout des photos). */
+	private void addMissingJuicePhotos() {
+		juiceIngredients.findAll().stream()
+				.filter(i -> i.getImage() == null && JUICE_PHOTOS.containsKey(i.getCode()))
+				.forEach(i -> i.setImage(unsplash(JUICE_PHOTOS.get(i.getCode()))));
 	}
 
 	/** Ingrédients de départ du composeur de jus (prix = supplément pour un 33 cl, modifiables dans l'administration). */

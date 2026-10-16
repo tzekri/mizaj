@@ -36,6 +36,10 @@ public class JuiceIngredient {
 	@Column(nullable = false, length = 7)
 	private String color;
 
+	/** Photo de l'ingrédient (URL https), affichée dans le composeur ; vide → pastille de couleur. */
+	@Column(length = 300)
+	private String image;
+
 	/** false : en rupture ou hors saison, masqué dans le composeur. */
 	@Column(nullable = false)
 	private boolean available = true;
@@ -68,4 +72,6 @@ public class JuiceIngredient {
 	public String getColor() { return color; }
 	public boolean isAvailable() { return available; }
 	public int getSortOrder() { return sortOrder; }
+	public String getImage() { return image; }
+	public void setImage(String image) { this.image = image == null || image.isBlank() ? null : image.trim(); }
 }
