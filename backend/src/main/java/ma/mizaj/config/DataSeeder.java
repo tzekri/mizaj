@@ -1,8 +1,11 @@
 package ma.mizaj.config;
 
+import ma.mizaj.domain.JuiceCategory;
+import ma.mizaj.domain.JuiceIngredient;
 import ma.mizaj.domain.Plan;
 import ma.mizaj.domain.StaffRole;
 import ma.mizaj.domain.StaffUser;
+import ma.mizaj.repo.JuiceIngredientRepository;
 import ma.mizaj.repo.PlanRepository;
 import ma.mizaj.repo.StaffUserRepository;
 import org.slf4j.Logger;
@@ -28,16 +31,19 @@ public class DataSeeder implements ApplicationRunner {
 
 	private final StaffUserRepository staffUsers;
 	private final PlanRepository plans;
+	private final JuiceIngredientRepository juiceIngredients;
 	private final PasswordEncoder passwordEncoder;
 	private final String adminEmail;
 	private final String adminPassword;
 	private final boolean seedDemo;
 
-	public DataSeeder(StaffUserRepository staffUsers, PlanRepository plans, PasswordEncoder passwordEncoder,
+	public DataSeeder(StaffUserRepository staffUsers, PlanRepository plans, JuiceIngredientRepository juiceIngredients,
+			PasswordEncoder passwordEncoder,
 			@Value("${app.admin.email}") String adminEmail, @Value("${app.admin.password}") String adminPassword,
 			@Value("${app.seed-demo}") boolean seedDemo) {
 		this.staffUsers = staffUsers;
 		this.plans = plans;
+		this.juiceIngredients = juiceIngredients;
 		this.passwordEncoder = passwordEncoder;
 		this.adminEmail = adminEmail.trim().toLowerCase();
 		this.adminPassword = adminPassword;
@@ -54,6 +60,9 @@ public class DataSeeder implements ApplicationRunner {
 					"boisson au lait", "boissons au lait", 3));
 			log.info("Formules d'abonnement de départ créées (Découverte, Espresso, Lait & Douceur).");
 		}
+		if (juiceIngredients.count() == 0) {
+			seedJuiceIngredients();
+		}
 		if (adminEmail.isBlank() || adminPassword.length() < 8) {
 			log.warn("ADMIN_EMAIL / ADMIN_PASSWORD (8 caractères min.) non renseignés : aucun compte administrateur créé.");
 		} else if (!staffUsers.existsByEmailIgnoreCase(adminEmail)) {
@@ -64,5 +73,36 @@ public class DataSeeder implements ApplicationRunner {
 			staffUsers.save(new StaffUser("Barista Démo", DEMO_BARISTA, passwordEncoder.encode("barista1234"), StaffRole.BARISTA, "Maârif"));
 			log.info("Compte barista de démonstration créé : {} / barista1234", DEMO_BARISTA);
 		}
+	}
+
+	/** Ingrédients de départ du composeur de jus (prix = supplément pour un 33 cl, modifiables dans l'administration). */
+	private void seedJuiceIngredients() {
+		Object[][] all = {
+				{"orange", "Orange pressée", JuiceCategory.BASE, 0, "#f7a21b"},
+				{"citronnade", "Citronnade", JuiceCategory.BASE, 0, "#ecd85a"},
+				{"pomme", "Pomme", JuiceCategory.BASE, 3, "#c9d65a"},
+				{"ananas", "Ananas", JuiceCategory.BASE, 4, "#f4c542"},
+				{"carotte", "Carotte", JuiceCategory.BASE, 2, "#ef8a2a"},
+				{"lait", "Lait (smoothie)", JuiceCategory.BASE, 2, "#f1e9db"},
+				{"fraise", "Fraise", JuiceCategory.FRUIT, 5, "#e5414f"},
+				{"mangue", "Mangue", JuiceCategory.FRUIT, 6, "#f9a825"},
+				{"banane", "Banane", JuiceCategory.FRUIT, 4, "#f2e19c"},
+				{"avocat", "Avocat", JuiceCategory.FRUIT, 8, "#93b44f"},
+				{"kiwi", "Kiwi", JuiceCategory.FRUIT, 5, "#7cb342"},
+				{"fruits-rouges", "Fruits rouges", JuiceCategory.FRUIT, 7, "#a8264a"},
+				{"pasteque", "Pastèque", JuiceCategory.FRUIT, 4, "#ef6b6b"},
+				{"grenade", "Grenade", JuiceCategory.FRUIT, 6, "#c2185b"},
+				{"menthe", "Menthe fraîche", JuiceCategory.EXTRA, 2, "#3e9b5b"},
+				{"gingembre", "Gingembre", JuiceCategory.EXTRA, 2, "#d8b26a"},
+				{"miel", "Miel", JuiceCategory.EXTRA, 3, "#dfa530"},
+				{"citron-vert", "Citron vert", JuiceCategory.EXTRA, 2, "#9ccc65"},
+				{"amandes", "Amandes", JuiceCategory.EXTRA, 4, "#c8a27a"},
+				{"fleur-oranger", "Fleur d'oranger", JuiceCategory.EXTRA, 2, "#f6eccd"},
+		};
+		int order = 1;
+		for (Object[] i : all) {
+			juiceIngredients.save(new JuiceIngredient((String) i[0], (String) i[1], (JuiceCategory) i[2], (Integer) i[3], (String) i[4], order++));
+		}
+		log.info("Ingrédients du composeur de jus créés ({}).", all.length);
 	}
 }

@@ -34,6 +34,16 @@ Règles :
 
 Rôles : `BARISTA` (comptoir) et `ADMIN` (comptoir + statistiques, formules, abonnés, gestion du personnel).
 
+## Compose ton jus
+
+Page `/jus` (ouverte à tous) : **1 base** + jusqu'à **2 fruits** + jusqu'à **2 extras**, en **33 cl** (15 DH) ou **50 cl** (20 DH),
+plus le supplément de chaque ingrédient (×1,4 en 50 cl). Aperçu du verre aux couleurs des fruits, prix en direct.
+
+- « Obtenir mon code » → code de 6 caractères + QR (`MIZAJ-JUS:…`), valable 48 h, **à usage unique**.
+- Comptoir : le même scanner lit les cartes et les jus (ou saisie du code) → recette, format, prix → « Servi ».
+- Abonnés : jusqu'à 10 **favoris**, recommandés en un geste depuis « Ma carte » (au prix actuel).
+- Administration → « Jus composés » : ingrédients (supplément, couleur, disponibilité, ajout), jus servis et mix les plus servis sur 30 jours.
+
 ### Option : code de validation par Twilio Verify
 
 Par défaut, l'inscription se fait **sans code**. Si Twilio est configuré, un code est envoyé par **Twilio Verify** : Twilio génère, envoie et vérifie le code (anti-fraude, limites d'envoi),

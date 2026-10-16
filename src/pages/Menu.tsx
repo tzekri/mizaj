@@ -55,6 +55,19 @@ export default function Menu() {
                 <div className="cat-banner__img" style={{ backgroundImage: `url(${img(c.photo, 1000)})` }} />
               </Link>
             ))}
+            <Link to="/jus" className="cat-banner cat-banner--accent">
+              <div className="cat-banner__text">
+                <span className="cat-banner__ar">عصير على مزاجك</span>
+                <h2>
+                  <span>Compose</span>
+                  <strong>ton jus</strong>
+                </h2>
+                <span className="cat-banner__count">
+                  Base, fruits, touche Mizaj : à ton mizaj <Arrow size={22} />
+                </span>
+              </div>
+              <div className="cat-banner__img" style={{ backgroundImage: `url(${img('1613478223719-2ab802602423', 1000)})` }} />
+            </Link>
           </div>
         )}
         <p className="menu-note">Lait végétal (avoine, amande) : +4 DH · Shot supplémentaire : +5 DH · Prix TTC.</p>

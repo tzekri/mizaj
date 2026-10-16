@@ -105,6 +105,40 @@ export type DashboardData = {
   topCustomers: { customerId: number; firstName?: string; phone: string; planName?: string; redemptions: number }[];
 };
 
+// --- Composeur de jus ---
+
+export type JuiceCategory = 'BASE' | 'FRUIT' | 'EXTRA';
+export type JuiceSize = 'S33' | 'S50';
+export type JuiceIngredient = { code: string; name: string; category: JuiceCategory; price: number; color: string; available: boolean };
+export type JuiceCatalog = {
+  ingredients: JuiceIngredient[];
+  sizes: { code: JuiceSize; label: string; basePrice: number; factor: number }[];
+  maxFruits: number;
+  maxExtras: number;
+};
+export type JuiceRecipe = {
+  name?: string;
+  size: JuiceSize;
+  sizeLabel: string;
+  ingredients: JuiceIngredient[];
+  label: string;
+  price: number;
+  available: boolean;
+};
+export type JuiceOrder = {
+  code: string;
+  qr: string;
+  recipe: JuiceRecipe;
+  createdAt: string;
+  expiresAt: string;
+  status: 'PENDING' | 'SERVED' | 'EXPIRED';
+  servedAt?: string;
+  shop?: string;
+};
+export type JuiceFavorite = { id: number; recipe: JuiceRecipe; createdAt: string };
+export type RecipeInput = { name?: string; size: JuiceSize; ingredients: string[] };
+export type JuiceStats = { served: number; revenue: number; created: number; topMixes: { label: string; sizeLabel: string; count: number }[] };
+
 export class ApiError extends Error {
   constructor(public status: number, message: string, public code?: string) {
     super(message);
@@ -231,6 +265,25 @@ export const api = {
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 5000);
   },
+  juiceCatalog: () => request<JuiceCatalog>('GET', '/api/public/juice'),
+  /** Abonné connecté : la commande est rattachée à son compte ; sinon commande anonyme. */
+  juiceOrder: (r: RecipeInput) =>
+    customerToken.get()
+      ? request<JuiceOrder>('POST', '/api/me/juices/order', r, customerToken.get())
+      : request<JuiceOrder>('POST', '/api/public/juice/orders', r),
+  juiceFavorites: () => request<JuiceFavorite[]>('GET', '/api/me/juices', undefined, customerToken.get()),
+  addJuiceFavorite: (r: RecipeInput) => request<JuiceFavorite>('POST', '/api/me/juices', r, customerToken.get()),
+  deleteJuiceFavorite: (id: number) => request<null>('DELETE', `/api/me/juices/${id}`, undefined, customerToken.get()),
+  orderJuiceFavorite: (id: number) => request<JuiceOrder>('POST', `/api/me/juices/${id}/order`, undefined, customerToken.get()),
+  juiceScan: (code: string) => request<JuiceOrder>('POST', '/api/staff/juice/scan', { code }, staffSession.get()?.token),
+  juiceServe: (code: string) => request<JuiceOrder>('POST', `/api/staff/juice/${encodeURIComponent(code)}/serve`, undefined, staffSession.get()?.token),
+  juiceIngredients: () => request<JuiceIngredient[]>('GET', '/api/admin/juice/ingredients', undefined, staffSession.get()?.token),
+  saveJuiceIngredient: (i: Omit<JuiceIngredient, 'code'>, code?: string) =>
+    code
+      ? request<JuiceIngredient>('PUT', `/api/admin/juice/ingredients/${code}`, i, staffSession.get()?.token)
+      : request<JuiceIngredient>('POST', '/api/admin/juice/ingredients', i, staffSession.get()?.token),
+  juiceStats: (from: string, to: string) =>
+    request<JuiceStats>('GET', `/api/admin/juice/stats?from=${from}&to=${to}`, undefined, staffSession.get()?.token),
   stats: () => request<Stats>('GET', '/api/admin/stats', undefined, staffSession.get()?.token),
   subscribers: () => request<Subscriber[]>('GET', '/api/admin/subscribers', undefined, staffSession.get()?.token),
   staff: () => request<StaffMember[]>('GET', '/api/admin/staff', undefined, staffSession.get()?.token),

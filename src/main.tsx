@@ -11,6 +11,7 @@ import Subscribe from './pages/Subscribe';
 import MyCard from './pages/MyCard';
 import Barista from './pages/Barista';
 import Poster from './pages/Poster';
+import Juice from './pages/Juice';
 import './styles.css';
 
 function ScrollTop() {
@@ -36,6 +37,7 @@ createRoot(document.getElementById('root')!).render(
           <Route path="/ma-carte" element={<MyCard />} />
           <Route path="/barista" element={<Barista />} />
           <Route path="/affiche" element={<Poster />} />
+          <Route path="/jus" element={<Juice />} />
           <Route path="*" element={<Home />} />
         </Routes>
       </main>

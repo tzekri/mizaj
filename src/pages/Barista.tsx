@@ -15,6 +15,9 @@ import {
   type StaffSession,
   type Stats,
   type Subscriber,
+  type JuiceIngredient,
+  type JuiceOrder,
+  type JuiceStats,
   type Plan,
   type PlanInput,
   type Today,
@@ -22,6 +25,9 @@ import {
 
 import { SHOPS } from '../config';
 import Dashboard from './Dashboard';
+import { JuiceGlass } from '../components/juice';
+
+const JUICE_QR_PREFIX = 'MIZAJ-JUS:';
 import { Header } from '../components/Layout';
 
 export default function Barista() {
@@ -108,6 +114,7 @@ type Notice = { kind: 'ok' | 'error'; text: string } | null;
 
 function Counter({ onAuthError }: { onAuthError: () => void }) {
   const [card, setCard] = useState<StaffCard | null>(null);
+  const [juice, setJuice] = useState<JuiceOrder | null>(null);
   const [notice, setNotice] = useState<Notice>(null);
   const [busy, setBusy] = useState(false);
   const [today, setToday] = useState<Today | null>(null);
@@ -142,7 +149,14 @@ function Counter({ onAuthError }: { onAuthError: () => void }) {
       setBusy(true);
       setNotice(null);
       try {
-        setCard(await api.scan(data));
+        // Le même scanner lit les cartes d'abonné et les codes de jus composés
+        if (data.toUpperCase().startsWith(JUICE_QR_PREFIX)) {
+          setCard(null);
+          setJuice(await api.juiceScan(data));
+        } else {
+          setJuice(null);
+          setCard(await api.scan(data));
+        }
       } catch (e) {
         fail(e);
       } finally {
@@ -157,7 +171,15 @@ function Counter({ onAuthError }: { onAuthError: () => void }) {
     setBusy(true);
     setNotice(null);
     try {
-      setCard(await api.lookup(phone));
+      // 6 caractères : code de jus ; sinon numéro de téléphone
+      const compact = phone.replace(/[\s-]/g, '');
+      if (compact.length === 6) {
+        setCard(null);
+        setJuice(await api.juiceScan(compact));
+      } else {
+        setJuice(null);
+        setCard(await api.lookup(phone));
+      }
       setPhone('');
     } catch (err) {
       fail(err);
@@ -222,8 +244,24 @@ function Counter({ onAuthError }: { onAuthError: () => void }) {
     run(() => api.undo(card.undoableRedemptionId!), (c) => `Validation annulée — reste ${c.drinksLeft} / ${c.drinksTotal} (${c.plan.unitPlural}).`);
   }
 
+  async function serveJuice() {
+    if (!juice) return;
+    setBusy(true);
+    setNotice(null);
+    try {
+      const served = await api.juiceServe(juice.code);
+      setJuice(served);
+      setNotice({ kind: 'ok', text: `Jus servi ✓ — ${served.recipe.price} DH encaissés.` });
+    } catch (e) {
+      fail(e);
+    } finally {
+      setBusy(false);
+    }
+  }
+
   function reset() {
     setCard(null);
+    setJuice(null);
     setNotice(null);
   }
 
@@ -236,20 +274,22 @@ function Counter({ onAuthError }: { onAuthError: () => void }) {
             <div><strong>{today.activations}</strong><span>abonnements activés</span></div>
           </div>
         )}
-        {card ? (
+        {card || juice ? (
           <button className="btn btn--accent btn--block" onClick={reset}>Scanner un autre client</button>
         ) : (
           <Scanner onResult={onScan} paused={busy} />
         )}
         <form className="lookup" onSubmit={lookup}>
-          <input type="tel" inputMode="tel" placeholder="Ou rechercher par numéro : 06…" value={phone} onChange={(e) => setPhone(e.target.value)} />
+          <input type="tel" inputMode="tel" placeholder="Numéro (06…) ou code jus" value={phone} onChange={(e) => setPhone(e.target.value)} />
           <button className="btn btn--outline btn--sm" disabled={busy || !phone.trim()}>Rechercher</button>
         </form>
       </div>
 
       <div className="counter__right">
         {notice && <p className={`notice notice--${notice.kind}`} role="status">{notice.text}</p>}
-        {card ? (
+        {juice ? (
+          <JuicePanel order={juice} busy={busy} onServe={serveJuice} />
+        ) : card ? (
           <CustomerPanel
             card={card}
             busy={busy}
@@ -263,7 +303,7 @@ function Counter({ onAuthError }: { onAuthError: () => void }) {
         ) : (
           <div className="counter__empty">
             <h2>Scannez la carte du client</h2>
-            <p>Le client ouvre « Ma carte » sur son téléphone et présente son QR code devant la caméra.</p>
+            <p>Le client présente son QR code « Ma carte » (abonnement) ou le code de son jus composé devant la caméra.</p>
           </div>
         )}
       </div>
@@ -347,6 +387,47 @@ function CustomerPanel({
           <button className="link" disabled={busy} onClick={onUndo}>Annuler la dernière validation</button>
         )}
       </div>
+    </div>
+  );
+}
+
+/** Jus composé à préparer : recette, format et prix, puis « Servi ». */
+function JuicePanel({ order, busy, onServe }: { order: JuiceOrder; busy: boolean; onServe: () => void }) {
+  const r = order.recipe;
+  return (
+    <div className={`customer juice-panel customer--${order.status === 'PENDING' ? 'active' : 'expired'}`}>
+      <div className="customer__head">
+        <div>
+          <h2>{r.name || 'Jus composé'}</h2>
+          <p>Code {order.code.slice(0, 3)} {order.code.slice(3)} · créé le {fmtDateTime(order.createdAt)}</p>
+        </div>
+        <span className={`badge ${order.status === 'PENDING' ? 'badge--active' : 'badge--empty'}`}>
+          {order.status === 'PENDING' ? 'À préparer' : order.status === 'SERVED' ? 'Déjà servi' : 'Code expiré'}
+        </span>
+      </div>
+      <div className="juice-panel__recipe">
+        <JuiceGlass items={r.ingredients} size={r.size} label={r.label} />
+        <div>
+          <p className="juice-panel__size">{r.sizeLabel}</p>
+          <ul>
+            {r.ingredients.map((i) => (
+              <li key={i.code}>
+                <i style={{ background: i.color }} />
+                <span>{i.name}</span>
+                <small>{i.category === 'BASE' ? 'base' : i.category === 'FRUIT' ? 'fruit' : 'extra'}</small>
+              </li>
+            ))}
+          </ul>
+          <p className="juice-panel__price">{r.price} DH</p>
+        </div>
+      </div>
+      {order.status === 'SERVED' && <p className="customer__msg">Servi le {fmtDateTime(order.servedAt)}{order.shop ? ` · ${order.shop}` : ''}.</p>}
+      {order.status === 'EXPIRED' && <p className="customer__msg">Ce code a expiré : le client peut recréer son jus en un geste.</p>}
+      {order.status === 'PENDING' && (
+        <div className="customer__actions">
+          <button className="btn btn--accent btn--xl" disabled={busy} onClick={onServe}>Servi — {r.price} DH encaissés</button>
+        </div>
+      )}
     </div>
   );
 }
@@ -475,6 +556,8 @@ function Admin({ onAuthError }: { onAuthError: () => void }) {
       </p>
 
       <PlansEditor />
+
+      <JuiceAdmin />
 
       <h2>Abonnés</h2>
       {subs.length === 0 ? (
@@ -632,6 +715,126 @@ function PlansEditor() {
         </form>
       ) : (
         <p><button className="btn btn--outline btn--sm" onClick={() => edit()}>+ Nouvelle formule</button></p>
+      )}
+    </>
+  );
+}
+
+const CATEGORY_LABEL: Record<JuiceIngredient['category'], string> = { BASE: 'Base', FRUIT: 'Fruit', EXTRA: 'Extra' };
+const EMPTY_INGREDIENT: Omit<JuiceIngredient, 'code'> = { name: '', category: 'FRUIT', price: 5, color: '#f2a03d', available: true };
+const isoDay = (d: Date) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Africa/Casablanca' }).format(d);
+
+/** Composeur de jus : ingrédients (prix, couleur, disponibilité) et jus servis sur 30 jours. */
+function JuiceAdmin() {
+  const [items, setItems] = useState<JuiceIngredient[]>([]);
+  const [stats, setStats] = useState<JuiceStats | null>(null);
+  const [editing, setEditing] = useState<string | null>(null); // code, ou 'new'
+  const [form, setForm] = useState<Omit<JuiceIngredient, 'code'>>(EMPTY_INGREDIENT);
+  const [error, setError] = useState<string | null>(null);
+
+  const load = useCallback(() => {
+    api.juiceIngredients().then(setItems).catch((e) => setError((e as ApiError).message));
+    const to = new Date();
+    const from = new Date(to.getTime() - 29 * 86_400_000);
+    api.juiceStats(isoDay(from), isoDay(to)).then(setStats).catch(() => {});
+  }, []);
+  useEffect(load, [load]);
+
+  function edit(i?: JuiceIngredient) {
+    setError(null);
+    setEditing(i ? i.code : 'new');
+    setForm(i ? { name: i.name, category: i.category, price: i.price, color: i.color, available: i.available } : EMPTY_INGREDIENT);
+  }
+
+  async function save(e: FormEvent) {
+    e.preventDefault();
+    setError(null);
+    try {
+      await api.saveJuiceIngredient(form, editing === 'new' ? undefined : editing ?? undefined);
+      setEditing(null);
+      load();
+    } catch (err) {
+      setError((err as ApiError).message);
+    }
+  }
+
+  async function toggle(i: JuiceIngredient) {
+    try {
+      await api.saveJuiceIngredient({ name: i.name, category: i.category, price: i.price, color: i.color, available: !i.available }, i.code);
+      load();
+    } catch (err) {
+      setError((err as ApiError).message);
+    }
+  }
+
+  return (
+    <>
+      <h2>Jus composés</h2>
+      {stats && (
+        <div className="kpis kpis--3">
+          <Kpi value={stats.served} label="jus servis (30 jours)" />
+          <Kpi value={`${stats.revenue} DH`} label="encaissés (30 jours)" />
+          <Kpi value={stats.created} label="codes créés (30 jours)" />
+        </div>
+      )}
+      {stats && stats.topMixes.length > 0 && (
+        <div className="top-mixes">
+          <h3>Mix les plus servis</h3>
+          <ol>
+            {stats.topMixes.map((m) => (
+              <li key={m.label + m.sizeLabel}><b>{m.label}</b> <span>{m.sizeLabel} · {m.count} fois</span></li>
+            ))}
+          </ol>
+        </div>
+      )}
+      <div className="table-wrap">
+        <table className="table">
+          <thead>
+            <tr><th>Ingrédient</th><th>Type</th><th className="num">Supplément (33 cl)</th><th>Disponible</th><th /></tr>
+          </thead>
+          <tbody>
+            {items.map((i) => (
+              <tr key={i.code} className={i.available ? '' : 'muted'}>
+                <td><i className="key" style={{ background: i.color }} />{i.name}</td>
+                <td>{CATEGORY_LABEL[i.category]}</td>
+                <td className="num">{i.price ? `+${i.price} DH` : 'inclus'}</td>
+                <td><button className="link" onClick={() => toggle(i)}>{i.available ? 'Oui — masquer' : 'Non — proposer'}</button></td>
+                <td><button className="link" onClick={() => edit(i)}>Modifier</button></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p className="dash-note">Prix d’un jus : 15 DH (33 cl) ou 20 DH (50 cl) + suppléments des ingrédients (×1,4 en 50 cl).</p>
+      {editing ? (
+        <form className="form new-staff" onSubmit={save}>
+          <h3 className="form__full">{editing === 'new' ? 'Nouvel ingrédient' : `Modifier « ${form.name} »`}</h3>
+          <label>Nom<input value={form.name} maxLength={40} required onChange={(e) => setForm({ ...form, name: e.target.value })} /></label>
+          <label>
+            Type
+            <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value as JuiceIngredient['category'] })}>
+              <option value="BASE">Base</option>
+              <option value="FRUIT">Fruit</option>
+              <option value="EXTRA">Extra</option>
+            </select>
+          </label>
+          <label>Supplément 33 cl (DH)<input type="number" min={0} max={200} value={form.price} onChange={(e) => setForm({ ...form, price: Number(e.target.value) })} /></label>
+          <label>
+            Couleur dans le verre
+            <input type="color" value={form.color} onChange={(e) => setForm({ ...form, color: e.target.value })} />
+          </label>
+          <label className="check form__full">
+            <input type="checkbox" checked={form.available} onChange={(e) => setForm({ ...form, available: e.target.checked })} />
+            Proposé dans le composeur
+          </label>
+          {error && <p className="form-error form__full">{error}</p>}
+          <div className="form__full pair-actions">
+            <button className="btn btn--accent">Enregistrer</button>
+            <button type="button" className="btn btn--outline" onClick={() => setEditing(null)}>Annuler</button>
+          </div>
+        </form>
+      ) : (
+        <p><button className="btn btn--outline btn--sm" onClick={() => edit()}>+ Nouvel ingrédient</button></p>
       )}
     </>
   );

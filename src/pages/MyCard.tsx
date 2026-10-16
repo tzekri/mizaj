@@ -1,7 +1,20 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, Navigate, useSearchParams } from 'react-router-dom';
 import QRCode from 'qrcode';
-import { ApiError, STATUS_LABEL, api, customerToken, daysLeft, fmtDate, fmtDateTime, type Card, type Plan } from '../api';
+import {
+  ApiError,
+  STATUS_LABEL,
+  api,
+  customerToken,
+  daysLeft,
+  fmtDate,
+  fmtDateTime,
+  type Card,
+  type JuiceFavorite,
+  type JuiceOrder,
+  type Plan,
+} from '../api';
+import { JuiceTicket } from '../components/juice';
 import { BRAND } from '../config';
 import { Header } from '../components/Layout';
 import { Whatsapp } from '../components/Icons';
@@ -119,6 +132,7 @@ export default function MyCard() {
               <StatusHelp card={card} onPlanChange={setCard} />
               {error && <p className="form-error">{error}</p>}
               <HomeScreenTip />
+              <JuiceFavorites />
 
               {card.history.length > 0 && (
                 <div className="history">
@@ -262,5 +276,66 @@ function PlanSwitcher({ current, onChange }: { current: Plan; onChange: (c: Card
         ))}
       </select>
     </label>
+  );
+}
+
+/** Jus favoris de l'abonné : un geste pour obtenir un nouveau code à présenter en caisse. */
+function JuiceFavorites() {
+  const [favorites, setFavorites] = useState<JuiceFavorite[] | null>(null);
+  const [order, setOrder] = useState<JuiceOrder | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const load = useCallback(() => {
+    api.juiceFavorites().then(setFavorites).catch(() => setFavorites([]));
+  }, []);
+  useEffect(load, [load]);
+
+  async function reorder(id: number) {
+    setError(null);
+    try {
+      setOrder(await api.orderJuiceFavorite(id));
+    } catch (e) {
+      setError((e as ApiError).message);
+    }
+  }
+
+  async function remove(id: number) {
+    if (!confirm('Retirer ce jus de vos favoris ?')) return;
+    try {
+      await api.deleteJuiceFavorite(id);
+      load();
+    } catch (e) {
+      setError((e as ApiError).message);
+    }
+  }
+
+  return (
+    <div className="juice-favs">
+      <div className="juice-favs__head">
+        <h3>Mes jus favoris</h3>
+        <Link to="/jus" className="link">Composer un jus</Link>
+      </div>
+      {favorites && favorites.length === 0 && (
+        <p className="mycard__tip">Composez votre jus et enregistrez-le en favori : il vous attendra ici.</p>
+      )}
+      <ul>
+        {favorites?.map((f) => (
+          <li key={f.id} className={f.recipe.available ? '' : 'muted'}>
+            <span className="juice-favs__dots" aria-hidden>
+              {f.recipe.ingredients.map((i) => <i key={i.code} style={{ background: i.color }} />)}
+            </span>
+            <span className="juice-favs__text">
+              <b>{f.recipe.name}</b>
+              <small>{f.recipe.label} · {f.recipe.sizeLabel} · {f.recipe.price} DH</small>
+              {!f.recipe.available && <small>Un ingrédient n’est pas disponible en ce moment.</small>}
+            </span>
+            <button className="btn btn--accent btn--sm" disabled={!f.recipe.available} onClick={() => reorder(f.id)}>Commander</button>
+            <button className="link" onClick={() => remove(f.id)} aria-label={`Retirer ${f.recipe.name}`}>Retirer</button>
+          </li>
+        ))}
+      </ul>
+      {error && <p className="form-error">{error}</p>}
+      {order && <JuiceTicket order={order} />}
+    </div>
   );
 }

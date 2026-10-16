@@ -21,6 +21,7 @@ const NAV = [
   { to: '/', label: 'Accueil' },
   { to: '/menu', label: 'Menu' },
   { to: '/abonnement', label: 'Abonnement' },
+  { to: '/jus', label: 'Compose ton jus' },
   { to: '/nos-cafes', label: 'Nos coffee shops' },
   { to: '/franchise', label: 'Devenez franchisé' },
 ];
