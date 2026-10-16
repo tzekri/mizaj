@@ -104,7 +104,7 @@ export default function Juice() {
     <>
       <PageHero
         title="Compose ton jus"
-        subtitle="Fruits pressés à la minute, à ton mizaj. Compose, obtiens ton code, et récupère ton jus en caisse."
+        subtitle="Fruits pressés à la minute, à ton mizaje. Compose, obtiens ton code, et récupère ton jus en caisse."
         photo={img('1600271886742-f049cd451bba', 1920)}
       />
       <section className="section container juice">

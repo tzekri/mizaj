@@ -604,11 +604,12 @@ h1, h2, h3 { line-height: 1.15; margin: 0 0 0.5em; }
   .poster-page { display: block; padding: 0; width: auto; }
   .poster {
     width: 210mm; height: 297mm; aspect-ratio: auto; border-radius: 0; box-shadow: none;
-    padding: 22mm 18mm 16mm; justify-content: flex-start;
+    padding: 14mm 18mm 12mm; justify-content: flex-start; overflow: hidden;
   }
-  .poster__brand { width: 72%; }
-  .poster h2 { font-size: 3.4rem; }
-  .poster__cta { font-size: 3rem; }
+  .poster__brand { width: 50%; margin-bottom: 8px; }
+  .poster__qr { width: 50%; }
+  .poster h2 { font-size: 3rem; margin-bottom: 16px; }
+  .poster__cta { font-size: 2.6rem; margin: 12px 0 8px; }
   .poster__steps { font-size: 1.1rem; }
   .poster__url { font-size: 1rem; }
 }

@@ -39,7 +39,7 @@ Rôles : `BARISTA` (comptoir) et `ADMIN` (comptoir + statistiques, formules, abo
 Page `/jus` (ouverte à tous) : **1 base** + jusqu'à **2 fruits** + jusqu'à **2 extras**, en **33 cl** (15 DH) ou **50 cl** (20 DH),
 plus le supplément de chaque ingrédient (×1,4 en 50 cl). Aperçu du verre aux couleurs des fruits, prix en direct.
 
-- « Obtenir mon code » → code de 6 caractères + QR (`MIZAJ-JUS:…`), valable 48 h, **à usage unique**.
+- « Obtenir mon code » → code de 6 caractères + QR (`MIZAJE-JUS:…`), valable 48 h, **à usage unique**.
 - Comptoir : le même scanner lit les cartes et les jus (ou saisie du code) → recette, format, prix → « Servi ».
 - Abonnés : jusqu'à 10 **favoris**, recommandés en un geste depuis « Ma carte » (au prix actuel).
 - Administration → « Jus composés » : ingrédients (supplément, couleur, disponibilité, ajout), jus servis et mix les plus servis sur 30 jours.
@@ -74,10 +74,10 @@ npm run dev                       # site : http://localhost:5175 (proxy /api →
 ```bash
 cd backend
 ./mvnw -DskipTests package
-java -jar target/mizaj-backend-0.0.1-SNAPSHOT.jar --spring.profiles.active=local   # API : http://localhost:8095 (H2 en mémoire)
+java -jar target/mizaje-backend-0.0.1-SNAPSHOT.jar --spring.profiles.active=local   # API : http://localhost:8095 (H2 en mémoire)
 ```
 
-Comptes de démonstration : `admin@mizajcoffee.ma` / `mizaj1234`, `barista@mizajcoffee.ma` / `barista1234`.
+Comptes de démonstration : `admin@mizajecoffee.ma` / `mizaj1234`, `barista@mizajecoffee.ma` / `barista1234`.
 La caméra du scanner exige HTTPS (ou localhost).
 
 ## Déploiement (Render)

@@ -8,10 +8,10 @@
 		<version>3.3.11</version>
 		<relativePath/>
 	</parent>
-	<groupId>ma.mizaj</groupId>
-	<artifactId>mizaj-backend</artifactId>
+	<groupId>ma.mizaje</groupId>
+	<artifactId>mizaje-backend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>mizaj-backend</name>
+	<name>mizaje-backend</name>
 	<description>Mizaje Coffee — abonnements espresso (comptes, code WhatsApp, carte QR, espace barista)</description>
 
 	<properties>

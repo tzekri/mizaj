@@ -1,8 +1,8 @@
 # Profil "local" : base H2 en mémoire, aucun PostgreSQL requis.
-# Lancer avec :  java -jar target/mizaj-backend-0.0.1-SNAPSHOT.jar --spring.profiles.active=local
+# Lancer avec :  java -jar target/mizaje-backend-0.0.1-SNAPSHOT.jar --spring.profiles.active=local
 spring:
   datasource:
-    url: jdbc:h2:mem:mizaj;DB_CLOSE_DELAY=-1
+    url: jdbc:h2:mem:mizaje;DB_CLOSE_DELAY=-1
     driver-class-name: org.h2.Driver
     username: sa
     password: ""

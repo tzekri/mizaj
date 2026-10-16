@@ -27,7 +27,8 @@ import { SHOPS } from '../config';
 import Dashboard from './Dashboard';
 import { IngredientThumb, JuiceGlass } from '../components/juice';
 
-const JUICE_QR_PREFIX = 'MIZAJ-JUS:';
+/** Codes de jus ; « MIZAJ-JUS: » : codes générés avant le passage au nom Mizaje. */
+const JUICE_QR_PREFIXES = ['MIZAJE-JUS:', 'MIZAJ-JUS:'];
 import { Header } from '../components/Layout';
 
 export default function Barista() {
@@ -150,7 +151,7 @@ function Counter({ onAuthError }: { onAuthError: () => void }) {
       setNotice(null);
       try {
         // Le même scanner lit les cartes d'abonné et les codes de jus composés
-        if (data.toUpperCase().startsWith(JUICE_QR_PREFIX)) {
+        if (JUICE_QR_PREFIXES.some((p) => data.toUpperCase().startsWith(p))) {
           setCard(null);
           setJuice(await api.juiceScan(data));
         } else {

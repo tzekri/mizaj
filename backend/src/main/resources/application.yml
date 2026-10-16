@@ -5,11 +5,11 @@ server:
 
 spring:
   application:
-    name: mizaj-backend
+    name: mizaje-backend
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:mizaj}?sslmode=prefer
-    username: ${DB_USER:mizaj}
-    password: ${DB_PASSWORD:mizajpwd}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:mizaje}?sslmode=prefer
+    username: ${DB_USER:mizaje}
+    password: ${DB_PASSWORD:mizajepwd}
   jpa:
     hibernate:
       ddl-auto: update
@@ -45,7 +45,7 @@ app:
     content-sid: ${TWILIO_CONTENT_SID:}
   # Compte administrateur créé au démarrage s'il n'existe pas.
   admin:
-    email: ${ADMIN_EMAIL:admin@mizajcoffee.ma}
+    email: ${ADMIN_EMAIL:admin@mizajecoffee.ma}
     password: ${ADMIN_PASSWORD:mizaj1234}
-  # Crée un compte barista de démonstration (barista@mizajcoffee.ma / barista1234).
+  # Crée un compte barista de démonstration (barista@mizajecoffee.ma / barista1234).
   seed-demo: ${SEED_DEMO:true}

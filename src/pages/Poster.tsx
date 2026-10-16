@@ -50,7 +50,7 @@ export default function Poster() {
           <div className="poster-tools__actions">
             <button className="btn btn--accent" onClick={() => window.print()}>Imprimer l’affiche</button>
             {qr && (
-              <a className="btn btn--outline" href={qr} download="mizaj-qr-abonnement.png">Télécharger le QR (PNG)</a>
+              <a className="btn btn--outline" href={qr} download="mizaje-qr-abonnement.png">Télécharger le QR (PNG)</a>
             )}
             <a
               className="btn btn--whatsapp"

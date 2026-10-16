@@ -11,7 +11,7 @@ export const BRAND = {
   since: 2024,
   phone: '+212 6 00 00 00 00',
   whatsapp: '212600000000',
-  email: 'contact@mizajcoffee.ma',
+  email: 'contact@mizajecoffee.ma',
   instagram: 'https://www.instagram.com/',
   tiktok: 'https://www.tiktok.com/',
 };

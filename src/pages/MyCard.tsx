@@ -64,7 +64,7 @@ export default function MyCard() {
 
   useEffect(() => {
     if (!card) return;
-    QRCode.toDataURL(`MIZAJ:${card.qrToken}`, { width: 560, margin: 2, errorCorrectionLevel: 'M', color: { dark: '#14100d', light: '#ffffff' } })
+    QRCode.toDataURL(`MIZAJE:${card.qrToken}`, { width: 560, margin: 2, errorCorrectionLevel: 'M', color: { dark: '#14100d', light: '#ffffff' } })
       .then(setQr)
       .catch(() => setQr(''));
   }, [card?.qrToken]);

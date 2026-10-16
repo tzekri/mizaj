@@ -63,7 +63,7 @@ export default function Menu() {
                   <strong>ton jus</strong>
                 </h2>
                 <span className="cat-banner__count">
-                  Base, fruits, touche Mizaje : à ton mizaj <Arrow size={22} />
+                  Base, fruits, touche Mizaje : à ton mizaje <Arrow size={22} />
                 </span>
               </div>
               <div className="cat-banner__img" style={{ backgroundImage: `url(${img('1613478223719-2ab802602423', 1000)})` }} />

@@ -39,7 +39,7 @@ export async function renderCardImage(opts: { qrToken: string; firstName?: strin
   roundRect(ctx, x, y, box, box, 48);
   ctx.fill();
   const qr = new Image();
-  qr.src = await QRCode.toDataURL(`MIZAJ:${opts.qrToken}`, { width: box - 80, margin: 2, errorCorrectionLevel: 'M', color: { dark: '#14100d', light: '#ffffff' } });
+  qr.src = await QRCode.toDataURL(`MIZAJE:${opts.qrToken}`, { width: box - 80, margin: 2, errorCorrectionLevel: 'M', color: { dark: '#14100d', light: '#ffffff' } });
   await qr.decode();
   ctx.drawImage(qr, x + 40, y + 40, box - 80, box - 80);
 
@@ -70,7 +70,7 @@ function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: numbe
  * @returns 'shared' | 'downloaded' | 'cancelled'
  */
 export async function shareCard(blob: Blob, text: string): Promise<'shared' | 'downloaded' | 'cancelled'> {
-  const file = new File([blob], 'carte-mizaj.png', { type: 'image/png' });
+  const file = new File([blob], 'carte-mizaje.png', { type: 'image/png' });
   if (navigator.canShare?.({ files: [file] })) {
     try {
       await navigator.share({ files: [file], text, title: 'Ma carte Mizaje Coffee' });
@@ -82,7 +82,7 @@ export async function shareCard(blob: Blob, text: string): Promise<'shared' | 'd
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'carte-mizaj.png';
+  a.download = 'carte-mizaje.png';
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 5000);
   return 'downloaded';
