@@ -49,13 +49,6 @@ export const Whatsapp = ({ size = 26 }: P) => (
   </svg>
 );
 
-export const Bean = ({ size = 40 }: P) => (
-  <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
-    <ellipse cx="32" cy="32" rx="15" ry="22" transform="rotate(30 32 32)" fill="currentColor" />
-    <path d="M23 15c11 8 6 25 18 34" stroke="var(--bg-dark)" strokeWidth="3.5" strokeLinecap="round" />
-  </svg>
-);
-
 export const Cup = ({ size = 18, on = true }: P & { on?: boolean }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" style={{ opacity: on ? 1 : 0.22 }} aria-hidden>
     <path d="M3 8h14v5a6 6 0 0 1-6 6H9a6 6 0 0 1-6-6V8zm14 1h1.5a2.5 2.5 0 0 1 0 5H17v-1.6h1.5a.9.9 0 0 0 0-1.8H17V9zM2 20.5h17v1.5H2z" />

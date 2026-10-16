@@ -32,7 +32,7 @@ export default function Franchise() {
       <PageHero
         title="Devenez franchisé"
         subtitle="Ouvrez votre coffee shop Mizaj et rejoignez une marque marocaine en pleine croissance."
-        photo={img(PHOTOS.machine, 1920)}
+        photo="/brand/storefront.jpg"
       />
       <section className="section container">
         <div className="perks">

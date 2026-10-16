@@ -2,16 +2,18 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { BRAND, PHOTOS, POPULAR, SHOPS, SLIDES, findItem, img } from '../config';
 import { Header } from '../components/Layout';
-import { Arrow, Bean, Clock, Pin } from '../components/Icons';
+import { Arrow, Clock, Pin } from '../components/Icons';
 
 function Hero() {
   return (
     <section className="hero" style={{ backgroundImage: `url(${img(PHOTOS.heroBeans, 1920)})` }}>
-      <Header />
+      <Header hideLogo />
       <div className="hero__content">
-        <h1 className="hero__brand">MIZAJ</h1>
+        <h1 className="hero__brand">
+          <img src="/brand/logo-light.png" alt={`Mizaj Coffee — ${BRAND.arabicTagline}`} />
+        </h1>
         <p className="hero__tagline">{BRAND.tagline}</p>
-        <p className="hero__ar">{BRAND.arabicTagline}</p>
+        <p className="hero__fr">Votre café, selon votre humeur.</p>
         <div className="hero__ctas">
           <Link to="/menu" className="btn btn--light">Découvrir le menu</Link>
           <Link to="/franchise" className="btn btn--ghost">Devenir franchisé</Link>
@@ -110,7 +112,7 @@ function Slider() {
 function Craft() {
   return (
     <section className="craft">
-      <Bean size={70} />
+      <img src="/brand/icon.png" alt="" className="craft__icon" />
       <p>
         Chaque tasse est le fruit d’un <em>savoir-faire minutieux</em>. Nos cafés d’exception éveillent vos sens et
         apportent chaleur et plaisir à chaque moment. Découvrez l’harmonie parfaite entre tradition et goût : nos cafés{' '}
@@ -188,7 +190,7 @@ function SubscriptionTeaser() {
         </div>
         <div className="sub-teaser__phone" aria-hidden>
           <div className="mini-card">
-            <span className="mini-card__brand">{BRAND.arabic}</span>
+            <img className="mini-card__brand" src="/brand/logo-mark-light.png" alt="" />
             <div className="mini-card__qr" />
             <strong>27 / 30</strong>
             <span>espressos restants</span>

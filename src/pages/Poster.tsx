@@ -64,7 +64,7 @@ export default function Poster() {
         </div>
 
         <article className="poster">
-          <span className="poster__brand">{BRAND.arabic}</span>
+          <img className="poster__brand" src="/brand/logo-light.png" alt={`Mizaj Coffee — ${BRAND.arabicTagline}`} />
           <p className="poster__eyebrow">Mizaj Coffee · Abonnement</p>
           <h2>
             Votre café

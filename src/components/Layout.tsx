@@ -3,13 +3,16 @@ import { Link, NavLink, useLocation } from 'react-router-dom';
 import { BRAND, SHOPS } from '../config';
 import { Instagram, Search, Tiktok, Whatsapp } from './Icons';
 
-export function Logo({ small = false }: { small?: boolean }) {
+/** Logo officiel (version claire pour fonds sombres) ; « full » ajoute la signature « قهوتك على مزاجك ». */
+export function Logo({ small = false, full = false, hidden = false }: { small?: boolean; full?: boolean; hidden?: boolean }) {
   return (
-    <Link to="/" className={`logo ${small ? 'logo--small' : ''}`} aria-label="Mizaj Coffee — accueil">
-      <span className="logo__ar">{BRAND.arabic}</span>
-      <span className="logo__line">
-        Mizaj <i>·</i> Coffee
-      </span>
+    <Link
+      to="/"
+      className={`logo ${small ? 'logo--small' : ''} ${hidden ? 'logo--hidden' : ''}`}
+      aria-label="Mizaj Coffee — accueil"
+      tabIndex={hidden ? -1 : undefined}
+    >
+      <img src={full ? '/brand/logo-light.png' : '/brand/logo-mark-light.png'} alt={`Mizaj Coffee — ${BRAND.arabicTagline}`} />
     </Link>
   );
 }
@@ -22,7 +25,8 @@ const NAV = [
   { to: '/franchise', label: 'Devenez franchisé' },
 ];
 
-export function Header({ small = false }: { small?: boolean }) {
+/** hideLogo : l'accueil affiche déjà le grand logo dans son héros. */
+export function Header({ small = false, hideLogo = false }: { small?: boolean; hideLogo?: boolean }) {
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
   useEffect(() => {
@@ -42,7 +46,7 @@ export function Header({ small = false }: { small?: boolean }) {
             <Tiktok size={13} />
           </a>
         </div>
-        <Logo small={small} />
+        <Logo small={small} hidden={hideLogo} />
         <div className="header__right">
           <Link to="/menu" className="round-icon" aria-label="Rechercher dans le menu">
             <Search size={13} />
@@ -68,7 +72,7 @@ export function Footer() {
     <footer className="footer">
       <div className="container footer__grid">
         <div>
-          <Logo small />
+          <Logo full />
           <p className="footer__about">
             Café de spécialité torréfié à Casablanca — <span dir="rtl" lang="ar">{BRAND.arabicTagline}</span>
           </p>

@@ -4,7 +4,7 @@ export const BRAND = {
   name: 'Mizaj',
   arabic: 'مزاج',
   tagline: 'Enjoy Your Mizaj',
-  arabicTagline: 'قهوة على مزاجك',
+  arabicTagline: 'قهوتك على مزاجك',
   since: 2024,
   phone: '+212 6 00 00 00 00',
   whatsapp: '212600000000',
