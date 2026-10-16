@@ -27,7 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Codes à 6 chiffres : validation du numéro à l'inscription (si Twilio est configuré) et codes de récupération
  * donnés en caisse par le barista.
  * <p>
- * Avec Twilio Verify, Twilio génère et vérifie le code ; sinon Mizaj le génère et n'en garde que l'empreinte.
+ * Avec Twilio Verify, Twilio génère et vérifie le code ; sinon Mizaje le génère et n'en garde que l'empreinte.
  * Garde-fous : 10 min de validité, 5 essais par code, 60 s entre deux envois,
  * 5 envois par heure et par numéro, 15 par heure et par adresse IP.
  */

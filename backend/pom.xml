@@ -12,7 +12,7 @@
 	<artifactId>mizaj-backend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>mizaj-backend</name>
-	<description>Mizaj Coffee — abonnements espresso (comptes, code WhatsApp, carte QR, espace barista)</description>
+	<description>Mizaje Coffee — abonnements espresso (comptes, code WhatsApp, carte QR, espace barista)</description>
 
 	<properties>
 		<java.version>21</java.version>

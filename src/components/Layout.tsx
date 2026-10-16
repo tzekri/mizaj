@@ -9,10 +9,10 @@ export function Logo({ small = false, full = false, hidden = false }: { small?: 
     <Link
       to="/"
       className={`logo ${small ? 'logo--small' : ''} ${hidden ? 'logo--hidden' : ''}`}
-      aria-label="Mizaj Coffee — accueil"
+      aria-label="Mizaje Coffee — accueil"
       tabIndex={hidden ? -1 : undefined}
     >
-      <img src={full ? '/brand/logo-light.png' : '/brand/logo-mark-light.png'} alt={`Mizaj Coffee — ${BRAND.arabicTagline}`} />
+      <img src={full ? '/brand/logo-light.png' : '/brand/logo-mark-light.png'} alt={`Mizaje Coffee — ${BRAND.arabicTagline}`} />
     </Link>
   );
 }
@@ -105,7 +105,7 @@ export function Footer() {
         </div>
       </div>
       <div className="footer__bottom">
-        MIZAJ COFFEE © Tous droits réservés — {new Date().getFullYear()}
+        MIZAJE COFFEE © Tous droits réservés — {new Date().getFullYear()}
       </div>
     </footer>
   );

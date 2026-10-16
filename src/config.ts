@@ -1,9 +1,9 @@
 // Contenu du site — coordonnées fictives, à remplacer par les vraies.
 
 export const BRAND = {
-  name: 'Mizaj',
+  name: 'Mizaje',
   arabic: 'مزاج',
-  tagline: 'Enjoy Your Mizaj',
+  tagline: 'Enjoy Your Mizaje',
   arabicTagline: 'قهوتك على مزاجك',
   since: 2024,
   phone: '+212 6 00 00 00 00',
@@ -134,7 +134,7 @@ export const MENU: MenuCategory[] = [
     items: [
       { name: 'Virgin Mojito', desc: 'Menthe fraîche, citron vert, sucre de canne et eau pétillante.', price: 28, volume: '400 ml', photo: '1634496064950-02f043806b09' },
       { name: 'Red Berries', desc: 'Fruits rouges, citron et romarin.', price: 30, volume: '400 ml', photo: '1595981267035-7b04ca84a82d' },
-      { name: 'Purple Mizaj', desc: 'Thé butterfly pea, citron et sirop de lavande. Change de couleur !', price: 32, volume: '400 ml', photo: '1595977514600-72cbc8376c38' },
+      { name: 'Purple Mizaje', desc: 'Thé butterfly pea, citron et sirop de lavande. Change de couleur !', price: 32, volume: '400 ml', photo: '1595977514600-72cbc8376c38' },
       { name: 'Citronnade Menthe', desc: 'Citrons pressés, menthe et une pointe de fleur d’oranger.', price: 22, volume: '400 ml', photo: '1575596510825-f748919a2bf7' },
       { name: 'Jus d’orange pressé', desc: 'Oranges du Souss pressées minute.', price: 20, volume: '330 ml', photo: '1613478223719-2ab802602423' },
     ],
@@ -178,9 +178,9 @@ export const MENU: MenuCategory[] = [
     tone: 'accent',
     photo: PHOTOS.heroBeans,
     items: [
-      { name: 'Mizaj Signature', desc: 'Grains 250 g — Arabica 80 % / Robusta 20 %. Chocolat, noisette.', price: 75, intensity: 4, volume: '250 g', photo: '1562051036-e0eea191d42f' },
+      { name: 'Mizaje Signature', desc: 'Grains 250 g — Arabica 80 % / Robusta 20 %. Chocolat, noisette.', price: 75, intensity: 4, volume: '250 g', photo: '1562051036-e0eea191d42f' },
       { name: 'Arabica Éthiopie', desc: 'Grains 250 g — 100 % Arabica Yirgacheffe. Floral, agrumes.', price: 95, intensity: 2, volume: '250 g', photo: '1657037721632-4f0b6d07b45a' },
-      { name: 'Mizaj Intense', desc: 'Moulu 250 g — torréfaction foncée, idéal pour l’espresso.', price: 65, intensity: 5, volume: '250 g', photo: '1606791405792-1004f1718d0c' },
+      { name: 'Mizaje Intense', desc: 'Moulu 250 g — torréfaction foncée, idéal pour l’espresso.', price: 65, intensity: 5, volume: '250 g', photo: '1606791405792-1004f1718d0c' },
       { name: 'Décaféiné', desc: 'Grains 250 g — décaféiné à l’eau, tout le goût sans la caféine.', price: 80, intensity: 3, volume: '250 g', photo: '1605711529603-d3a7d001fa5e' },
     ],
   },
@@ -207,7 +207,7 @@ export const findItem = (slug: string, name: string) =>
 
 // Produits mis en avant sur l'accueil (références au menu).
 export const POPULAR = [
-  { slug: 'cafe-en-grain', name: 'Mizaj Signature', tag: 'Best-seller' },
+  { slug: 'cafe-en-grain', name: 'Mizaje Signature', tag: 'Best-seller' },
   { slug: 'hot-coffee', name: 'Spanish Latte' },
   { slug: 'ice-coffee', name: 'Cold Brew', tag: 'Nouveau' },
   { slug: 'tea', name: 'Atay à la menthe' },

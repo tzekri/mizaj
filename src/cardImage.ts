@@ -45,7 +45,7 @@ export async function renderCardImage(opts: { qrToken: string; firstName?: strin
 
   ctx.fillStyle = '#fff';
   ctx.font = '700 64px Poppins, sans-serif';
-  ctx.fillText(opts.firstName || 'Abonné Mizaj', W / 2, y + box + 92);
+  ctx.fillText(opts.firstName || 'Abonné Mizaje', W / 2, y + box + 92);
   ctx.font = '500 38px Poppins, sans-serif';
   ctx.globalAlpha = 0.85;
   ctx.fillText(`Formule ${opts.planName} · à présenter en caisse`, W / 2, y + box + 152);
@@ -73,7 +73,7 @@ export async function shareCard(blob: Blob, text: string): Promise<'shared' | 'd
   const file = new File([blob], 'carte-mizaj.png', { type: 'image/png' });
   if (navigator.canShare?.({ files: [file] })) {
     try {
-      await navigator.share({ files: [file], text, title: 'Ma carte Mizaj Coffee' });
+      await navigator.share({ files: [file], text, title: 'Ma carte Mizaje Coffee' });
       return 'shared';
     } catch (e) {
       if ((e as DOMException).name === 'AbortError') return 'cancelled';

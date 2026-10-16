@@ -70,7 +70,7 @@ public class CardService {
 		String phone = PhoneNumbers.normalize(rawPhone);
 		Plan plan = plans.activeByCode(planCode);
 		if (customers.findByPhone(phone).isPresent()) {
-			throw ApiException.conflict("EXISTS", "Ce numéro a déjà une carte Mizaj. Pour l'ouvrir sur ce téléphone, "
+			throw ApiException.conflict("EXISTS", "Ce numéro a déjà une carte Mizaje. Pour l'ouvrir sur ce téléphone, "
 					+ "demandez votre code de récupération au barista, puis saisissez-le ci-dessous.");
 		}
 		Customer customer = customers.save(new Customer(phone, firstName == null || firstName.isBlank() ? null : firstName.trim(),

@@ -86,7 +86,7 @@ export function JuiceTicket({ order }: { order: JuiceOrder }) {
   return (
     <div className={`juice-ticket juice-ticket--${order.status.toLowerCase()}`}>
       <div className="juice-ticket__head">
-        <strong>{order.recipe.name || 'Mon jus Mizaj'}</strong>
+        <strong>{order.recipe.name || 'Mon jus Mizaje'}</strong>
         <span className={`badge ${order.status === 'PENDING' ? 'badge--active' : 'badge--empty'}`}>{STATUS[order.status]}</span>
       </div>
       <div className="juice-ticket__body">

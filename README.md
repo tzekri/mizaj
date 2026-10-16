@@ -1,4 +1,4 @@
-# Mizaj Coffee — مزاج
+# Mizaje Coffee — مزاج
 
 Site d'une marque de café (Casablanca), inspiré de la structure de buncoffee.ma, avec des **abonnements** :
 le client choisit sa formule, reçoit sa carte QR dans son téléphone et la fait scanner à chaque café.
@@ -52,7 +52,7 @@ Sans configuration Twilio : inscription directe, récupération de carte en cais
 
 Mise en place :
 
-1. Compte Twilio → **Verify → Services → Create** : nom « Mizaj Coffee », canaux **SMS** et **WhatsApp** → copier le SID `VA…`.
+1. Compte Twilio → **Verify → Services → Create** : nom « Mizaje Coffee », canaux **SMS** et **WhatsApp** → copier le SID `VA…`.
 2. Sur Render (service `mizaj` → Environment) : `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_VERIFY_SID`.
    Le code est alors demandé automatiquement à l'inscription. **Le SMS fonctionne immédiatement**
    (vérifier dans Verify → Geo permissions que le Maroc est autorisé).

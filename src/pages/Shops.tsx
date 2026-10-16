@@ -13,9 +13,9 @@ export default function Shops() {
       <section className="section container shop-list">
         {SHOPS.map((s, k) => (
           <article key={s.name} className={`shop-row ${k % 2 ? 'shop-row--rev' : ''}`}>
-            <img src={img(s.photo, 1000)} alt={`Coffee shop Mizaj ${s.name}`} loading="lazy" />
+            <img src={img(s.photo, 1000)} alt={`Coffee shop Mizaje ${s.name}`} loading="lazy" />
             <div>
-              <p className="eyebrow">Mizaj Coffee</p>
+              <p className="eyebrow">Mizaje Coffee</p>
               <h2>{s.name}</h2>
               <p><Pin /> {s.address}<br />{s.city}</p>
               <p><Clock /> Tous les jours, {s.hours}</p>

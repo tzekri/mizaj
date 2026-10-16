@@ -37,7 +37,7 @@ app:
     # Canaux Verify par ordre de préférence ; bascule automatique si le premier n'est pas configuré.
     verify-channels: ${TWILIO_VERIFY_CHANNELS:whatsapp,sms}
     verify-url: ${TWILIO_VERIFY_URL:https://verify.twilio.com/v2}
-    # --- Sans Verify : envoi direct par l'API Messages (code généré par Mizaj) ---
+    # --- Sans Verify : envoi direct par l'API Messages (code généré par Mizaje) ---
     # Expéditeur WhatsApp Twilio, ex. whatsapp:+14155238886 (sandbox) ou votre numéro validé.
     from: ${TWILIO_WHATSAPP_FROM:}
     # Modèle de message approuvé (Content SID « HX… ») avec la variable {{1}} = code.

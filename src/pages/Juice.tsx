@@ -25,7 +25,7 @@ const IDEAS: { name: string; size: JuiceSize; codes: string[] }[] = [
 const STEP: Record<JuiceCategory, { n: string; title: string; hint: (max: number) => string }> = {
   BASE: { n: '1', title: 'Choisissez votre base', hint: () => 'Une base, elle fait la moitié du jus' },
   FRUIT: { n: '2', title: 'Ajoutez des fruits', hint: (max) => `Jusqu’à ${max} fruits` },
-  EXTRA: { n: '3', title: 'La touche Mizaj', hint: (max) => `Jusqu’à ${max} extras` },
+  EXTRA: { n: '3', title: 'La touche Mizaje', hint: (max) => `Jusqu’à ${max} extras` },
 };
 
 export default function Juice() {
@@ -169,7 +169,7 @@ export default function Juice() {
                 <JuiceGlass items={chosen} size={size} label={label} />
                 <label className="juice__name">
                   Nom de votre jus <span className="optional">(facultatif)</span>
-                  <input value={name} maxLength={40} placeholder="Mon Mizaj du matin" onChange={(e) => setName(e.target.value)} />
+                  <input value={name} maxLength={40} placeholder="Mon Mizaje du matin" onChange={(e) => setName(e.target.value)} />
                 </label>
                 <p className="juice__recipe">{label || 'Choisissez une base pour commencer.'}</p>
                 <div className="juice__price">
@@ -184,7 +184,7 @@ export default function Juice() {
                   <button className="btn btn--outline btn--block" disabled={!base} onClick={saveFavorite}>★ Enregistrer en favori</button>
                 ) : (
                   <p className="juice__hint">
-                    <Link to="/abonnement">Créez votre carte Mizaj</Link> pour enregistrer vos jus favoris et les recommander en un geste.
+                    <Link to="/abonnement">Créez votre carte Mizaje</Link> pour enregistrer vos jus favoris et les recommander en un geste.
                   </p>
                 )}
                 {saved && <p className="notice notice--ok">{saved}</p>}

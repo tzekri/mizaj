@@ -131,7 +131,7 @@ public class JuiceService {
 			throw ApiException.conflict("TOO_MANY", "Vous avez déjà " + MAX_FAVORITES + " jus favoris : supprimez-en un pour en ajouter un nouveau.");
 		}
 		Recipe recipe = resolve(req.ingredients(), req.size(), req.name(), true);
-		String name = recipe.name() == null ? "Mon jus Mizaj" : recipe.name();
+		String name = recipe.name() == null ? "Mon jus Mizaje" : recipe.name();
 		return favoriteView(favorites.save(new JuiceFavorite(customer, name, recipe.size(), recipe.codes(), Instant.now(clock))));
 	}
 
