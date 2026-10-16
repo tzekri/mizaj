@@ -7,6 +7,7 @@ import Menu from './pages/Menu';
 import MenuCategory from './pages/MenuCategory';
 import Shops from './pages/Shops';
 import Franchise from './pages/Franchise';
+import { FRANCHISE_ENABLED } from './config';
 import Subscribe from './pages/Subscribe';
 import MyCard from './pages/MyCard';
 import Barista from './pages/Barista';
@@ -32,7 +33,7 @@ createRoot(document.getElementById('root')!).render(
           <Route path="/menu" element={<Menu />} />
           <Route path="/menu/:slug" element={<MenuCategory />} />
           <Route path="/nos-cafes" element={<Shops />} />
-          <Route path="/franchise" element={<Franchise />} />
+          {FRANCHISE_ENABLED && <Route path="/franchise" element={<Franchise />} />}
           <Route path="/abonnement" element={<Subscribe />} />
           <Route path="/ma-carte" element={<MyCard />} />
           <Route path="/barista" element={<Barista />} />

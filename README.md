@@ -6,7 +6,7 @@ le client choisit sa formule, reçoit sa carte QR dans son téléphone et la fai
 - **Frontend** (racine du dépôt) : React 18 + TypeScript + Vite + React Router.
 - **Backend** ([`backend/`](backend)) : Spring Boot 3.3 / Java 21, PostgreSQL (H2 en local), JWT HS256.
 - **Pages** : Accueil, Menu (bannières par catégorie + recherche) et `/menu/:slug`, Abonnement, Ma carte, Espace barista,
-  Nos coffee shops, Devenez franchisé.
+  Nos coffee shops (la partie « Devenez franchisé » est masquée pour le moment : `FRANCHISE_ENABLED` dans `src/config.ts`).
 - **Contenu** : [`src/config.ts`](src/config.ts) — coordonnées, coffee shops, menu, slides. Les données sont **fictives**.
 - **Couleurs** : variables CSS en haut de [`src/styles.css`](src/styles.css) (couleurs du logo : marine `--accent` `#10284a`, or `--accent-on-dark` `#d9973f`, fond crème `--page` `#faf5ec`).
 - **Logo** : [`public/brand/`](public/brand) — `logo.png` (couleur, fond clair), `logo-light.png` (crème + or, fond sombre),

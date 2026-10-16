@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import { BRAND, SHOPS } from '../config';
+import { BRAND, FRANCHISE_ENABLED, SHOPS } from '../config';
 import { Instagram, Search, Tiktok, Whatsapp } from './Icons';
 
 /** Logo officiel (version claire pour fonds sombres) ; « full » ajoute la signature « قهوتك على مزاجك ». */
@@ -23,7 +23,7 @@ const NAV = [
   { to: '/abonnement', label: 'Abonnement' },
   { to: '/jus', label: 'Compose ton jus' },
   { to: '/nos-cafes', label: 'Nos coffee shops' },
-  { to: '/franchise', label: 'Devenez franchisé' },
+  ...(FRANCHISE_ENABLED ? [{ to: '/franchise', label: 'Devenez franchisé' }] : []),
 ];
 
 /** hideLogo : l'accueil affiche déjà le grand logo dans son héros. */
@@ -100,7 +100,7 @@ export function Footer() {
             <li>{BRAND.phone}</li>
             <li>{BRAND.email}</li>
           </ul>
-          <Link to="/franchise" className="btn btn--accent btn--sm">Devenir investisseur</Link>
+          {FRANCHISE_ENABLED && <Link to="/franchise" className="btn btn--accent btn--sm">Devenir investisseur</Link>}
           <p className="footer__staff"><Link to="/barista">Espace barista</Link></p>
         </div>
       </div>

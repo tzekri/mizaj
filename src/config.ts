@@ -1,5 +1,8 @@
 // Contenu du site — coordonnées fictives, à remplacer par les vraies.
 
+/** Partie franchise (page, liens, encart d'accueil) : masquée pour le moment, passer à true pour la réafficher. */
+export const FRANCHISE_ENABLED = false;
+
 export const BRAND = {
   name: 'Mizaje',
   arabic: 'مزاج',

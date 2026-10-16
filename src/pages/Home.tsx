@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { BRAND, PHOTOS, POPULAR, SHOPS, SLIDES, findItem, img } from '../config';
+import { BRAND, FRANCHISE_ENABLED, PHOTOS, POPULAR, SHOPS, SLIDES, findItem, img } from '../config';
 import { Header } from '../components/Layout';
 import { Arrow, Clock, Pin } from '../components/Icons';
 
@@ -16,7 +16,7 @@ function Hero() {
         <p className="hero__fr">Votre café, selon votre humeur.</p>
         <div className="hero__ctas">
           <Link to="/menu" className="btn btn--light">Découvrir le menu</Link>
-          <Link to="/franchise" className="btn btn--ghost">Devenir franchisé</Link>
+          <SecondCta />
         </div>
       </div>
       <div className="hero__steam" aria-hidden />
@@ -53,6 +53,15 @@ function Origin() {
         </div>
       </div>
     </section>
+  );
+}
+
+/** Second bouton des héros : la franchise, ou l'abonnement tant qu'elle est masquée. */
+function SecondCta() {
+  return FRANCHISE_ENABLED ? (
+    <Link to="/franchise" className="btn btn--ghost">Devenir franchisé</Link>
+  ) : (
+    <Link to="/abonnement" className="btn btn--ghost">Je m’abonne</Link>
   );
 }
 
@@ -223,7 +232,7 @@ function ShopsStrip() {
         </div>
         <div className="hero__ctas">
           <Link to="/menu" className="btn btn--light">Découvrir le menu</Link>
-          <Link to="/franchise" className="btn btn--ghost">Devenir franchisé</Link>
+          <SecondCta />
         </div>
       </div>
     </section>
@@ -236,7 +245,7 @@ export default function Home() {
       <Hero />
       <BeanBand />
       <Origin />
-      <FranchiseCard />
+      {FRANCHISE_ENABLED && <FranchiseCard />}
       <Slider />
       <Craft />
       <Aroma />
