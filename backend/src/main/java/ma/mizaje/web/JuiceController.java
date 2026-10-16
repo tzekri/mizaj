@@ -8,13 +8,16 @@ import ma.mizaje.otp.IpThrottle;
 import ma.mizaje.security.Principals;
 import ma.mizaje.service.JuiceService;
 import ma.mizaje.web.dto.JuiceDtos.Catalog;
+import ma.mizaje.domain.JuiceSize;
 import ma.mizaje.web.dto.JuiceDtos.FavoriteView;
+import ma.mizaje.web.dto.JuiceDtos.FormatRequest;
 import ma.mizaje.web.dto.JuiceDtos.IngredientRequest;
 import ma.mizaje.web.dto.JuiceDtos.IngredientView;
 import ma.mizaje.web.dto.JuiceDtos.JuiceOrderView;
 import ma.mizaje.web.dto.JuiceDtos.JuiceScanRequest;
 import ma.mizaje.web.dto.JuiceDtos.JuiceStats;
 import ma.mizaje.web.dto.JuiceDtos.RecipeRequest;
+import ma.mizaje.web.dto.JuiceDtos.SizeView;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -113,6 +116,16 @@ public class JuiceController {
 	@PutMapping("/api/admin/juice/ingredients/{code}")
 	IngredientView updateIngredient(@PathVariable String code, @Valid @RequestBody IngredientRequest req) {
 		return juices.updateIngredient(code, req);
+	}
+
+	@GetMapping("/api/admin/juice/formats")
+	List<SizeView> formats() {
+		return juices.allSizes();
+	}
+
+	@PutMapping("/api/admin/juice/formats/{size}")
+	List<SizeView> updateFormat(@PathVariable JuiceSize size, @Valid @RequestBody FormatRequest req) {
+		return juices.updateFormat(size, req);
 	}
 
 	@GetMapping("/api/admin/juice/stats")

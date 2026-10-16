@@ -1,22 +1,24 @@
 package ma.mizaje.domain;
 
-/** Format du jus : prix de départ en dirhams et coefficient appliqué aux suppléments. */
+/**
+ * Format du jus, avec son prix de départ et le coefficient appliqué aux suppléments par défaut
+ * (modifiables dans l'administration, voir {@link JuiceFormat}).
+ */
 public enum JuiceSize {
 	S33("33 cl", 15, 1.0),
 	S50("50 cl", 20, 1.4);
 
 	public final String label;
-	public final int basePrice;
-	public final double factor;
+	public final int defaultBasePrice;
+	public final double defaultFactor;
 
-	JuiceSize(String label, int basePrice, double factor) {
+	JuiceSize(String label, int defaultBasePrice, double defaultFactor) {
 		this.label = label;
-		this.basePrice = basePrice;
-		this.factor = factor;
+		this.defaultBasePrice = defaultBasePrice;
+		this.defaultFactor = defaultFactor;
 	}
 
-	/** Prix : départ du format + suppléments des ingrédients (majorés pour le grand format), arrondi au dirham. */
-	public int price(int ingredientsTotal) {
-		return basePrice + (int) Math.round(ingredientsTotal * factor);
+	public JuiceFormat defaultFormat() {
+		return new JuiceFormat(this, defaultBasePrice, defaultFactor);
 	}
 }

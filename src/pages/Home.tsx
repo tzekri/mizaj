@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { BRAND, FRANCHISE_ENABLED, PHOTOS, POPULAR, SHOPS, SLIDES, findItem, img } from '../config';
+import { BRAND, FRANCHISE_ENABLED, PHOTOS, SHOPS, SLIDES, img } from '../config';
+import { menuPhoto, useMenu } from '../menu';
 import { Header } from '../components/Layout';
 import { Arrow, Clock, Pin } from '../components/Icons';
 
@@ -149,6 +150,9 @@ function Aroma() {
 }
 
 function Products() {
+  const { menu } = useMenu();
+  const featured = (menu ?? []).flatMap((c) => c.items.filter((i) => i.featured).map((item) => ({ item, slug: c.slug }))).slice(0, 8);
+  if (featured.length === 0) return null;
   return (
     <section className="section container">
       <div className="section-head">
@@ -157,16 +161,15 @@ function Products() {
         <p>Découvrez nos cafés soigneusement sélectionnés, où équilibre et richesse des arômes se mêlent pour un plaisir unique à chaque tasse.</p>
       </div>
       <div className="products">
-        {POPULAR.map(({ slug, name, tag }) => {
-          const p = findItem(slug, name)!;
+        {featured.map(({ item: p, slug }) => {
           return (
-            <Link key={name} to={`/menu/${slug}`} className="product">
+            <Link key={p.id} to={`/menu/${slug}`} className="product">
               <div className="product__img">
-                <img src={img(p.photo, 600)} alt={p.name} loading="lazy" />
-                {tag && <span className="product__tag">{tag}</span>}
+                <img src={menuPhoto(p.photo, 600)} alt={p.name} loading="lazy" />
+                {p.tag && <span className="product__tag">{p.tag}</span>}
               </div>
               <h3>{p.name}</h3>
-              <p>{p.desc}</p>
+              {p.description && <p>{p.description}</p>}
               <div className="product__price">{p.price} DH</div>
             </Link>
           );

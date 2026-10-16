@@ -17,18 +17,21 @@ import java.util.stream.Collectors;
 import ma.mizaje.domain.Customer;
 import ma.mizaje.domain.JuiceCategory;
 import ma.mizaje.domain.JuiceFavorite;
+import ma.mizaje.domain.JuiceFormat;
 import ma.mizaje.domain.JuiceIngredient;
 import ma.mizaje.domain.JuiceOrder;
 import ma.mizaje.domain.JuiceSize;
 import ma.mizaje.domain.StaffUser;
 import ma.mizaje.repo.CustomerRepository;
 import ma.mizaje.repo.JuiceFavoriteRepository;
+import ma.mizaje.repo.JuiceFormatRepository;
 import ma.mizaje.repo.JuiceIngredientRepository;
 import ma.mizaje.repo.JuiceOrderRepository;
 import ma.mizaje.repo.StaffUserRepository;
 import ma.mizaje.web.ApiException;
 import ma.mizaje.web.dto.JuiceDtos.Catalog;
 import ma.mizaje.web.dto.JuiceDtos.FavoriteView;
+import ma.mizaje.web.dto.JuiceDtos.FormatRequest;
 import ma.mizaje.web.dto.JuiceDtos.IngredientRequest;
 import ma.mizaje.web.dto.JuiceDtos.IngredientView;
 import ma.mizaje.web.dto.JuiceDtos.JuiceOrderView;
@@ -58,6 +61,7 @@ public class JuiceService {
 	private static final String CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 
 	private final JuiceIngredientRepository ingredients;
+	private final JuiceFormatRepository formats;
 	private final JuiceOrderRepository orders;
 	private final JuiceFavoriteRepository favorites;
 	private final CustomerRepository customers;
@@ -66,9 +70,10 @@ public class JuiceService {
 	private final ZoneId zone;
 	private final SecureRandom random = new SecureRandom();
 
-	public JuiceService(JuiceIngredientRepository ingredients, JuiceOrderRepository orders, JuiceFavoriteRepository favorites,
+	public JuiceService(JuiceIngredientRepository ingredients, JuiceFormatRepository formats, JuiceOrderRepository orders, JuiceFavoriteRepository favorites,
 			CustomerRepository customers, StaffUserRepository staffUsers, Clock clock, ZoneId appZone) {
 		this.ingredients = ingredients;
+		this.formats = formats;
 		this.orders = orders;
 		this.favorites = favorites;
 		this.customers = customers;
@@ -83,8 +88,25 @@ public class JuiceService {
 	public Catalog catalog() {
 		List<IngredientView> available = ingredients.findAllByOrderByCategoryAscSortOrderAscIdAsc().stream()
 				.filter(JuiceIngredient::isAvailable).map(IngredientView::of).toList();
-		List<SizeView> sizes = Arrays.stream(JuiceSize.values()).map(s -> new SizeView(s, s.label, s.basePrice, s.factor)).toList();
-		return new Catalog(available, sizes, MAX_FRUITS, MAX_EXTRAS);
+		return new Catalog(available, sizes(), MAX_FRUITS, MAX_EXTRAS);
+	}
+
+	private List<SizeView> sizes() {
+		Map<JuiceSize, JuiceFormat> byId = formats();
+		return Arrays.stream(JuiceSize.values()).map(s -> {
+			JuiceFormat f = byId.get(s);
+			return new SizeView(s, s.label, f.getBasePrice(), f.getFactor());
+		}).toList();
+	}
+
+	/** Prix de chaque format : réglages de l'administrateur, ou valeurs par défaut. */
+	private Map<JuiceSize, JuiceFormat> formats() {
+		Map<JuiceSize, JuiceFormat> byId = new java.util.EnumMap<>(JuiceSize.class);
+		for (JuiceSize s : JuiceSize.values()) {
+			byId.put(s, s.defaultFormat());
+		}
+		formats.findAll().forEach(f -> byId.put(f.getSize(), f));
+		return byId;
 	}
 
 	// --- Commandes (code à présenter en caisse) ---
@@ -184,6 +206,19 @@ public class JuiceService {
 		return IngredientView.of(ing);
 	}
 
+	/** Prix de départ et coefficient des suppléments d'un format (les codes déjà créés gardent leur prix). */
+	@Transactional
+	public List<SizeView> updateFormat(JuiceSize size, FormatRequest req) {
+		JuiceFormat f = formats.findById(size).orElseGet(() -> formats.save(size.defaultFormat()));
+		f.update(req.basePrice(), req.factor());
+		return sizes();
+	}
+
+	@Transactional(readOnly = true)
+	public List<SizeView> allSizes() {
+		return sizes();
+	}
+
 	@Transactional(readOnly = true)
 	public JuiceStats stats(LocalDate from, LocalDate to) {
 		Instant start = from.atStartOfDay(zone).toInstant();
@@ -248,7 +283,7 @@ public class JuiceService {
 		String label = items.stream().map(JuiceIngredient::getName).collect(Collectors.joining(" · "));
 		String joined = items.stream().map(JuiceIngredient::getCode).collect(Collectors.joining("|"));
 		String signature = items.stream().map(JuiceIngredient::getCode).sorted().collect(Collectors.joining("+")) + "@" + size.name();
-		int price = size.price(items.stream().mapToInt(JuiceIngredient::getPrice).sum());
+		int price = formats().get(size).price(items.stream().mapToInt(JuiceIngredient::getPrice).sum());
 		String name = rawName == null || rawName.isBlank() ? null : rawName.trim();
 		return new Recipe(name, size, items, joined, label, signature, price, available);
 	}

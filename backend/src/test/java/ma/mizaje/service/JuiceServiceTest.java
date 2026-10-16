@@ -10,10 +10,12 @@ import java.time.Clock;
 import java.time.ZoneId;
 import java.util.List;
 import ma.mizaje.domain.JuiceCategory;
+import ma.mizaje.domain.JuiceFormat;
 import ma.mizaje.domain.JuiceIngredient;
 import ma.mizaje.domain.JuiceSize;
 import ma.mizaje.repo.CustomerRepository;
 import ma.mizaje.repo.JuiceFavoriteRepository;
+import ma.mizaje.repo.JuiceFormatRepository;
 import ma.mizaje.repo.JuiceIngredientRepository;
 import ma.mizaje.repo.JuiceOrderRepository;
 import ma.mizaje.repo.StaffUserRepository;
@@ -24,11 +26,13 @@ import org.junit.jupiter.api.Test;
 class JuiceServiceTest {
 
 	private JuiceService service;
+	private JuiceFormatRepository formats;
 	private final JuiceIngredient mangoOff = new JuiceIngredient("mangue", "Mangue", JuiceCategory.FRUIT, 6, "#f9a825", 4);
 
 	@BeforeEach
 	void setUp() {
 		JuiceIngredientRepository ingredients = mock(JuiceIngredientRepository.class);
+		formats = mock(JuiceFormatRepository.class);
 		mangoOff.update("Mangue", JuiceCategory.FRUIT, 6, "#f9a825", false);
 		when(ingredients.findAll()).thenReturn(List.of(
 				new JuiceIngredient("orange", "Orange pressée", JuiceCategory.BASE, 0, "#f7a21b", 1),
@@ -38,7 +42,7 @@ class JuiceServiceTest {
 				new JuiceIngredient("banane", "Banane", JuiceCategory.FRUIT, 4, "#f2e19c", 5),
 				new JuiceIngredient("kiwi", "Kiwi", JuiceCategory.FRUIT, 5, "#7cb342", 6),
 				new JuiceIngredient("menthe", "Menthe", JuiceCategory.EXTRA, 2, "#3e9b5b", 7)));
-		service = new JuiceService(ingredients, mock(JuiceOrderRepository.class), mock(JuiceFavoriteRepository.class),
+		service = new JuiceService(ingredients, formats, mock(JuiceOrderRepository.class), mock(JuiceFavoriteRepository.class),
 				mock(CustomerRepository.class), mock(StaffUserRepository.class), Clock.systemUTC(), ZoneId.of("Africa/Casablanca"));
 	}
 
@@ -47,6 +51,15 @@ class JuiceServiceTest {
 		// 33 cl : 15 + 0 + 5 + 2 = 22 DH ; 50 cl : 20 + round(7 × 1,4) = 30 DH
 		assertEquals(22, service.resolve(List.of("menthe", "fraise", "orange"), JuiceSize.S33, null, true).price());
 		assertEquals(30, service.resolve(List.of("orange", "fraise", "menthe"), JuiceSize.S50, null, true).price());
+	}
+
+	@Test
+	void pricesFollowAdminFormats() {
+		// L'administrateur passe le 33 cl à 18 DH ; le 50 cl garde ses valeurs par défaut
+		when(formats.findAll()).thenReturn(List.of(new JuiceFormat(JuiceSize.S33, 18, 1.0)));
+		assertEquals(25, service.resolve(List.of("orange", "fraise", "menthe"), JuiceSize.S33, null, true).price());
+		assertEquals(30, service.resolve(List.of("orange", "fraise", "menthe"), JuiceSize.S50, null, true).price());
+		assertEquals(18, service.catalog().sizes().get(0).basePrice());
 	}
 
 	@Test

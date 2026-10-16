@@ -25,6 +25,7 @@ import {
 
 import { SHOPS } from '../config';
 import Dashboard from './Dashboard';
+import MenuAdmin from './MenuAdmin';
 import { IngredientThumb, JuiceGlass } from '../components/juice';
 
 /** Codes de jus ; « MIZAJ-JUS: » : codes générés avant le passage au nom Mizaje. */
@@ -33,7 +34,7 @@ import { Header } from '../components/Layout';
 
 export default function Barista() {
   const [session, setSession] = useState<StaffSession | null>(staffSession.get());
-  const [tab, setTab] = useState<'counter' | 'dashboard' | 'admin'>('counter');
+  const [tab, setTab] = useState<'counter' | 'dashboard' | 'admin' | 'menu'>('counter');
 
   const logout = useCallback(() => {
     staffSession.set(null);
@@ -60,6 +61,7 @@ export default function Barista() {
                   <div className="seg">
                     <button className={tab === 'counter' ? 'active' : ''} onClick={() => setTab('counter')}>Comptoir</button>
                     <button className={tab === 'dashboard' ? 'active' : ''} onClick={() => setTab('dashboard')}>Tableau de bord</button>
+                    <button className={tab === 'menu' ? 'active' : ''} onClick={() => setTab('menu')}>Menu & prix</button>
                     <button className={tab === 'admin' ? 'active' : ''} onClick={() => setTab('admin')}>Administration</button>
                   </div>
                 )}
@@ -68,6 +70,7 @@ export default function Barista() {
             </div>
             {tab === 'counter' && <Counter onAuthError={logout} />}
             {tab === 'dashboard' && <Dashboard onAuthError={logout} />}
+            {tab === 'menu' && <MenuAdmin />}
             {tab === 'admin' && <Admin onAuthError={logout} />}
           </>
         )}
@@ -806,7 +809,7 @@ function JuiceAdmin() {
           </tbody>
         </table>
       </div>
-      <p className="dash-note">Prix d’un jus : 15 DH (33 cl) ou 20 DH (50 cl) + suppléments des ingrédients (×1,4 en 50 cl).</p>
+      <p className="dash-note">Prix d’un jus : prix de départ du format + suppléments des ingrédients (prix de départ réglables dans l’onglet « Menu & prix »).</p>
       {editing ? (
         <form className="form new-staff" onSubmit={save}>
           <h3 className="form__full">{editing === 'new' ? 'Nouvel ingrédient' : `Modifier « ${form.name} »`}</h3>

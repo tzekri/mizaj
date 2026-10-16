@@ -1,5 +1,7 @@
 package ma.mizaje.web.dto;
 
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -28,6 +30,10 @@ public final class JuiceDtos {
 	}
 
 	public record SizeView(JuiceSize code, String label, int basePrice, double factor) {
+	}
+
+	/** factor : coefficient appliqué aux suppléments (1 pour 33 cl, 1,4 pour 50 cl par défaut). */
+	public record FormatRequest(@Min(0) @Max(500) int basePrice, @DecimalMin("0.5") @DecimalMax("5") double factor) {
 	}
 
 	/** Catalogue public : ingrédients disponibles, formats et règles de composition. */

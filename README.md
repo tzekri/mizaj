@@ -44,6 +44,17 @@ plus le supplément de chaque ingrédient (×1,4 en 50 cl). Aperçu du verre aux
 - Abonnés : jusqu'à 10 **favoris**, recommandés en un geste depuis « Ma carte » (au prix actuel).
 - Administration → « Jus composés » : ingrédients (supplément, couleur, disponibilité, ajout), jus servis et mix les plus servis sur 30 jours.
 
+## Menu & prix (administration)
+
+Espace barista → compte admin → onglet **« Menu & prix »** :
+- **Prix des jus composés** : prix de départ du 33 cl / 50 cl et coefficient des suppléments (jus d’orange = prix de départ).
+- **Menu du coffee shop** : prix modifiable directement dans le tableau, produits (nom, description, contenance, intensité,
+  photo Unsplash ou https, pastille, « Produits populaires » de l’accueil), disponibilité, ordre (↑ ↓), catégories.
+
+Le menu est en base (`menu_categories`, `menu_items`) : au premier démarrage il est chargé depuis
+`backend/src/main/resources/seed/menu.json`, puis seuls les changements faits dans l’administration comptent.
+API : `GET /api/public/menu`, `/api/admin/menu/**`, `PUT /api/admin/juice/formats/{S33|S50}`.
+
 ### Option : code de validation par Twilio Verify
 
 Par défaut, l'inscription se fait **sans code**. Si Twilio est configuré, un code est envoyé par **Twilio Verify** : Twilio génère, envoie et vérifie le code (anti-fraude, limites d'envoi),

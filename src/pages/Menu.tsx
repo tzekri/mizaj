@@ -1,19 +1,19 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MENU, PHOTOS, img } from '../config';
+import { PHOTOS, img } from '../config';
+import { menuPhoto, useMenu } from '../menu';
 import { PageHero } from '../components/Layout';
 import { Arrow, Search } from '../components/Icons';
 import { ItemCard } from './MenuCategory';
 
 export default function Menu() {
   const [q, setQ] = useState('');
+  const { menu, error } = useMenu();
   const results = useMemo(() => {
     const term = q.trim().toLowerCase();
-    if (!term) return null;
-    return MENU.flatMap((c) =>
-      c.items.filter((i) => `${i.name} ${i.desc}`.toLowerCase().includes(term)).map((i) => ({ ...i, slug: c.slug })),
-    );
-  }, [q]);
+    if (!term || !menu) return null;
+    return menu.flatMap((c) => c.items.filter((i) => `${i.name} ${i.description ?? ''}`.toLowerCase().includes(term)));
+  }, [q, menu]);
 
   return (
     <>
@@ -34,14 +34,15 @@ export default function Menu() {
           ) : (
             <div className="item-grid">
               {results.map((i) => (
-                <ItemCard key={i.slug + i.name} item={i} />
+                <ItemCard key={i.id} item={i} />
               ))}
             </div>
           )
         ) : (
           <div className="cat-list">
-            {MENU.map((c) => (
-              <Link key={c.slug} to={`/menu/${c.slug}`} className={`cat-banner cat-banner--${c.tone}`}>
+            {!menu && <p className="empty">{error ?? 'Chargement du menu…'}</p>}
+            {menu?.map((c) => (
+              <Link key={c.slug} to={`/menu/${c.slug}`} className={`cat-banner cat-banner--${c.tone.toLowerCase()}`}>
                 <div className="cat-banner__text">
                   <span className="cat-banner__ar">{c.arabic}</span>
                   <h2>
@@ -52,7 +53,7 @@ export default function Menu() {
                     {c.items.length} produits <Arrow size={22} />
                   </span>
                 </div>
-                <div className="cat-banner__img" style={{ backgroundImage: `url(${img(c.photo, 1000)})` }} />
+                <div className="cat-banner__img" style={{ backgroundImage: `url(${menuPhoto(c.photo, 1000)})` }} />
               </Link>
             ))}
             <Link to="/jus" className="cat-banner cat-banner--accent">

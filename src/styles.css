@@ -859,3 +859,37 @@ h1, h2, h3 { line-height: 1.15; margin: 0 0 0.5em; }
   .perks, .steps, .item-grid { grid-template-columns: 1fr; }
   .products { gap: 16px; }
 }
+
+/* Administration du menu */
+.menu-admin h2 { margin-top: 8px; }
+.menu-admin h2 + .dash-note { margin: 0 0 14px; font-size: 0.85rem; }
+.menu-admin__cat { margin: 26px 0; padding: 18px 20px; background: var(--white); border-radius: 16px; box-shadow: 0 1px 0 rgba(16, 40, 74, 0.06), 0 6px 20px rgba(16, 40, 74, 0.05); }
+.menu-admin__cat.muted .menu-admin__head { opacity: 0.55; }
+.menu-admin__head { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; }
+.menu-admin__head h3 { margin: 0; font-size: 1.1rem; }
+.menu-admin__head small { color: var(--muted); }
+.menu-admin__actions { margin-left: auto; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+.menu-admin__form { margin: 14px 0; }
+.thumb--sq { border-radius: 10px; }
+.cell-input { width: 86px; font: inherit; padding: 6px 10px; border: 1.5px solid #e0d6cb; border-radius: 8px; text-align: right; background: var(--white); }
+.cell-input:focus { outline: 0; border-color: var(--accent); }
+.icon-btn { width: 30px; height: 30px; border-radius: 8px; border: 1.5px solid #e0d6cb; background: var(--white); color: var(--accent); font-weight: 700; cursor: pointer; }
+.icon-btn + .icon-btn { margin-left: 4px; }
+.icon-btn:disabled { opacity: 0.35; cursor: default; }
+.link--danger { color: #b3261e; }
+.nowrap { white-space: nowrap; }
+.badge--star, .badge--soft { margin-left: 8px; padding: 3px 9px; font-size: 0.66rem; vertical-align: middle; }
+.badge--star { background: var(--accent-soft); color: var(--accent); }
+.badge--soft { background: #e8edf5; color: var(--accent); }
+@media (max-width: 640px) {
+  .menu-admin__cat { padding: 14px; }
+  .menu-admin__head { flex-wrap: wrap; }
+  .menu-admin__actions { margin-left: 0; width: 100%; justify-content: flex-start; }
+}
+.menu-admin .table-wrap + .notice, .menu-admin .table-wrap + .form-error { margin-top: 12px; }
+.menu-admin > h2:not(:first-child) { margin-top: 48px; }
+@media (max-width: 640px) {
+  .barista__bar-actions { width: 100%; }
+  .barista__bar-actions .seg { display: flex; max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+  .barista__bar-actions .seg button { white-space: nowrap; padding: 8px 12px; }
+}

@@ -146,6 +146,41 @@ export type JuiceOrder = {
 };
 export type JuiceFavorite = { id: number; recipe: JuiceRecipe; createdAt: string };
 export type RecipeInput = { name?: string; size: JuiceSize; ingredients: string[] };
+export type JuiceFormat = JuiceCatalog['sizes'][number];
+
+// --- Menu du coffee shop (géré dans l'administration) ---
+
+export type MenuTone = 'CREAM' | 'ACCENT' | 'DARK';
+export type MenuItem = {
+  id: number;
+  categoryId: number;
+  name: string;
+  description?: string;
+  price: number;
+  /** 1 à 5 (cafés) */
+  intensity?: number;
+  volume?: string;
+  /** Identifiant Unsplash ou adresse https */
+  photo: string;
+  /** Mis en avant dans « Produits populaires » (accueil) */
+  featured: boolean;
+  tag?: string;
+  available: boolean;
+};
+export type MenuCategory = {
+  id: number;
+  slug: string;
+  light: string;
+  bold: string;
+  arabic?: string;
+  tone: MenuTone;
+  photo: string;
+  visible: boolean;
+  items: MenuItem[];
+};
+export type MenuItemInput = Omit<MenuItem, 'id'>;
+export type MenuCategoryInput = Omit<MenuCategory, 'id' | 'slug' | 'items'>;
+
 export type JuiceStats = { served: number; revenue: number; created: number; topMixes: { label: string; sizeLabel: string; count: number }[] };
 
 export class ApiError extends Error {
@@ -298,6 +333,25 @@ export const api = {
     code
       ? request<JuiceIngredient>('PUT', `/api/admin/juice/ingredients/${code}`, i, staffSession.get()?.token)
       : request<JuiceIngredient>('POST', '/api/admin/juice/ingredients', i, staffSession.get()?.token),
+  juiceFormats: () => request<JuiceFormat[]>('GET', '/api/admin/juice/formats', undefined, staffSession.get()?.token),
+  saveJuiceFormat: (size: JuiceSize, f: { basePrice: number; factor: number }) =>
+    request<JuiceFormat[]>('PUT', `/api/admin/juice/formats/${size}`, f, staffSession.get()?.token),
+  menu: () => request<MenuCategory[]>('GET', '/api/public/menu'),
+  adminMenu: () => request<MenuCategory[]>('GET', '/api/admin/menu', undefined, staffSession.get()?.token),
+  saveMenuCategory: (c: MenuCategoryInput, id?: number) =>
+    id
+      ? request<MenuCategory>('PUT', `/api/admin/menu/categories/${id}`, c, staffSession.get()?.token)
+      : request<MenuCategory>('POST', '/api/admin/menu/categories', c, staffSession.get()?.token),
+  moveMenuCategory: (id: number, direction: 'up' | 'down') =>
+    request<void>('POST', `/api/admin/menu/categories/${id}/move`, { direction }, staffSession.get()?.token),
+  deleteMenuCategory: (id: number) => request<void>('DELETE', `/api/admin/menu/categories/${id}`, undefined, staffSession.get()?.token),
+  saveMenuItem: (i: MenuItemInput, id?: number) =>
+    id
+      ? request<MenuItem>('PUT', `/api/admin/menu/items/${id}`, i, staffSession.get()?.token)
+      : request<MenuItem>('POST', '/api/admin/menu/items', i, staffSession.get()?.token),
+  moveMenuItem: (id: number, direction: 'up' | 'down') =>
+    request<void>('POST', `/api/admin/menu/items/${id}/move`, { direction }, staffSession.get()?.token),
+  deleteMenuItem: (id: number) => request<void>('DELETE', `/api/admin/menu/items/${id}`, undefined, staffSession.get()?.token),
   juiceStats: (from: string, to: string) =>
     request<JuiceStats>('GET', `/api/admin/juice/stats?from=${from}&to=${to}`, undefined, staffSession.get()?.token),
   stats: () => request<Stats>('GET', '/api/admin/stats', undefined, staffSession.get()?.token),
