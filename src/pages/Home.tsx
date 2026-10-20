@@ -7,20 +7,24 @@ import { Arrow, Clock, Pin } from '../components/Icons';
 
 function Hero() {
   return (
-    <section className="hero" style={{ backgroundImage: `url(${img(PHOTOS.heroBeans, 1920)})` }}>
+    <section className="hero">
       <Header hideLogo />
-      <div className="hero__content">
-        <h1 className="hero__brand">
-          <img src="/brand/logo-light.png" alt={`Marokoffy Coffee House — ${BRAND.arabicTagline}`} />
-        </h1>
-        <p className="hero__tagline">{BRAND.tagline}</p>
-        <p className="hero__fr">Votre café, selon votre humeur.</p>
-        <div className="hero__ctas">
-          <Link to="/menu" className="btn btn--light">Découvrir le menu</Link>
-          <SecondCta />
+      <div className="container hero__inner">
+        <div className="hero__content">
+          <h1 className="hero__brand">
+            <img src="/brand/logo.png" alt={`Marokoffy Coffee House — ${BRAND.arabicTagline}`} />
+          </h1>
+          <p className="hero__tagline">{BRAND.tagline}</p>
+          <p className="hero__fr">Votre café, selon votre humeur.</p>
+          <div className="hero__ctas">
+            <Link to="/menu" className="btn btn--accent">Découvrir le menu</Link>
+            <SecondCta onLight />
+          </div>
+        </div>
+        <div className="hero__media" aria-hidden>
+          <img src={img(PHOTOS.heroBeans, 1000)} alt="" />
         </div>
       </div>
-      <div className="hero__steam" aria-hidden />
     </section>
   );
 }
@@ -57,12 +61,13 @@ function Origin() {
   );
 }
 
-/** Second bouton des héros : la franchise, ou l'abonnement tant qu'elle est masquée. */
-function SecondCta() {
+/** Second bouton des héros : la franchise, ou l'abonnement tant qu'elle est masquée. onLight : sur fond crème. */
+function SecondCta({ onLight = false }: { onLight?: boolean }) {
+  const cls = `btn ${onLight ? 'btn--outline' : 'btn--ghost'}`;
   return FRANCHISE_ENABLED ? (
-    <Link to="/franchise" className="btn btn--ghost">Devenir franchisé</Link>
+    <Link to="/franchise" className={cls}>Devenir franchisé</Link>
   ) : (
-    <Link to="/abonnement" className="btn btn--ghost">Je m’abonne</Link>
+    <Link to="/abonnement" className={cls}>Je m’abonne</Link>
   );
 }
 
@@ -202,7 +207,7 @@ function SubscriptionTeaser() {
         </div>
         <div className="sub-teaser__phone" aria-hidden>
           <div className="mini-card">
-            <img className="mini-card__brand" src="/brand/logo-mark-light.png" alt="" />
+            <img className="mini-card__brand" src="/brand/logo-mark.png" alt="" />
             <div className="mini-card__qr" />
             <strong>27 / 30</strong>
             <span>espressos restants</span>

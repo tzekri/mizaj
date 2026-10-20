@@ -102,7 +102,7 @@ export default function MyCard() {
               <div className={`member-card member-card--${card.status.toLowerCase()} ${flash ? 'member-card--flash' : ''}`}>
                 <div className="member-card__top">
                   <div>
-                    <img className="member-card__brand" src="/brand/logo-mark-light.png" alt="Marokoffy Coffee House" />
+                    <img className="member-card__brand" src="/brand/logo-mark.png" alt="Marokoffy Coffee House" />
                     <span className="member-card__label">Formule {card.plan.name}</span>
                   </div>
                   <span className={`badge badge--${card.status.toLowerCase()}`}>{STATUS_LABEL[card.status]}</span>

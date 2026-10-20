@@ -12,23 +12,27 @@ export async function renderCardImage(opts: { qrToken: string; firstName?: strin
   canvas.height = H;
   const ctx = canvas.getContext('2d')!;
 
-  const bg = ctx.createLinearGradient(0, 0, W, H);
-  bg.addColorStop(0, '#1b3878');
-  bg.addColorStop(0.45, '#12275a');
-  bg.addColorStop(1, '#071230');
+  // Fond crème du logo, liseré aux couleurs du drapeau en bas
+  const bg = ctx.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, '#fbf7ef');
+  bg.addColorStop(1, '#efe5d2');
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#c1272d';
+  ctx.fillRect(0, H - 18, W / 2, 18);
+  ctx.fillStyle = '#1d6b35';
+  ctx.fillRect(W / 2, H - 18, W / 2, 18);
 
   // Logo officiel (version claire) en tête de carte
   const logo = new Image();
-  logo.src = '/brand/logo-mark-light.png';
+  logo.src = '/brand/logo-mark.png';
   await logo.decode();
   const lw = 560;
   const lh = (logo.naturalHeight / logo.naturalWidth) * lw;
   ctx.drawImage(logo, (W - lw) / 2, 48, lw, lh);
   ctx.textAlign = 'center';
   ctx.font = '600 32px Poppins, sans-serif';
-  ctx.fillStyle = '#d8a54a';
+  ctx.fillStyle = '#9a6a1c';
   ctx.fillText('CARTE ABONNÉ', W / 2, 48 + lh + 52);
 
   // QR sur fond blanc arrondi
@@ -36,14 +40,18 @@ export async function renderCardImage(opts: { qrToken: string; firstName?: strin
   const x = (W - box) / 2;
   const y = 48 + lh + 84;
   ctx.fillStyle = '#fff';
+  ctx.shadowColor = 'rgba(18, 39, 90, 0.16)';
+  ctx.shadowBlur = 40;
+  ctx.shadowOffsetY = 12;
   roundRect(ctx, x, y, box, box, 48);
   ctx.fill();
+  ctx.shadowColor = 'transparent';
   const qr = new Image();
   qr.src = await QRCode.toDataURL(`MIZAJE:${opts.qrToken}`, { width: box - 80, margin: 2, errorCorrectionLevel: 'M', color: { dark: '#14100d', light: '#ffffff' } });
   await qr.decode();
   ctx.drawImage(qr, x + 40, y + 40, box - 80, box - 80);
 
-  ctx.fillStyle = '#fff';
+  ctx.fillStyle = '#12275a';
   ctx.font = '700 64px Poppins, sans-serif';
   ctx.fillText(opts.firstName || 'Abonné Marokoffy', W / 2, y + box + 92);
   ctx.font = '500 38px Poppins, sans-serif';

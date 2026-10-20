@@ -3,7 +3,7 @@ import { Link, NavLink, useLocation } from 'react-router-dom';
 import { BRAND, FRANCHISE_ENABLED, SHOPS } from '../config';
 import { Instagram, Search, Tiktok, Whatsapp } from './Icons';
 
-/** Logo officiel (version claire pour fonds sombres) : emblème + « MAROKOFFY » ; « full » : logo complet (ماروكوفي, Coffee House). */
+/** Logo officiel, couleurs d'origine (fond crème) : emblème + « MAROKOFFY » ; « full » : logo complet (ماروكوفي, Coffee House). */
 export function Logo({ small = false, full = false, hidden = false }: { small?: boolean; full?: boolean; hidden?: boolean }) {
   return (
     <Link
@@ -12,7 +12,7 @@ export function Logo({ small = false, full = false, hidden = false }: { small?: 
       aria-label="Marokoffy Coffee House — accueil"
       tabIndex={hidden ? -1 : undefined}
     >
-      <img src={full ? '/brand/logo-light.png' : '/brand/logo-mark-light.png'} alt={`Marokoffy Coffee House — ${BRAND.arabicTagline}`} />
+      <img src={full ? '/brand/logo.png' : '/brand/logo-mark.png'} alt={`Marokoffy Coffee House — ${BRAND.arabicTagline}`} />
     </Link>
   );
 }
