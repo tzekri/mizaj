@@ -18,7 +18,7 @@ export default function Poster() {
     api.plans().then(setPlans).catch(() => {});
   }, []);
   const from = plans.length ? Math.min(...plans.map((p) => p.price)) : null;
-  const shareText = `☕ Mizaje Coffee lance ses abonnements${from ? ` dès ${from} DH` : ''} : votre café du quotidien à prix doux. Inscrivez-vous en 30 secondes : ${url}`;
+  const shareText = `☕ Marokoffy Coffee House lance ses abonnements${from ? ` dès ${from} DH` : ''} : votre café du quotidien à prix doux. Inscrivez-vous en 30 secondes : ${url}`;
 
   useEffect(() => {
     QRCode.toDataURL(url, { width: 1200, margin: 2, errorCorrectionLevel: 'H', color: { dark: '#14100d', light: '#ffffff' } })
@@ -50,7 +50,7 @@ export default function Poster() {
           <div className="poster-tools__actions">
             <button className="btn btn--accent" onClick={() => window.print()}>Imprimer l’affiche</button>
             {qr && (
-              <a className="btn btn--outline" href={qr} download="mizaje-qr-abonnement.png">Télécharger le QR (PNG)</a>
+              <a className="btn btn--outline" href={qr} download="marokoffy-qr-abonnement.png">Télécharger le QR (PNG)</a>
             )}
             <a
               className="btn btn--whatsapp"
@@ -64,8 +64,8 @@ export default function Poster() {
         </div>
 
         <article className="poster">
-          <img className="poster__brand" src="/brand/logo-light.png" alt={`Mizaje Coffee — ${BRAND.arabicTagline}`} />
-          <p className="poster__eyebrow">Mizaje Coffee · Abonnement</p>
+          <img className="poster__brand" src="/brand/logo-light.png" alt={`Marokoffy Coffee House — ${BRAND.arabicTagline}`} />
+          <p className="poster__eyebrow">Carte d’abonnement</p>
           <h2>
             Votre café
             <br />

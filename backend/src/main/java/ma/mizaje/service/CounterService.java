@@ -32,7 +32,7 @@ public class CounterService {
 	/** Une validation peut être annulée pendant ce délai (erreur de manipulation). */
 	static final Duration UNDO_WINDOW = Duration.ofMinutes(10);
 	static final String QR_PREFIX = "MIZAJE:";
-	/** Préfixe des cartes générées avant le passage au nom Mizaje, toujours accepté. */
+	/** Préfixe des cartes générées des premières versions (ancien nom « Mizaj »), toujours accepté. */
 	static final String LEGACY_QR_PREFIX = "MIZAJ:";
 
 	private final CustomerRepository customers;

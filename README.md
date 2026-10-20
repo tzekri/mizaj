@@ -1,4 +1,4 @@
-# Mizaje Coffee — مزاج
+# Marokoffy Coffee House — ماروكوفي
 
 Site d'une marque de café (Casablanca), inspiré de la structure de buncoffee.ma, avec des **abonnements** :
 le client choisit sa formule, reçoit sa carte QR dans son téléphone et la fait scanner à chaque café.
@@ -63,7 +63,7 @@ Sans configuration Twilio : inscription directe, récupération de carte en cais
 
 Mise en place :
 
-1. Compte Twilio → **Verify → Services → Create** : nom « Mizaje Coffee », canaux **SMS** et **WhatsApp** → copier le SID `VA…`.
+1. Compte Twilio → **Verify → Services → Create** : nom « Marokoffy Coffee House », canaux **SMS** et **WhatsApp** → copier le SID `VA…`.
 2. Sur Render (service `mizaj` → Environment) : `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_VERIFY_SID`.
    Le code est alors demandé automatiquement à l'inscription. **Le SMS fonctionne immédiatement**
    (vérifier dans Verify → Geo permissions que le Maroc est autorisé).
@@ -88,7 +88,7 @@ cd backend
 java -jar target/mizaje-backend-0.0.1-SNAPSHOT.jar --spring.profiles.active=local   # API : http://localhost:8095 (H2 en mémoire)
 ```
 
-Comptes de démonstration : `admin@mizajecoffee.ma` / `mizaj1234`, `barista@mizajecoffee.ma` / `barista1234`.
+Comptes de démonstration : `admin@marokoffy.ma` / `mizaj1234`, `barista@marokoffy.ma` / `barista1234`.
 La caméra du scanner exige HTTPS (ou localhost).
 
 ## Déploiement (Render)

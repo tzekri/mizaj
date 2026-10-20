@@ -8,14 +8,14 @@ export default function Shops() {
       <PageHero
         title="Nos coffee shops"
         subtitle="Trois adresses à Casablanca pour savourer votre café, sur place ou à emporter."
-        photo="/brand/storefront.jpg"
+        photo={img(PHOTOS.barDark, 1920)}
       />
       <section className="section container shop-list">
         {SHOPS.map((s, k) => (
           <article key={s.name} className={`shop-row ${k % 2 ? 'shop-row--rev' : ''}`}>
-            <img src={img(s.photo, 1000)} alt={`Coffee shop Mizaje ${s.name}`} loading="lazy" />
+            <img src={img(s.photo, 1000)} alt={`Coffee shop Marokoffy ${s.name}`} loading="lazy" />
             <div>
-              <p className="eyebrow">Mizaje Coffee</p>
+              <p className="eyebrow">Marokoffy Coffee House</p>
               <h2>{s.name}</h2>
               <p><Pin /> {s.address}<br />{s.city}</p>
               <p><Clock /> Tous les jours, {s.hours}</p>

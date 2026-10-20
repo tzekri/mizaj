@@ -56,7 +56,7 @@ public class JuiceService {
 	/** Un code non utilisé expire au bout de ce délai (le client en recrée un en un geste). */
 	static final Duration ORDER_VALIDITY = Duration.ofHours(48);
 	public static final String QR_PREFIX = "MIZAJE-JUS:";
-	/** Préfixe des codes générés avant le passage au nom Mizaje, toujours accepté. */
+	/** Préfixe des codes générés des premières versions (ancien nom « Mizaj »), toujours accepté. */
 	static final String LEGACY_QR_PREFIX = "MIZAJ-JUS:";
 	private static final String CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 
@@ -155,7 +155,7 @@ public class JuiceService {
 			throw ApiException.conflict("TOO_MANY", "Vous avez déjà " + MAX_FAVORITES + " jus favoris : supprimez-en un pour en ajouter un nouveau.");
 		}
 		Recipe recipe = resolve(req.ingredients(), req.size(), req.name(), true);
-		String name = recipe.name() == null ? "Mon jus Mizaje" : recipe.name();
+		String name = recipe.name() == null ? "Mon jus Marokoffy" : recipe.name();
 		return favoriteView(favorites.save(new JuiceFavorite(customer, name, recipe.size(), recipe.codes(), Instant.now(clock))));
 	}
 

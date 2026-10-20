@@ -37,7 +37,7 @@ app:
     # Canaux Verify par ordre de préférence ; bascule automatique si le premier n'est pas configuré.
     verify-channels: ${TWILIO_VERIFY_CHANNELS:whatsapp,sms}
     verify-url: ${TWILIO_VERIFY_URL:https://verify.twilio.com/v2}
-    # --- Sans Verify : envoi direct par l'API Messages (code généré par Mizaje) ---
+    # --- Sans Verify : envoi direct par l'API Messages (code généré par Marokoffy) ---
     # Expéditeur WhatsApp Twilio, ex. whatsapp:+14155238886 (sandbox) ou votre numéro validé.
     from: ${TWILIO_WHATSAPP_FROM:}
     # Modèle de message approuvé (Content SID « HX… ») avec la variable {{1}} = code.
@@ -45,7 +45,7 @@ app:
     content-sid: ${TWILIO_CONTENT_SID:}
   # Compte administrateur créé au démarrage s'il n'existe pas.
   admin:
-    email: ${ADMIN_EMAIL:admin@mizajecoffee.ma}
+    email: ${ADMIN_EMAIL:admin@marokoffy.ma}
     password: ${ADMIN_PASSWORD:mizaj1234}
-  # Crée un compte barista de démonstration (barista@mizajecoffee.ma / barista1234).
+  # Crée un compte barista de démonstration (barista@marokoffy.ma / barista1234).
   seed-demo: ${SEED_DEMO:true}

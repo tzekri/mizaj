@@ -12,7 +12,7 @@
 	<artifactId>mizaje-backend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>mizaje-backend</name>
-	<description>Mizaje Coffee — abonnements espresso (comptes, code WhatsApp, carte QR, espace barista)</description>
+	<description>Marokoffy Coffee House — abonnements espresso (comptes, code WhatsApp, carte QR, espace barista)</description>
 
 	<properties>
 		<java.version>21</java.version>

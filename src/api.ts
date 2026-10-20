@@ -196,7 +196,7 @@ const STAFF_KEY = 'mizaje.staff';
 
 function read(key: string): string | null {
   try {
-    // Sessions ouvertes avant le passage au nom Mizaje (« mizaj.customer », « mizaj.staff ») : reprises une fois
+    // Sessions ouvertes des premières versions (ancien nom « Mizaj ») (« mizaj.customer », « mizaj.staff ») : reprises une fois
     const legacy = key.replace(/^mizaje\./, 'mizaj.');
     const old = localStorage.getItem(legacy);
     if (old !== null && localStorage.getItem(key) === null) {
@@ -308,7 +308,7 @@ export const api = {
       headers: { Authorization: `Bearer ${staffSession.get()?.token ?? ''}` },
     });
     if (!res.ok) throw new ApiError(res.status, res.status === 401 ? 'Session expirée, reconnectez-vous.' : 'Export impossible.');
-    const name = /filename="([^"]+)"/.exec(res.headers.get('content-disposition') ?? '')?.[1] ?? `mizaje-${kind}.csv`;
+    const name = /filename="([^"]+)"/.exec(res.headers.get('content-disposition') ?? '')?.[1] ?? `marokoffy-${kind}.csv`;
     const url = URL.createObjectURL(await res.blob());
     const a = document.createElement('a');
     a.href = url;

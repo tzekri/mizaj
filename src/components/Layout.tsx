@@ -3,16 +3,16 @@ import { Link, NavLink, useLocation } from 'react-router-dom';
 import { BRAND, FRANCHISE_ENABLED, SHOPS } from '../config';
 import { Instagram, Search, Tiktok, Whatsapp } from './Icons';
 
-/** Logo officiel (version claire pour fonds sombres) ; « full » ajoute la signature « قهوتك على مزاجك ». */
+/** Logo officiel (version claire pour fonds sombres) : emblème + « MAROKOFFY » ; « full » : logo complet (ماروكوفي, Coffee House). */
 export function Logo({ small = false, full = false, hidden = false }: { small?: boolean; full?: boolean; hidden?: boolean }) {
   return (
     <Link
       to="/"
       className={`logo ${small ? 'logo--small' : ''} ${hidden ? 'logo--hidden' : ''}`}
-      aria-label="Mizaje Coffee — accueil"
+      aria-label="Marokoffy Coffee House — accueil"
       tabIndex={hidden ? -1 : undefined}
     >
-      <img src={full ? '/brand/logo-light.png' : '/brand/logo-mark-light.png'} alt={`Mizaje Coffee — ${BRAND.arabicTagline}`} />
+      <img src={full ? '/brand/logo-light.png' : '/brand/logo-mark-light.png'} alt={`Marokoffy Coffee House — ${BRAND.arabicTagline}`} />
     </Link>
   );
 }
@@ -105,7 +105,7 @@ export function Footer() {
         </div>
       </div>
       <div className="footer__bottom">
-        MIZAJE COFFEE © Tous droits réservés — {new Date().getFullYear()}
+        MAROKOFFY COFFEE HOUSE © Tous droits réservés — {new Date().getFullYear()}
       </div>
     </footer>
   );

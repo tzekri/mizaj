@@ -59,12 +59,12 @@ public class AdminController {
 			@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
 			@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
 			@RequestParam(required = false) String shop) {
-		return csv("mizaje-consommations-" + from + "-" + to + ".csv", exports.redemptions(from, to, shop));
+		return csv("marokoffy-consommations-" + from + "-" + to + ".csv", exports.redemptions(from, to, shop));
 	}
 
 	@GetMapping("/export/abonnements.csv")
 	ResponseEntity<byte[]> exportSubscriptions() {
-		return csv("mizaje-abonnements.csv", exports.subscriptions());
+		return csv("marokoffy-abonnements.csv", exports.subscriptions());
 	}
 
 	private static ResponseEntity<byte[]> csv(String filename, String content) {

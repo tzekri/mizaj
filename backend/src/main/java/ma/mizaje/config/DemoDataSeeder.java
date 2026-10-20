@@ -86,7 +86,7 @@ public class DemoDataSeeder implements ApplicationRunner {
 		}
 		List<StaffUser> baristas = new ArrayList<>();
 		for (String shop : SHOPS) {
-			String email = "barista." + shop.toLowerCase().replaceAll("[^a-z]", "") + "@mizajecoffee.ma";
+			String email = "barista." + shop.toLowerCase().replaceAll("[^a-z]", "") + "@marokoffy.ma";
 			baristas.add(staffUsers.findByEmailIgnoreCase(email).orElseGet(() -> staffUsers.save(
 					new StaffUser("Barista " + shop, email, passwordEncoder.encode("barista1234"), StaffRole.BARISTA, shop))));
 		}

@@ -4,14 +4,14 @@
 export const FRANCHISE_ENABLED = false;
 
 export const BRAND = {
-  name: 'Mizaje',
-  arabic: 'مزاج',
-  tagline: 'Enjoy Your Mizaje',
+  name: 'Marokoffy',
+  arabic: 'ماروكوفي',
+  tagline: 'Le café à la marocaine',
   arabicTagline: 'قهوتك على مزاجك',
   since: 2024,
   phone: '+212 6 00 00 00 00',
   whatsapp: '212600000000',
-  email: 'contact@mizajecoffee.ma',
+  email: 'contact@marokoffy.ma',
   instagram: 'https://www.instagram.com/',
   tiktok: 'https://www.tiktok.com/',
 };

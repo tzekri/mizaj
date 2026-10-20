@@ -47,6 +47,7 @@ public class MenuSeeder implements ApplicationRunner {
 	@Transactional
 	public void run(ApplicationArguments args) throws IOException {
 		if (categories.count() > 0) {
+			renameLegacyBrand();
 			return;
 		}
 		List<SeedCategory> seed;
@@ -68,5 +69,22 @@ public class MenuSeeder implements ApplicationRunner {
 			}
 		}
 		log.info("Menu de départ chargé : {} catégories, {} produits.", seed.size(), n);
+	}
+
+	/** Produits nommés d'après l'ancienne marque (« Mizaje Signature »…) : renommés « Marokoffy ». */
+	private void renameLegacyBrand() {
+		for (MenuItem i : items.findAll()) {
+			String name = rebrand(i.getName());
+			String description = rebrand(i.getDescription());
+			if (!name.equals(i.getName()) || (description != null && !description.equals(i.getDescription()))) {
+				log.info("Produit renommé : {} → {}", i.getName(), name);
+				i.update(name, description, i.getPrice(), i.getIntensity(), i.getVolume(), i.getPhoto(), i.isFeatured(), i.getTag(),
+						i.isAvailable());
+			}
+		}
+	}
+
+	static String rebrand(String text) {
+		return text == null ? null : text.replaceAll("\\bMizaje?\\b", "Marokoffy");
 	}
 }

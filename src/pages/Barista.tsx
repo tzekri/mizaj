@@ -28,7 +28,7 @@ import Dashboard from './Dashboard';
 import MenuAdmin from './MenuAdmin';
 import { IngredientThumb, JuiceGlass } from '../components/juice';
 
-/** Codes de jus ; « MIZAJ-JUS: » : codes générés avant le passage au nom Mizaje. */
+/** Codes de jus ; « MIZAJ-JUS: » : codes générés des premières versions (ancien nom « Mizaj »). */
 const JUICE_QR_PREFIXES = ['MIZAJE-JUS:', 'MIZAJ-JUS:'];
 import { Header } from '../components/Layout';
 

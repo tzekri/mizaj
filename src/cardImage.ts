@@ -13,22 +13,22 @@ export async function renderCardImage(opts: { qrToken: string; firstName?: strin
   const ctx = canvas.getContext('2d')!;
 
   const bg = ctx.createLinearGradient(0, 0, W, H);
-  bg.addColorStop(0, '#1c3a66');
-  bg.addColorStop(0.45, '#10284a');
-  bg.addColorStop(1, '#06142a');
+  bg.addColorStop(0, '#1b3878');
+  bg.addColorStop(0.45, '#12275a');
+  bg.addColorStop(1, '#071230');
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, W, H);
 
   // Logo officiel (version claire) en tête de carte
   const logo = new Image();
-  logo.src = '/brand/logo-light.png';
+  logo.src = '/brand/logo-mark-light.png';
   await logo.decode();
   const lw = 560;
   const lh = (logo.naturalHeight / logo.naturalWidth) * lw;
   ctx.drawImage(logo, (W - lw) / 2, 48, lw, lh);
   ctx.textAlign = 'center';
   ctx.font = '600 32px Poppins, sans-serif';
-  ctx.fillStyle = '#d9973f';
+  ctx.fillStyle = '#d8a54a';
   ctx.fillText('CARTE ABONNÉ', W / 2, 48 + lh + 52);
 
   // QR sur fond blanc arrondi
@@ -45,7 +45,7 @@ export async function renderCardImage(opts: { qrToken: string; firstName?: strin
 
   ctx.fillStyle = '#fff';
   ctx.font = '700 64px Poppins, sans-serif';
-  ctx.fillText(opts.firstName || 'Abonné Mizaje', W / 2, y + box + 92);
+  ctx.fillText(opts.firstName || 'Abonné Marokoffy', W / 2, y + box + 92);
   ctx.font = '500 38px Poppins, sans-serif';
   ctx.globalAlpha = 0.85;
   ctx.fillText(`Formule ${opts.planName} · à présenter en caisse`, W / 2, y + box + 152);
@@ -70,10 +70,10 @@ function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: numbe
  * @returns 'shared' | 'downloaded' | 'cancelled'
  */
 export async function shareCard(blob: Blob, text: string): Promise<'shared' | 'downloaded' | 'cancelled'> {
-  const file = new File([blob], 'carte-mizaje.png', { type: 'image/png' });
+  const file = new File([blob], 'carte-marokoffy.png', { type: 'image/png' });
   if (navigator.canShare?.({ files: [file] })) {
     try {
-      await navigator.share({ files: [file], text, title: 'Ma carte Mizaje Coffee' });
+      await navigator.share({ files: [file], text, title: 'Ma carte Marokoffy' });
       return 'shared';
     } catch (e) {
       if ((e as DOMException).name === 'AbortError') return 'cancelled';
@@ -82,7 +82,7 @@ export async function shareCard(blob: Blob, text: string): Promise<'shared' | 'd
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'carte-mizaje.png';
+  a.download = 'carte-marokoffy.png';
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 5000);
   return 'downloaded';

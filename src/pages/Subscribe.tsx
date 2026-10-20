@@ -34,7 +34,7 @@ export default function Subscribe() {
   return (
     <>
       <PageHero
-        title="Abonnement Mizaje"
+        title="Abonnement Marokoffy"
         subtitle="Votre café du quotidien à prix doux. Votre carte d’abonné est dans votre téléphone."
         photo={img(PHOTOS.espressoPour, 1920)}
       />

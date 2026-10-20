@@ -102,14 +102,14 @@ export default function MyCard() {
               <div className={`member-card member-card--${card.status.toLowerCase()} ${flash ? 'member-card--flash' : ''}`}>
                 <div className="member-card__top">
                   <div>
-                    <img className="member-card__brand" src="/brand/logo-mark-light.png" alt="Mizaje Coffee" />
+                    <img className="member-card__brand" src="/brand/logo-mark-light.png" alt="Marokoffy Coffee House" />
                     <span className="member-card__label">Formule {card.plan.name}</span>
                   </div>
                   <span className={`badge badge--${card.status.toLowerCase()}`}>{STATUS_LABEL[card.status]}</span>
                 </div>
-                <div className="member-card__qr">{qr ? <img src={qr} alt="Votre QR code Mizaje" /> : <div className="qr-placeholder" />}</div>
+                <div className="member-card__qr">{qr ? <img src={qr} alt="Votre QR code Marokoffy" /> : <div className="qr-placeholder" />}</div>
                 <div className="member-card__name">
-                  <strong>{card.firstName || 'Abonné Mizaje'}</strong>
+                  <strong>{card.firstName || 'Abonné Marokoffy'}</strong>
                   <span>{card.phone}</span>
                 </div>
                 {card.status === 'ACTIVE' && (
@@ -141,7 +141,7 @@ export default function MyCard() {
                     {card.history.map((h) => (
                       <li key={h.at}>
                         <span>{fmtDateTime(h.at)}</span>
-                        <span>{h.shop ? `Mizaje ${h.shop}` : 'Mizaje'}</span>
+                        <span>{h.shop ? `Marokoffy ${h.shop}` : 'Marokoffy'}</span>
                       </li>
                     ))}
                   </ul>
@@ -170,7 +170,7 @@ function ShareCard({ card }: { card: Card }) {
     setMsg(null);
     try {
       const blob = await renderCardImage({ qrToken: card.qrToken, firstName: card.firstName, planName: card.plan.name });
-      const text = `Ma carte Mizaje Coffee 🎫 à présenter en caisse. Solde à jour : ${window.location.origin}/ma-carte`;
+      const text = `Ma carte Marokoffy 🎫 à présenter en caisse. Solde à jour : ${window.location.origin}/ma-carte`;
       const result = await shareCard(blob, text);
       if (result === 'downloaded') {
         setMsg('Image de la carte téléchargée : envoyez-la-vous sur WhatsApp (conversation « Moi ») ou gardez-la dans vos photos.');

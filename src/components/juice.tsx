@@ -47,7 +47,7 @@ export function JuiceGlass({ items, size = 'S33', label }: { items: JuiceIngredi
       </g>
       <path d="M40 24 L180 24 L164 272 Q162 286 148 286 L72 286 Q58 286 56 272 Z" fill="none" stroke="#c9bfb1" strokeWidth="3" />
       {/* Paille */}
-      <path d="M128 8 L150 4 L136 150" fill="none" stroke="#0a1628" strokeWidth="6" strokeLinecap="round" opacity="0.85" />
+      <path d="M128 8 L150 4 L136 150" fill="none" stroke="#081330" strokeWidth="6" strokeLinecap="round" opacity="0.85" />
       {/* Garnitures (extras) */}
       {extras.map((e, i) => (
         <g key={e.code} transform={`translate(${62 + i * 34} ${top - 14})`}>
@@ -86,7 +86,7 @@ export function JuiceTicket({ order }: { order: JuiceOrder }) {
   return (
     <div className={`juice-ticket juice-ticket--${order.status.toLowerCase()}`}>
       <div className="juice-ticket__head">
-        <strong>{order.recipe.name || 'Mon jus Mizaje'}</strong>
+        <strong>{order.recipe.name || 'Mon jus Marokoffy'}</strong>
         <span className={`badge ${order.status === 'PENDING' ? 'badge--active' : 'badge--empty'}`}>{STATUS[order.status]}</span>
       </div>
       <div className="juice-ticket__body">

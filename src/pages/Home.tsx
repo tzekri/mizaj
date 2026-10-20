@@ -11,7 +11,7 @@ function Hero() {
       <Header hideLogo />
       <div className="hero__content">
         <h1 className="hero__brand">
-          <img src="/brand/logo-light.png" alt={`Mizaje Coffee — ${BRAND.arabicTagline}`} />
+          <img src="/brand/logo-light.png" alt={`Marokoffy Coffee House — ${BRAND.arabicTagline}`} />
         </h1>
         <p className="hero__tagline">{BRAND.tagline}</p>
         <p className="hero__fr">Votre café, selon votre humeur.</p>
@@ -47,7 +47,7 @@ function Origin() {
         <Link to="/menu" className="btn btn--accent">Voir nos boissons</Link>
       </div>
       <div className="origin__media">
-        <img src={img(PHOTOS.roaster, 900)} alt="Torréfaction des grains Mizaje" />
+        <img src={img(PHOTOS.roaster, 900)} alt="Torréfaction des grains Marokoffy" />
         <div className="since-badge">
           <span>since</span>
           <strong>{BRAND.since}</strong>
@@ -70,9 +70,9 @@ function FranchiseCard() {
   return (
     <section className="container franchise-card-wrap">
       <div className="franchise-card">
-        <h2>Devenir investisseur Mizaje Coffee</h2>
+        <h2>Devenir investisseur Marokoffy Coffee House</h2>
         <p>
-          Rejoignez l’aventure Mizaje et investissez dans une marque de café en pleine expansion. Profitez d’une{' '}
+          Rejoignez l’aventure Marokoffy et investissez dans une marque de café en pleine expansion. Profitez d’une{' '}
           <b>opportunité unique</b> de développement avec notre réseau de coffee shops. Nous offrons un{' '}
           <b>retour sur investissement attractif</b> et un <b>accompagnement personnalisé</b> pour assurer votre réussite.
         </p>
@@ -126,7 +126,7 @@ function Craft() {
       <p>
         Chaque tasse est le fruit d’un <em>savoir-faire minutieux</em>. Nos cafés d’exception éveillent vos sens et
         apportent chaleur et plaisir à chaque moment. Découvrez l’harmonie parfaite entre tradition et goût : nos cafés{' '}
-        <em>Mizaje</em> Arabica et Robusta, cultivés avec soin, offrent une expérience aromatique incomparable.
+        <em>Marokoffy</em> Arabica et Robusta, cultivés avec soin, offrent une expérience aromatique incomparable.
       </p>
     </section>
   );
@@ -224,7 +224,7 @@ function ShopsStrip() {
         <div className="shops">
           {SHOPS.map((s) => (
             <article key={s.name} className="shop">
-              <img src={img(s.photo, 700)} alt={`Coffee shop Mizaje ${s.name}`} loading="lazy" />
+              <img src={img(s.photo, 700)} alt={`Coffee shop Marokoffy ${s.name}`} loading="lazy" />
               <div className="shop__body">
                 <h3>{s.name}</h3>
                 <p><Pin size={15} /> {s.address}, {s.city}</p>

@@ -1,5 +1,6 @@
 package ma.mizaje.config;
 
+import java.util.List;
 import java.util.Map;
 import ma.mizaje.domain.JuiceCategory;
 import ma.mizaje.domain.JuiceIngredient;
@@ -28,7 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class DataSeeder implements ApplicationRunner {
 
 	private static final Logger log = LoggerFactory.getLogger(DataSeeder.class);
-	static final String DEMO_BARISTA = "barista@mizajecoffee.ma";
+	static final String DEMO_BARISTA = "barista@marokoffy.ma";
 
 	private final StaffUserRepository staffUsers;
 	private final PlanRepository plans;
@@ -78,15 +79,20 @@ public class DataSeeder implements ApplicationRunner {
 		}
 	}
 
-	/** Comptes créés avant le passage au nom Mizaje : …@mizajcoffee.ma devient …@mizajecoffee.ma (mot de passe inchangé). */
+	/** Anciens noms de domaine des comptes (Mizaj, puis Mizaje) : …@mizajcoffee.ma et …@mizajecoffee.ma deviennent …@marokoffy.ma. */
+	private static final List<String> LEGACY_DOMAINS = List.of("@mizajcoffee.ma", "@mizajecoffee.ma");
+
+	/** Comptes créés sous un ancien nom de la marque : adresse renommée, mot de passe inchangé. */
 	private void renameLegacyStaffEmails() {
 		for (StaffUser u : staffUsers.findAll()) {
 			String email = u.getEmail();
-			if (email.toLowerCase().endsWith("@mizajcoffee.ma")) {
-				String renamed = email.substring(0, email.length() - "mizajcoffee.ma".length()) + "mizajecoffee.ma";
-				if (!staffUsers.existsByEmailIgnoreCase(renamed)) {
-					u.setEmail(renamed);
-					log.info("Compte renommé : {} → {}", email, renamed);
+			for (String domain : LEGACY_DOMAINS) {
+				if (email.toLowerCase().endsWith(domain)) {
+					String renamed = email.substring(0, email.length() - domain.length()) + "@marokoffy.ma";
+					if (!staffUsers.existsByEmailIgnoreCase(renamed)) {
+						u.setEmail(renamed);
+						log.info("Compte renommé : {} → {}", email, renamed);
+					}
 				}
 			}
 		}

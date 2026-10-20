@@ -18,7 +18,7 @@ export default function Menu() {
   return (
     <>
       <PageHero
-        title="Mizaje Menu"
+        title="Marokoffy Menu"
         subtitle="Savourez chaque tasse, où équilibre et arômes se rencontrent pour un plaisir unique."
         photo={img(PHOTOS.latteDark, 1920)}
       />
@@ -64,7 +64,7 @@ export default function Menu() {
                   <strong>ton jus</strong>
                 </h2>
                 <span className="cat-banner__count">
-                  Base, fruits, touche Mizaje : à ton mizaje <Arrow size={22} />
+                  Base, fruits, touche Marokoffy : à ton goût <Arrow size={22} />
                 </span>
               </div>
               <div className="cat-banner__img" style={{ backgroundImage: `url(${img('1613478223719-2ab802602423', 1000)})` }} />
