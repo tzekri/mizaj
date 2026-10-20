@@ -100,21 +100,18 @@ h1, h2, h3 { line-height: 1.15; margin: 0 0 0.5em; }
 .burger span { display: block; width: 22px; height: 2px; background: var(--accent); margin: 4px 0; }
 
 /* Hero */
-/* Héros crème : le logo d'origine à gauche, photo en arche à droite */
+/* Héros crème : le logo d'origine, seul et centré */
 .hero {
   position: relative; min-height: 100vh; min-height: 100svh; overflow: hidden;
-  background: radial-gradient(900px 520px at 28% 42%, #fffdf8, transparent 70%), var(--page);
+  background: radial-gradient(900px 560px at 50% 45%, #fffdf8, transparent 70%), var(--page);
   display: flex; flex-direction: column;
 }
-.hero__inner { flex: 1; display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 56px; align-items: center; padding: 32px 0 72px; }
+.hero__inner { flex: 1; display: grid; place-items: center; padding: 32px 0 72px; }
 .hero__content { text-align: center; color: var(--ink); }
 .hero__brand { margin: 0 0 14px; line-height: 0; }
-.hero__brand img { width: min(430px, 78vw); height: auto; margin: 0 auto; }
+.hero__brand img { width: min(460px, 80vw); height: auto; margin: 0 auto; }
 .hero__tagline { font-family: var(--script); font-size: clamp(2rem, 4.4vw, 3.1rem); color: var(--gold-dark); margin: 0; line-height: 1.1; }
 .hero__fr { font-size: clamp(1rem, 2.2vw, 1.15rem); color: var(--muted); margin: 8px 0 30px; }
-.hero__media { position: relative; justify-self: center; width: min(420px, 100%); }
-.hero__media::before { content: ''; position: absolute; inset: -14px 14px 14px -14px; border: 2px solid var(--accent-on-dark); border-radius: 260px 260px 28px 28px; }
-.hero__media img { position: relative; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 260px 260px 28px 28px; box-shadow: 0 30px 60px rgba(18, 39, 90, 0.22); }
 .hero__ctas { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; }
 
 /* Bean band */
@@ -901,14 +898,8 @@ h1, h2, h3 { line-height: 1.15; margin: 0 0 0.5em; }
   .barista__bar-actions .seg button { white-space: nowrap; padding: 8px 12px; }
 }
 
-/* Héros crème : une colonne sur tablette, sans photo sur mobile */
-@media (max-width: 900px) {
-  .hero__inner { grid-template-columns: 1fr; gap: 36px; padding-top: 20px; }
-  .hero__media { width: min(320px, 80%); }
-}
 @media (max-width: 720px) {
   .hero { min-height: auto; }
-  .hero__media { display: none; }
   .hero__inner { padding: 28px 0 56px; }
 }
 .footer .round-icon { color: var(--accent-on-dark); border-color: rgba(216, 165, 74, 0.55); }

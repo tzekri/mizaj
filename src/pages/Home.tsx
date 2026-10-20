@@ -21,9 +21,6 @@ function Hero() {
             <SecondCta onLight />
           </div>
         </div>
-        <div className="hero__media" aria-hidden>
-          <img src={img(PHOTOS.heroBeans, 1000)} alt="" />
-        </div>
       </div>
     </section>
   );
