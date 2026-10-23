@@ -75,7 +75,7 @@ export function Footer() {
         <div>
           <Logo full />
           <p className="footer__about">
-            Café de spécialité torréfié à Casablanca — <em className="footer__slogan">{BRAND.slogan}</em>
+            Café de spécialité torréfié à Casablanca — <span className="footer__slogan" dir="rtl" lang="ar">{BRAND.slogan}</span>
           </p>
           <div className="footer__social">
             <a href={BRAND.instagram} target="_blank" rel="noreferrer" className="round-icon" aria-label="Instagram"><Instagram size={14} /></a>

@@ -6,8 +6,8 @@ export const FRANCHISE_ENABLED = false;
 export const BRAND = {
   name: 'Kidima',
   tagline: 'Le café à la marocaine',
-  /** Devise de la marque (darija : « doucement, comme toujours »), jeu de mots avec « ki dima ». */
-  slogan: 'Bass bass, a ki dima',
+  /** Devise de la marque en darija (« bass bass, a ki dima »), jeu de mots avec Kidima. */
+  slogan: 'بس بس ا كي ديما',
   since: 2024,
   phone: '+212 6 00 00 00 00',
   whatsapp: '212600000000',

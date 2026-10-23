@@ -904,4 +904,4 @@ h1, h2, h3 { line-height: 1.15; margin: 0 0 0.5em; }
   .k-hero__facts li { padding: 0 14px; }
   .popular__head { flex-direction: column; align-items: flex-start; }
 }
-.footer__slogan { color: var(--accent-on-dark); font-style: italic; }
+.footer__slogan { color: var(--accent-on-dark); font-family: var(--arabic); font-size: 1.15em; }
