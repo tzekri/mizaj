@@ -36,7 +36,7 @@ function Hero() {
         </div>
         <div className="k-hero__badge">
           <span className="k-hero__ring" aria-hidden />
-          <img src="/brand/logo.png" alt={`${BRAND.name} Coffee House — ${BRAND.arabicTagline}`} />
+          <img src="/brand/logo.png" alt={`${BRAND.name} Coffee House — ${BRAND.slogan}`} />
         </div>
       </div>
     </section>

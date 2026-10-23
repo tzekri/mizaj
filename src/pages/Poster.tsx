@@ -64,7 +64,7 @@ export default function Poster() {
         </div>
 
         <article className="poster">
-          <img className="poster__brand" src="/brand/logo.png" alt={`Kidima Coffee House — ${BRAND.arabicTagline}`} />
+          <img className="poster__brand" src="/brand/logo.png" alt={`Kidima Coffee House — ${BRAND.slogan}`} />
           <p className="poster__eyebrow">Carte d’abonnement</p>
           <h2>
             Votre café
