@@ -49,7 +49,11 @@ export default function Juice() {
   const byCode = useMemo(() => new Map(catalog?.ingredients.map((i) => [i.code, i]) ?? []), [catalog]);
   const chosen = [base, ...fruits, ...extras].filter(Boolean).map((c) => byCode.get(c!)).filter(Boolean) as JuiceIngredient[];
   const sizeInfo = catalog?.sizes.find((s) => s.code === size);
-  const price = sizeInfo && base ? sizeInfo.basePrice + Math.round(chosen.reduce((a, i) => a + i.price, 0) * sizeInfo.factor) : null;
+  const fixed = catalog?.fixedPrice ?? true;
+  // Prix fixe : le prix du format ; sinon prix du format + suppléments × coefficient (même calcul que le serveur)
+  const price = sizeInfo && base
+    ? sizeInfo.basePrice + (fixed ? 0 : Math.round(chosen.reduce((a, i) => a + i.price, 0) * sizeInfo.factor))
+    : null;
   const label = chosen.map((i) => i.name).join(' · ');
 
   // Toute modification de la recette invalide le ticket affiché
@@ -146,7 +150,7 @@ export default function Juice() {
                             >
                               <IngredientThumb item={i} size={44} />
                               <span>{i.name}</span>
-                              <small>{i.price ? `+${i.price} DH` : 'inclus'}</small>
+                              {!fixed && <small>{i.price ? `+${i.price} DH` : 'inclus'}</small>}
                             </button>
                           );
                         })}
@@ -159,7 +163,7 @@ export default function Juice() {
                   <div className="seg" role="group" aria-label="Format">
                     {catalog.sizes.map((s) => (
                       <button key={s.code} type="button" className={size === s.code ? 'active' : ''} onClick={() => setSize(s.code)}>
-                        {s.label} · dès {s.basePrice} DH
+                        {s.label} · {fixed ? '' : 'dès '}{s.basePrice} DH
                       </button>
                     ))}
                   </div>

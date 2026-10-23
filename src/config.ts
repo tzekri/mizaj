@@ -38,9 +38,9 @@ export const PHOTOS = {
 };
 
 export const SHOPS = [
-  { name: 'Maârif', address: '42, Rue Abou Al Waqt', city: 'Maârif, Casablanca', hours: '7h00 – 23h00', photo: PHOTOS.barDark },
-  { name: 'Ain Diab', address: '15, Boulevard de la Corniche', city: 'Ain Diab, Casablanca', hours: '7h00 – 01h00', photo: PHOTOS.barGreen },
-  { name: 'Bourgogne', address: '88, Rue Ibn Toufail', city: 'Bourgogne, Casablanca', hours: '6h30 – 22h00', photo: PHOTOS.barMinimal },
+  // Adresse exacte et horaires à compléter (horaires provisoires)
+  { name: 'Lissasfa', address: 'Lissasfa', city: 'Casablanca', hours: '7h00 – 23h00', photo: PHOTOS.barDark },
+  { name: 'Farah Salam', address: 'Farah Salam', city: 'Casablanca', hours: '7h00 – 23h00', photo: PHOTOS.barGreen },
 ];
 
 // Le menu (catégories, produits, prix) est géré dans l'administration : voir src/menu.ts et /api/public/menu.

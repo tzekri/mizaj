@@ -22,7 +22,7 @@ function Hero() {
             <em>à la marocaine.</em>
           </h1>
           <p className="k-hero__lead">
-            Espresso, nouss-nouss, atay et jus pressés minute, servis dans nos trois coffee shops. Votre carte d’abonné
+            Espresso, nouss-nouss, atay et jus pressés minute, servis dans nos coffee shops de Lissasfa et Farah Salam. Votre carte d’abonné
             tient dans votre téléphone.
           </p>
           <div className="k-hero__ctas">

@@ -9,7 +9,7 @@ export default function Shops() {
       <PageHero
         eyebrow="Venez nous voir"
         title="Nos coffee shops"
-        subtitle="Trois adresses à Casablanca pour savourer votre café, sur place ou à emporter."
+        subtitle="Deux adresses à Casablanca, Lissasfa et Farah Salam, pour savourer votre café sur place ou à emporter."
         photo={img(PHOTOS.barDark, 1920)}
       />
       <section className="section container shop-list">

@@ -35,15 +35,27 @@ export default function MenuAdmin() {
   );
 }
 
-/** Prix de départ des jus composés (33 / 50 cl) et coefficient appliqué aux suppléments. */
+/** Prix des jus composés : prix fixe par format, ou prix selon les ingrédients (prix de départ + suppléments × coefficient). */
 function JuiceFormats() {
   const [formats, setFormats] = useState<JuiceFormat[]>([]);
+  const [fixed, setFixed] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState<string | null>(null);
 
   useEffect(() => {
     api.juiceFormats().then(setFormats).catch((e) => setError((e as ApiError).message));
+    api.juicePricing().then((p) => setFixed(p.fixed)).catch((e) => setError((e as ApiError).message));
   }, []);
+
+  async function switchMode(value: boolean) {
+    setError(null);
+    try {
+      setFixed((await api.setJuicePricing(value)).fixed);
+      setSaved(value ? 'Prix fixe activé ✓' : 'Prix selon les ingrédients activé ✓');
+    } catch (e) {
+      setError((e as ApiError).message);
+    }
+  }
 
   function change(code: JuiceFormat['code'], patch: Partial<JuiceFormat>) {
     setSaved(null);
@@ -63,14 +75,23 @@ function JuiceFormats() {
   return (
     <>
       <h2>Prix des jus composés</h2>
+      <div className="seg seg--wrap" role="group" aria-label="Mode de prix des jus">
+        <button className={fixed === true ? 'active' : ''} onClick={() => switchMode(true)}>Prix fixe par format</button>
+        <button className={fixed === false ? 'active' : ''} onClick={() => switchMode(false)}>Prix selon les ingrédients</button>
+      </div>
       <p className="dash-note">
-        Prix d’un jus = prix de départ du format + suppléments des ingrédients × coefficient. Un jus d’orange (base incluse) coûte donc
-        le prix de départ. Les suppléments se règlent dans l’onglet Administration, section « Jus composés ».
+        {fixed === false
+          ? 'Prix d’un jus = prix du format + suppléments des ingrédients × coefficient. Les suppléments se règlent dans l’onglet Administration, section « Jus composés ».'
+          : 'Le jus coûte le prix du format, quels que soient les fruits choisis. Les suppléments restent enregistrés pour repasser plus tard au prix selon les ingrédients.'}
       </p>
       <div className="table-wrap">
         <table className="table">
           <thead>
-            <tr><th>Format</th><th>Prix de départ (DH)</th><th>Coefficient des suppléments</th><th>Exemple : orange + fraise (+5 DH)</th><th /></tr>
+            <tr>
+              <th>Format</th><th>{fixed === false ? 'Prix de départ (DH)' : 'Prix du jus (DH)'}</th>
+              {fixed === false && <><th>Coefficient des suppléments</th><th>Exemple : orange + fraise (+5 DH)</th></>}
+              <th />
+            </tr>
           </thead>
           <tbody>
             {formats.map((f) => (
@@ -80,11 +101,15 @@ function JuiceFormats() {
                   <input className="cell-input" type="number" min={0} max={500} value={f.basePrice}
                     onChange={(e) => change(f.code, { basePrice: Number(e.target.value) })} aria-label={`Prix de départ ${f.label}`} />
                 </td>
-                <td>
-                  <input className="cell-input" type="number" min={0.5} max={5} step={0.1} value={f.factor}
-                    onChange={(e) => change(f.code, { factor: Number(e.target.value) })} aria-label={`Coefficient ${f.label}`} />
-                </td>
-                <td>{f.basePrice + Math.round(5 * f.factor)} DH</td>
+                {fixed === false && (
+                  <>
+                    <td>
+                      <input className="cell-input" type="number" min={0.5} max={5} step={0.1} value={f.factor}
+                        onChange={(e) => change(f.code, { factor: Number(e.target.value) })} aria-label={`Coefficient ${f.label}`} />
+                    </td>
+                    <td>{f.basePrice + Math.round(5 * f.factor)} DH</td>
+                  </>
+                )}
                 <td><button className="btn btn--accent btn--sm" onClick={() => save(f)}>Enregistrer</button></td>
               </tr>
             ))}

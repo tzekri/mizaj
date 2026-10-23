@@ -16,6 +16,7 @@ import ma.mizaje.web.dto.JuiceDtos.IngredientView;
 import ma.mizaje.web.dto.JuiceDtos.JuiceOrderView;
 import ma.mizaje.web.dto.JuiceDtos.JuiceScanRequest;
 import ma.mizaje.web.dto.JuiceDtos.JuiceStats;
+import ma.mizaje.web.dto.JuiceDtos.PricingRequest;
 import ma.mizaje.web.dto.JuiceDtos.RecipeRequest;
 import ma.mizaje.web.dto.JuiceDtos.SizeView;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -126,6 +127,16 @@ public class JuiceController {
 	@PutMapping("/api/admin/juice/formats/{size}")
 	List<SizeView> updateFormat(@PathVariable JuiceSize size, @Valid @RequestBody FormatRequest req) {
 		return juices.updateFormat(size, req);
+	}
+
+	@GetMapping("/api/admin/juice/pricing")
+	PricingRequest pricing() {
+		return new PricingRequest(juices.fixedPrice());
+	}
+
+	@PutMapping("/api/admin/juice/pricing")
+	PricingRequest setPricing(@RequestBody PricingRequest req) {
+		return new PricingRequest(juices.setFixedPrice(req.fixed()));
 	}
 
 	@GetMapping("/api/admin/juice/stats")

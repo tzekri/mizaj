@@ -36,8 +36,15 @@ public final class JuiceDtos {
 	public record FormatRequest(@Min(0) @Max(500) int basePrice, @DecimalMin("0.5") @DecimalMax("5") double factor) {
 	}
 
-	/** Catalogue public : ingrédients disponibles, formats et règles de composition. */
-	public record Catalog(List<IngredientView> ingredients, List<SizeView> sizes, int maxFruits, int maxExtras) {
+	/**
+	 * Catalogue public : ingrédients disponibles, formats et règles de composition.
+	 * fixedPrice : true, le jus coûte le prix de départ du format quels que soient les fruits (suppléments ignorés).
+	 */
+	public record Catalog(List<IngredientView> ingredients, List<SizeView> sizes, int maxFruits, int maxExtras, boolean fixedPrice) {
+	}
+
+	/** fixed : prix fixe par format (true) ou prix selon les ingrédients (false). */
+	public record PricingRequest(boolean fixed) {
 	}
 
 	public record IngredientRequest(

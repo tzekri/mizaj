@@ -45,7 +45,9 @@ public class DemoDataSeeder implements ApplicationRunner {
 	private static final String[] NAMES = {"Yasmine", "Karim", "Salma", "Youssef", "Nadia", "Omar", "Imane", "Hamza", "Sara",
 			"Mehdi", "Khadija", "Anas", "Hiba", "Reda", "Meryem", "Ayoub", "Lina", "Adam", "Ghita", "Ilyas", "Zineb", "Amine",
 			"Rim", "Othmane", "Douae", "Soufiane", "Kenza", "Walid", "Aya", "Bilal"};
-	private static final String[] SHOPS = {"Maârif", "Ain Diab", "Bourgogne"};
+	private static final String[] SHOPS = {"Lissasfa", "Farah Salam"};
+	/** Fréquentation relative de chaque coffee shop (même ordre que SHOPS). */
+	private static final int[] SHOP_WEIGHTS = {3, 2};
 	/** Poids des heures 7h…22h (pic du matin, de midi et de fin d'après-midi). */
 	private static final int[] HOUR_WEIGHTS = {6, 14, 12, 7, 5, 6, 9, 8, 5, 6, 8, 9, 6, 4, 3, 2};
 
@@ -101,7 +103,7 @@ public class DemoDataSeeder implements ApplicationRunner {
 			do {
 				phone = "+212" + (random.nextBoolean() ? "6" : "7") + (10_000_000 + random.nextInt(89_999_999));
 			} while (!phones.add(phone));
-			int shopIndex = weighted(new int[] {5, 3, 2});
+			int shopIndex = weighted(SHOP_WEIGHTS);
 			StaffUser barista = baristas.get(shopIndex);
 			// Les inscriptions s'accélèrent : plus de clients récents que d'anciens
 			int startDaysAgo = (int) Math.round(150 * Math.pow(random.nextDouble(), 1.4));
@@ -130,7 +132,7 @@ public class DemoDataSeeder implements ApplicationRunner {
 				times.sort(null);
 				for (Instant t : times) {
 					s.consumeOne();
-					redemptions.save(new Redemption(s, random.nextInt(5) == 0 ? baristas.get(random.nextInt(3)) : barista, t));
+					redemptions.save(new Redemption(s, random.nextInt(5) == 0 ? baristas.get(random.nextInt(baristas.size())) : barista, t));
 					reds++;
 				}
 				// Renouvellement : ~65 % des clients rechargent, parfois avec un peu de retard

@@ -124,6 +124,8 @@ export type JuiceCatalog = {
   sizes: { code: JuiceSize; label: string; basePrice: number; factor: number }[];
   maxFruits: number;
   maxExtras: number;
+  /** true : le jus coûte le prix du format, quels que soient les fruits (suppléments ignorés). */
+  fixedPrice: boolean;
 };
 export type JuiceRecipe = {
   name?: string;
@@ -336,6 +338,8 @@ export const api = {
   juiceFormats: () => request<JuiceFormat[]>('GET', '/api/admin/juice/formats', undefined, staffSession.get()?.token),
   saveJuiceFormat: (size: JuiceSize, f: { basePrice: number; factor: number }) =>
     request<JuiceFormat[]>('PUT', `/api/admin/juice/formats/${size}`, f, staffSession.get()?.token),
+  juicePricing: () => request<{ fixed: boolean }>('GET', '/api/admin/juice/pricing', undefined, staffSession.get()?.token),
+  setJuicePricing: (fixed: boolean) => request<{ fixed: boolean }>('PUT', '/api/admin/juice/pricing', { fixed }, staffSession.get()?.token),
   menu: () => request<MenuCategory[]>('GET', '/api/public/menu'),
   adminMenu: () => request<MenuCategory[]>('GET', '/api/admin/menu', undefined, staffSession.get()?.token),
   saveMenuCategory: (c: MenuCategoryInput, id?: number) =>

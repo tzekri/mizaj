@@ -125,7 +125,7 @@ h1, h2, h3 { line-height: 1.15; margin: 0 0 0.5em; }
 
 /* Shops strip */
 .shops-strip { background: var(--bg-dark); padding: 96px 0; color: var(--white); }
-.shops { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; margin-bottom: 56px; }
+.shops { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 28px; max-width: 900px; margin: 0 auto 56px; }
 .shop { background: #0c2a3e; border-radius: var(--radius); overflow: hidden; }
 .shop__img { position: relative; }
 .shop__img img { width: 100%; aspect-ratio: 16/10; object-fit: cover; }

@@ -809,7 +809,7 @@ function JuiceAdmin() {
           </tbody>
         </table>
       </div>
-      <p className="dash-note">Prix d’un jus : prix de départ du format + suppléments des ingrédients (prix de départ réglables dans l’onglet « Menu & prix »).</p>
+      <p className="dash-note">Mode de prix (fixe ou selon les ingrédients) et prix des formats : onglet « Menu & prix ». Les suppléments ci-dessus ne comptent qu’en mode « selon les ingrédients ».</p>
       {editing ? (
         <form className="form new-staff" onSubmit={save}>
           <h3 className="form__full">{editing === 'new' ? 'Nouvel ingrédient' : `Modifier « ${form.name} »`}</h3>

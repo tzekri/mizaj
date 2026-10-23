@@ -47,7 +47,7 @@ plus le supplément de chaque ingrédient (×1,4 en 50 cl). Aperçu du verre aux
 ## Menu & prix (administration)
 
 Espace barista → compte admin → onglet **« Menu & prix »** :
-- **Prix des jus composés** : prix de départ du 33 cl / 50 cl et coefficient des suppléments (jus d’orange = prix de départ).
+- **Prix des jus composés** : mode **prix fixe** par format (par défaut : 15 DH en 33 cl, quels que soient les fruits) ou **prix selon les ingrédients** (prix du format + suppléments × coefficient, calcul conservé).
 - **Menu du coffee shop** : prix modifiable directement dans le tableau, produits (nom, description, contenance, intensité,
   photo Unsplash ou https, pastille, « Produits populaires » de l’accueil), disponibilité, ordre (↑ ↓), catégories.
 

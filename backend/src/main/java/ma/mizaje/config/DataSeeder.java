@@ -74,7 +74,7 @@ public class DataSeeder implements ApplicationRunner {
 			log.info("Compte administrateur créé : {}", adminEmail);
 		}
 		if (seedDemo && !staffUsers.existsByEmailIgnoreCase(DEMO_BARISTA)) {
-			staffUsers.save(new StaffUser("Barista Démo", DEMO_BARISTA, passwordEncoder.encode("barista1234"), StaffRole.BARISTA, "Maârif"));
+			staffUsers.save(new StaffUser("Barista Démo", DEMO_BARISTA, passwordEncoder.encode("barista1234"), StaffRole.BARISTA, "Lissasfa"));
 			log.info("Compte barista de démonstration créé : {} / barista1234", DEMO_BARISTA);
 		}
 	}

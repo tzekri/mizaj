@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import ma.mizaje.domain.AppSetting;
 import ma.mizaje.domain.Customer;
 import ma.mizaje.domain.JuiceCategory;
 import ma.mizaje.domain.JuiceFavorite;
@@ -22,6 +23,7 @@ import ma.mizaje.domain.JuiceIngredient;
 import ma.mizaje.domain.JuiceOrder;
 import ma.mizaje.domain.JuiceSize;
 import ma.mizaje.domain.StaffUser;
+import ma.mizaje.repo.AppSettingRepository;
 import ma.mizaje.repo.CustomerRepository;
 import ma.mizaje.repo.JuiceFavoriteRepository;
 import ma.mizaje.repo.JuiceFormatRepository;
@@ -58,10 +60,14 @@ public class JuiceService {
 	public static final String QR_PREFIX = "MIZAJE-JUS:";
 	/** Préfixe des codes générés des premières versions (ancien nom « Mizaj »), toujours accepté. */
 	static final String LEGACY_QR_PREFIX = "MIZAJ-JUS:";
+	static final String PRICING_KEY = "juice.pricing";
+	static final String PRICING_FIXED = "FIXED";
+	static final String PRICING_COMPOSED = "COMPOSED";
 	private static final String CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 
 	private final JuiceIngredientRepository ingredients;
 	private final JuiceFormatRepository formats;
+	private final AppSettingRepository settings;
 	private final JuiceOrderRepository orders;
 	private final JuiceFavoriteRepository favorites;
 	private final CustomerRepository customers;
@@ -70,10 +76,12 @@ public class JuiceService {
 	private final ZoneId zone;
 	private final SecureRandom random = new SecureRandom();
 
-	public JuiceService(JuiceIngredientRepository ingredients, JuiceFormatRepository formats, JuiceOrderRepository orders, JuiceFavoriteRepository favorites,
+	public JuiceService(JuiceIngredientRepository ingredients, JuiceFormatRepository formats, AppSettingRepository settings,
+			JuiceOrderRepository orders, JuiceFavoriteRepository favorites,
 			CustomerRepository customers, StaffUserRepository staffUsers, Clock clock, ZoneId appZone) {
 		this.ingredients = ingredients;
 		this.formats = formats;
+		this.settings = settings;
 		this.orders = orders;
 		this.favorites = favorites;
 		this.customers = customers;
@@ -88,7 +96,22 @@ public class JuiceService {
 	public Catalog catalog() {
 		List<IngredientView> available = ingredients.findAllByOrderByCategoryAscSortOrderAscIdAsc().stream()
 				.filter(JuiceIngredient::isAvailable).map(IngredientView::of).toList();
-		return new Catalog(available, sizes(), MAX_FRUITS, MAX_EXTRAS);
+		return new Catalog(available, sizes(), MAX_FRUITS, MAX_EXTRAS, fixedPrice());
+	}
+
+	/**
+	 * Mode de prix des jus. Prix fixe (par défaut) : le prix de départ du format, quels que soient les fruits.
+	 * Prix composé : prix de départ + suppléments des ingrédients × coefficient du format (calcul conservé pour plus tard).
+	 */
+	public boolean fixedPrice() {
+		return settings.findById(PRICING_KEY).map(s -> !PRICING_COMPOSED.equals(s.getValue())).orElse(true);
+	}
+
+	@Transactional
+	public boolean setFixedPrice(boolean fixed) {
+		String value = fixed ? PRICING_FIXED : PRICING_COMPOSED;
+		settings.findById(PRICING_KEY).ifPresentOrElse(s -> s.setValue(value), () -> settings.save(new AppSetting(PRICING_KEY, value)));
+		return fixed;
 	}
 
 	private List<SizeView> sizes() {
@@ -283,7 +306,8 @@ public class JuiceService {
 		String label = items.stream().map(JuiceIngredient::getName).collect(Collectors.joining(" · "));
 		String joined = items.stream().map(JuiceIngredient::getCode).collect(Collectors.joining("|"));
 		String signature = items.stream().map(JuiceIngredient::getCode).sorted().collect(Collectors.joining("+")) + "@" + size.name();
-		int price = formats().get(size).price(items.stream().mapToInt(JuiceIngredient::getPrice).sum());
+		JuiceFormat format = formats().get(size);
+		int price = fixedPrice() ? format.getBasePrice() : format.price(items.stream().mapToInt(JuiceIngredient::getPrice).sum());
 		String name = rawName == null || rawName.isBlank() ? null : rawName.trim();
 		return new Recipe(name, size, items, joined, label, signature, price, available);
 	}
