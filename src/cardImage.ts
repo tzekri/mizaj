@@ -12,16 +12,18 @@ export async function renderCardImage(opts: { qrToken: string; firstName?: strin
   canvas.height = H;
   const ctx = canvas.getContext('2d')!;
 
-  // Fond crème du logo, liseré aux couleurs du drapeau en bas
+  // Fond crème, liseré cuivré en bas (couleurs du logo)
   const bg = ctx.createLinearGradient(0, 0, 0, H);
-  bg.addColorStop(0, '#fbf7ef');
-  bg.addColorStop(1, '#efe5d2');
+  bg.addColorStop(0, '#fbf6f0');
+  bg.addColorStop(1, '#f1e3d2');
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = '#c1272d';
-  ctx.fillRect(0, H - 18, W / 2, 18);
-  ctx.fillStyle = '#1d6b35';
-  ctx.fillRect(W / 2, H - 18, W / 2, 18);
+  const line = ctx.createLinearGradient(0, 0, W, 0);
+  line.addColorStop(0, '#a95f2a');
+  line.addColorStop(0.5, '#f6b877');
+  line.addColorStop(1, '#a95f2a');
+  ctx.fillStyle = line;
+  ctx.fillRect(0, H - 18, W, 18);
 
   // Logo officiel (version claire) en tête de carte
   const logo = new Image();
@@ -32,7 +34,7 @@ export async function renderCardImage(opts: { qrToken: string; firstName?: strin
   ctx.drawImage(logo, (W - lw) / 2, 48, lw, lh);
   ctx.textAlign = 'center';
   ctx.font = '600 32px Poppins, sans-serif';
-  ctx.fillStyle = '#9a6a1c';
+  ctx.fillStyle = '#9a5524';
   ctx.fillText('CARTE ABONNÉ', W / 2, 48 + lh + 52);
 
   // QR sur fond blanc arrondi
@@ -51,7 +53,7 @@ export async function renderCardImage(opts: { qrToken: string; firstName?: strin
   await qr.decode();
   ctx.drawImage(qr, x + 40, y + 40, box - 80, box - 80);
 
-  ctx.fillStyle = '#12275a';
+  ctx.fillStyle = '#0a2436';
   ctx.font = '700 64px Poppins, sans-serif';
   ctx.fillText(opts.firstName || 'Abonné Kidima', W / 2, y + box + 92);
   ctx.font = '500 38px Poppins, sans-serif';
