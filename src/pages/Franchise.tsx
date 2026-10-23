@@ -13,7 +13,7 @@ const PERKS = [
   { k: '120 000 DH', v: 'Droit d’entrée indicatif' },
   { k: '18–24 mois', v: 'Retour sur investissement visé' },
   { k: '60–120 m²', v: 'Surface recommandée' },
-  { k: '100 %', v: 'Café torréfié par Marokoffy' },
+  { k: '100 %', v: 'Café torréfié par Kidima' },
 ];
 
 export default function Franchise() {
@@ -23,7 +23,7 @@ export default function Franchise() {
     e.preventDefault();
     const d = new FormData(e.currentTarget);
     const body = [...d.entries()].map(([k, v]) => `${k} : ${v}`).join('\n');
-    window.location.href = `mailto:${BRAND.email}?subject=${encodeURIComponent('Candidature franchise Marokoffy')}&body=${encodeURIComponent(body)}`;
+    window.location.href = `mailto:${BRAND.email}?subject=${encodeURIComponent('Candidature franchise Kidima')}&body=${encodeURIComponent(body)}`;
     setSent(true);
   }
 
@@ -31,7 +31,7 @@ export default function Franchise() {
     <>
       <PageHero
         title="Devenez franchisé"
-        subtitle="Ouvrez votre coffee shop Marokoffy et rejoignez une marque marocaine en pleine croissance."
+        subtitle="Ouvrez votre coffee shop Kidima et rejoignez une marque marocaine en pleine croissance."
         photo={img(PHOTOS.barDark, 1920)}
       />
       <section className="section container">

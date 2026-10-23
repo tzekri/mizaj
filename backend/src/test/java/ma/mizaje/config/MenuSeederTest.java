@@ -9,8 +9,9 @@ class MenuSeederTest {
 
 	@Test
 	void rebrandReplacesFormerBrandNames() {
-		assertEquals("Marokoffy Signature", MenuSeeder.rebrand("Mizaje Signature"));
-		assertEquals("Purple Marokoffy", MenuSeeder.rebrand("Purple Mizaj"));
+		assertEquals("Kidima Signature", MenuSeeder.rebrand("Mizaje Signature"));
+		assertEquals("Purple Kidima", MenuSeeder.rebrand("Purple Mizaj"));
+		assertEquals("Kidima Intense", MenuSeeder.rebrand("Marokoffy Intense"));
 		assertEquals("Café turc", MenuSeeder.rebrand("Café turc"));
 		assertNull(MenuSeeder.rebrand(null));
 	}

@@ -53,7 +53,7 @@ export async function renderCardImage(opts: { qrToken: string; firstName?: strin
 
   ctx.fillStyle = '#12275a';
   ctx.font = '700 64px Poppins, sans-serif';
-  ctx.fillText(opts.firstName || 'Abonné Marokoffy', W / 2, y + box + 92);
+  ctx.fillText(opts.firstName || 'Abonné Kidima', W / 2, y + box + 92);
   ctx.font = '500 38px Poppins, sans-serif';
   ctx.globalAlpha = 0.85;
   ctx.fillText(`Formule ${opts.planName} · à présenter en caisse`, W / 2, y + box + 152);
@@ -78,10 +78,10 @@ function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: numbe
  * @returns 'shared' | 'downloaded' | 'cancelled'
  */
 export async function shareCard(blob: Blob, text: string): Promise<'shared' | 'downloaded' | 'cancelled'> {
-  const file = new File([blob], 'carte-marokoffy.png', { type: 'image/png' });
+  const file = new File([blob], 'carte-kidima.png', { type: 'image/png' });
   if (navigator.canShare?.({ files: [file] })) {
     try {
-      await navigator.share({ files: [file], text, title: 'Ma carte Marokoffy' });
+      await navigator.share({ files: [file], text, title: 'Ma carte Kidima' });
       return 'shared';
     } catch (e) {
       if ((e as DOMException).name === 'AbortError') return 'cancelled';
@@ -90,7 +90,7 @@ export async function shareCard(blob: Blob, text: string): Promise<'shared' | 'd
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'carte-marokoffy.png';
+  a.download = 'carte-kidima.png';
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 5000);
   return 'downloaded';

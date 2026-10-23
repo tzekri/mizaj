@@ -29,7 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class DataSeeder implements ApplicationRunner {
 
 	private static final Logger log = LoggerFactory.getLogger(DataSeeder.class);
-	static final String DEMO_BARISTA = "barista@marokoffy.ma";
+	static final String DEMO_BARISTA = "barista@kidima.ma";
 
 	private final StaffUserRepository staffUsers;
 	private final PlanRepository plans;
@@ -79,8 +79,8 @@ public class DataSeeder implements ApplicationRunner {
 		}
 	}
 
-	/** Anciens noms de domaine des comptes (Mizaj, puis Mizaje) : …@mizajcoffee.ma et …@mizajecoffee.ma deviennent …@marokoffy.ma. */
-	private static final List<String> LEGACY_DOMAINS = List.of("@mizajcoffee.ma", "@mizajecoffee.ma");
+	/** Anciens noms de domaine des comptes (Mizaj, Mizaje, Marokoffy) : ils deviennent …@kidima.ma. */
+	private static final List<String> LEGACY_DOMAINS = List.of("@mizajcoffee.ma", "@mizajecoffee.ma", "@marokoffy.ma");
 
 	/** Comptes créés sous un ancien nom de la marque : adresse renommée, mot de passe inchangé. */
 	private void renameLegacyStaffEmails() {
@@ -88,7 +88,7 @@ public class DataSeeder implements ApplicationRunner {
 			String email = u.getEmail();
 			for (String domain : LEGACY_DOMAINS) {
 				if (email.toLowerCase().endsWith(domain)) {
-					String renamed = email.substring(0, email.length() - domain.length()) + "@marokoffy.ma";
+					String renamed = email.substring(0, email.length() - domain.length()) + "@kidima.ma";
 					if (!staffUsers.existsByEmailIgnoreCase(renamed)) {
 						u.setEmail(renamed);
 						log.info("Compte renommé : {} → {}", email, renamed);

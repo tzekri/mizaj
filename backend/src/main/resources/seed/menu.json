@@ -308,7 +308,7 @@
         "tag": null
       },
       {
-        "name": "Purple Marokoffy",
+        "name": "Purple Kidima",
         "description": "Thé butterfly pea, citron et sirop de lavande. Change de couleur !",
         "price": 32,
         "intensity": null,
@@ -478,7 +478,7 @@
     "photo": "1789700736833-9ae7f8ee71cd",
     "items": [
       {
-        "name": "Marokoffy Signature",
+        "name": "Kidima Signature",
         "description": "Grains 250 g — Arabica 80 % / Robusta 20 %. Chocolat, noisette.",
         "price": 75,
         "intensity": 4,
@@ -498,7 +498,7 @@
         "tag": null
       },
       {
-        "name": "Marokoffy Intense",
+        "name": "Kidima Intense",
         "description": "Moulu 250 g — torréfaction foncée, idéal pour l’espresso.",
         "price": 65,
         "intensity": 5,

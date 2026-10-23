@@ -4,14 +4,13 @@
 export const FRANCHISE_ENABLED = false;
 
 export const BRAND = {
-  name: 'Marokoffy',
-  arabic: 'ماروكوفي',
+  name: 'Kidima',
   tagline: 'Le café à la marocaine',
   arabicTagline: 'قهوتك على مزاجك',
   since: 2024,
   phone: '+212 6 00 00 00 00',
   whatsapp: '212600000000',
-  email: 'contact@marokoffy.ma',
+  email: 'contact@kidima.ma',
   instagram: 'https://www.instagram.com/',
   tiktok: 'https://www.tiktok.com/',
 };

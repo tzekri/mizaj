@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 /**
  * Validation du numéro à l'inscription, selon la configuration Twilio :
  * 1. Twilio Verify (TWILIO_VERIFY_SID) : code envoyé par WhatsApp ou SMS, vérifié par Twilio ;
- * 2. Twilio Messages WhatsApp (TWILIO_WHATSAPP_FROM) : code généré par Marokoffy, modèle WhatsApp à fournir ;
+ * 2. Twilio Messages WhatsApp (TWILIO_WHATSAPP_FROM) : code généré par Kidima, modèle WhatsApp à fournir ;
  * 3. rien : inscription directe sans code ; une carte existante ne se récupère qu'avec un code donné en caisse.
  */
 @Configuration

@@ -3,16 +3,16 @@ import { Link, NavLink, useLocation } from 'react-router-dom';
 import { BRAND, FRANCHISE_ENABLED, SHOPS } from '../config';
 import { Instagram, Search, Tiktok, Whatsapp } from './Icons';
 
-/** Logo officiel, couleurs d'origine (fond crème) : emblème + « MAROKOFFY » ; « full » : logo complet (ماروكوفي, Coffee House). */
+/** Logo officiel, couleurs d'origine (fond crème) ; « full » : logo complet. */
 export function Logo({ small = false, full = false, hidden = false }: { small?: boolean; full?: boolean; hidden?: boolean }) {
   return (
     <Link
       to="/"
       className={`logo ${small ? 'logo--small' : ''} ${hidden ? 'logo--hidden' : ''}`}
-      aria-label="Marokoffy Coffee House — accueil"
+      aria-label="Kidima Coffee House — accueil"
       tabIndex={hidden ? -1 : undefined}
     >
-      <img src={full ? '/brand/logo.png' : '/brand/logo-mark.png'} alt={`Marokoffy Coffee House — ${BRAND.arabicTagline}`} />
+      <img src={full ? '/brand/logo.png' : '/brand/logo-mark.png'} alt={`Kidima Coffee House — ${BRAND.arabicTagline}`} />
     </Link>
   );
 }
@@ -105,7 +105,7 @@ export function Footer() {
         </div>
       </div>
       <div className="footer__bottom">
-        MAROKOFFY COFFEE HOUSE © Tous droits réservés — {new Date().getFullYear()}
+        KIDIMA COFFEE HOUSE © Tous droits réservés — {new Date().getFullYear()}
       </div>
     </footer>
   );

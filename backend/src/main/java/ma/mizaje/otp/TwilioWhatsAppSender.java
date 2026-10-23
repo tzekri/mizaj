@@ -43,7 +43,7 @@ public class TwilioWhatsAppSender implements OtpSender {
 			form.add("ContentSid", contentSid);
 			form.add("ContentVariables", toJson(Map.of("1", code)));
 		} else {
-			form.add("Body", "Marokoffy Coffee House — votre code de validation : " + code + "\nIl expire dans 10 minutes. Ne le partagez avec personne.");
+			form.add("Body", "Kidima Coffee House — votre code de validation : " + code + "\nIl expire dans 10 minutes. Ne le partagez avec personne.");
 		}
 		try {
 			http.post()

@@ -25,7 +25,7 @@ const IDEAS: { name: string; size: JuiceSize; codes: string[] }[] = [
 const STEP: Record<JuiceCategory, { n: string; title: string; hint: (max: number) => string }> = {
   BASE: { n: '1', title: 'Choisissez votre base', hint: () => 'Une base, elle fait la moitié du jus' },
   FRUIT: { n: '2', title: 'Ajoutez des fruits', hint: (max) => `Jusqu’à ${max} fruits` },
-  EXTRA: { n: '3', title: 'La touche Marokoffy', hint: (max) => `Jusqu’à ${max} extras` },
+  EXTRA: { n: '3', title: 'La touche Kidima', hint: (max) => `Jusqu’à ${max} extras` },
 };
 
 export default function Juice() {
@@ -184,7 +184,7 @@ export default function Juice() {
                   <button className="btn btn--outline btn--block" disabled={!base} onClick={saveFavorite}>★ Enregistrer en favori</button>
                 ) : (
                   <p className="juice__hint">
-                    <Link to="/abonnement">Créez votre carte Marokoffy</Link> pour enregistrer vos jus favoris et les recommander en un geste.
+                    <Link to="/abonnement">Créez votre carte Kidima</Link> pour enregistrer vos jus favoris et les recommander en un geste.
                   </p>
                 )}
                 {saved && <p className="notice notice--ok">{saved}</p>}

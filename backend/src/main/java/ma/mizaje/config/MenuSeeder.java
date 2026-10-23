@@ -71,7 +71,7 @@ public class MenuSeeder implements ApplicationRunner {
 		log.info("Menu de départ chargé : {} catégories, {} produits.", seed.size(), n);
 	}
 
-	/** Produits nommés d'après l'ancienne marque (« Mizaje Signature »…) : renommés « Marokoffy ». */
+	/** Produits nommés d'après une ancienne marque (« Mizaje Signature », « Marokoffy Intense »…) : renommés « Kidima ». */
 	private void renameLegacyBrand() {
 		for (MenuItem i : items.findAll()) {
 			String name = rebrand(i.getName());
@@ -85,6 +85,6 @@ public class MenuSeeder implements ApplicationRunner {
 	}
 
 	static String rebrand(String text) {
-		return text == null ? null : text.replaceAll("\\bMizaje?\\b", "Marokoffy");
+		return text == null ? null : text.replaceAll("\\b(Mizaje?|Marokoffy)\\b", "Kidima");
 	}
 }

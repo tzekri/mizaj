@@ -308,7 +308,7 @@ export const api = {
       headers: { Authorization: `Bearer ${staffSession.get()?.token ?? ''}` },
     });
     if (!res.ok) throw new ApiError(res.status, res.status === 401 ? 'Session expirée, reconnectez-vous.' : 'Export impossible.');
-    const name = /filename="([^"]+)"/.exec(res.headers.get('content-disposition') ?? '')?.[1] ?? `marokoffy-${kind}.csv`;
+    const name = /filename="([^"]+)"/.exec(res.headers.get('content-disposition') ?? '')?.[1] ?? `kidima-${kind}.csv`;
     const url = URL.createObjectURL(await res.blob());
     const a = document.createElement('a');
     a.href = url;
