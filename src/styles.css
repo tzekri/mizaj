@@ -76,11 +76,11 @@ h1, h2, h3 { line-height: 1.15; margin: 0 0 0.5em; }
 
 /* Logo */
 .logo { display: flex; align-items: center; justify-content: center; }
-.logo img { height: 64px; width: auto; display: block; }
-.logo--small img { height: 52px; }
+.logo img { height: 72px; width: auto; display: block; filter: drop-shadow(0 4px 10px rgba(6, 14, 36, 0.18)); }
+.logo--small img { height: 60px; }
 .logo--hidden { visibility: hidden; }
-.footer .logo { display: inline-flex; background: var(--page); border-radius: 20px; padding: 14px 18px; }
-.footer .logo img { height: auto; width: 170px; }
+.footer .logo { display: inline-flex; }
+.footer .logo img { height: auto; width: 150px; filter: none; }
 
 /* Header */
 /* En-tête crème : le logo garde ses couleurs d'origine */
@@ -109,7 +109,7 @@ h1, h2, h3 { line-height: 1.15; margin: 0 0 0.5em; }
 .hero__inner { flex: 1; display: grid; place-items: center; padding: 32px 0 72px; }
 .hero__content { text-align: center; color: var(--ink); }
 .hero__brand { margin: 0 0 14px; line-height: 0; }
-.hero__brand img { width: min(460px, 80vw); height: auto; margin: 0 auto; }
+.hero__brand img { width: min(400px, 76vw); height: auto; margin: 0 auto; filter: drop-shadow(0 24px 40px rgba(6, 14, 36, 0.25)); }
 .hero__tagline { font-family: var(--script); font-size: clamp(2rem, 4.4vw, 3.1rem); color: var(--gold-dark); margin: 0; line-height: 1.1; }
 .hero__fr { font-size: clamp(1rem, 2.2vw, 1.15rem); color: var(--muted); margin: 8px 0 30px; }
 .hero__ctas { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; }
@@ -352,7 +352,7 @@ h1, h2, h3 { line-height: 1.15; margin: 0 0 0.5em; }
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 30px 60px rgba(0,0,0,.35);
   transform: rotate(-6deg);
 }
-.mini-card__brand { width: 138px; height: auto; background: var(--page); border-radius: 12px; padding: 6px 8px; }
+.mini-card__brand { width: 92px; height: auto; }
 .mini-card__qr {
   width: 128px; height: 128px; border-radius: 12px; margin: 8px 0 10px; background-color: #fff;
   background-image: linear-gradient(45deg, var(--bg-dark) 25%, transparent 25%, transparent 75%, var(--bg-dark) 75%),
@@ -456,7 +456,7 @@ h1, h2, h3 { line-height: 1.15; margin: 0 0 0.5em; }
 .member-card--flash { animation: flash 1.8s ease; }
 @keyframes flash { 0%, 100% { transform: scale(1); } 20% { transform: scale(1.03); box-shadow: 0 0 0 8px rgba(216, 165, 74, .55); } }
 .member-card__top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
-.member-card__brand { height: 54px; width: auto; display: block; margin-bottom: 8px; background: var(--page); border-radius: 12px; padding: 6px 10px; }
+.member-card__brand { height: 64px; width: auto; display: block; margin-bottom: 8px; }
 .member-card__label { font-size: 0.75rem; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.75; }
 .member-card__qr { background: #fff; border-radius: 18px; padding: 14px; margin: 20px auto 18px; max-width: 300px; }
 .member-card__qr img, .qr-placeholder { width: 100%; aspect-ratio: 1; display: block; image-rendering: pixelated; }
@@ -582,7 +582,7 @@ h1, h2, h3 { line-height: 1.15; margin: 0 0 0.5em; }
   box-shadow: var(--shadow); aspect-ratio: 1 / 1.414; display: flex; flex-direction: column; align-items: center;
   -webkit-print-color-adjust: exact; print-color-adjust: exact;
 }
-.poster__brand { width: 46%; height: auto; margin-bottom: 10px; }
+.poster__brand { width: 40%; height: auto; margin-bottom: 10px; }
 .poster__eyebrow { text-transform: uppercase; letter-spacing: 0.18em; font-size: 0.8rem; font-weight: 700; color: var(--gold-dark); margin: 0 0 14px; }
 .poster h2 { font-size: 2.3rem; line-height: 1.1; margin: 0 0 22px; font-weight: 600; }
 .poster h2 strong { font-weight: 800; color: var(--red); }
@@ -846,7 +846,7 @@ h1, h2, h3 { line-height: 1.15; margin: 0 0 0.5em; }
   .burger { display: block; }
   .nav { display: none; flex-direction: column; align-items: center; gap: 14px; background: var(--page); margin: 12px 0 0; padding: 18px 0 8px; }
   .nav--open { display: flex; }
-  .logo img { height: 46px; }
+  .logo img { height: 56px; }
   .slider { height: 560px; }
   .slide__content { padding: 0 48px; }
   .slider__nav--prev { left: 6px; }

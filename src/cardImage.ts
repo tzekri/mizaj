@@ -27,7 +27,7 @@ export async function renderCardImage(opts: { qrToken: string; firstName?: strin
   const logo = new Image();
   logo.src = '/brand/logo-mark.png';
   await logo.decode();
-  const lw = 560;
+  const lw = 300;
   const lh = (logo.naturalHeight / logo.naturalWidth) * lw;
   ctx.drawImage(logo, (W - lw) / 2, 48, lw, lh);
   ctx.textAlign = 'center';
