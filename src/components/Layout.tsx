@@ -135,13 +135,22 @@ export function Floating() {
   );
 }
 
-export function PageHero({ title, subtitle, photo }: { title: string; subtitle?: ReactNode; photo: string }) {
+/** En-tête de page : bandeau bleu nuit (comme le fond du logo), titre à gauche, photo ronde cerclée de cuivre à droite. */
+export function PageHero({ title, subtitle, photo, eyebrow }: { title: string; subtitle?: ReactNode; photo: string; eyebrow?: string }) {
   return (
-    <section className="page-hero" style={{ backgroundImage: `url(${photo})` }}>
+    <section className="k-pagehero on-dark">
       <Header small />
-      <div className="page-hero__content">
-        <h1>{title}</h1>
-        {subtitle && <p>{subtitle}</p>}
+      <div className="container k-pagehero__inner">
+        <div className="k-pagehero__text">
+          {eyebrow && <p className="k-eyebrow">{eyebrow}</p>}
+          <h1>{title}</h1>
+          {subtitle && <p className="k-pagehero__lead">{subtitle}</p>}
+        </div>
+        <div className="k-pagehero__photo" aria-hidden>
+          <span className="k-hero__ring" />
+          {/* Photo affichée en petit : on demande une image de 600 px au lieu de la grande version */}
+          <img src={photo.replace(/([?&])w=\d+/, '$1w=600')} alt="" />
+        </div>
       </div>
     </section>
   );

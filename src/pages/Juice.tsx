@@ -103,6 +103,7 @@ export default function Juice() {
   return (
     <>
       <PageHero
+        eyebrow="Pressé minute"
         title="Compose ton jus"
         subtitle="Fruits pressés à la minute, à ton goût. Compose, obtiens ton code, et récupère ton jus en caisse."
         photo={img('1600271886742-f049cd451bba', 1920)}

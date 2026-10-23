@@ -6,11 +6,12 @@ import { menuPhoto, useMenu } from '../menu';
 import { Header } from '../components/Layout';
 import { Arrow, Clock, Pin } from '../components/Icons';
 import { IngredientThumb, JuiceGlass } from '../components/juice';
+import { isOpenNow } from '../hours';
 
 /** Héros bleu nuit, comme le fond du logo : accroche à gauche, médaillon Kidima à droite. */
 function Hero() {
   return (
-    <section className="k-hero">
+    <section className="k-hero on-dark">
       <Header hideLogo />
       <div className="container k-hero__inner">
         <div className="k-hero__text">
@@ -216,17 +217,6 @@ function JuiceTeaser() {
       </div>
     </section>
   );
-}
-
-/** « 7h00 – 01h00 » : ouvert maintenant, à l'heure de Casablanca ? (horaires après minuit gérés) */
-function isOpenNow(hours: string, now = new Date()) {
-  const m = hours.match(/(\d{1,2})h(\d{2})\D+(\d{1,2})h(\d{2})/);
-  if (!m) return null;
-  const parts = new Intl.DateTimeFormat('fr-FR', { timeZone: 'Africa/Casablanca', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(now);
-  const t = Number(parts.find((p) => p.type === 'hour')!.value) * 60 + Number(parts.find((p) => p.type === 'minute')!.value);
-  const open = Number(m[1]) * 60 + Number(m[2]);
-  const close = Number(m[3]) * 60 + Number(m[4]);
-  return close > open ? t >= open && t < close : t >= open || t < close;
 }
 
 function ShopsStrip() {

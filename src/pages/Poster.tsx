@@ -30,7 +30,7 @@ export default function Poster() {
 
   return (
     <>
-      <section className="app-top no-print">
+      <section className="app-top on-dark no-print">
         <Header small />
       </section>
       <section className="section container poster-page">

@@ -18,6 +18,7 @@ export default function Menu() {
   return (
     <>
       <PageHero
+        eyebrow="La carte"
         title="Kidima Menu"
         subtitle="Savourez chaque tasse, où équilibre et arômes se rencontrent pour un plaisir unique."
         photo={img(PHOTOS.latteDark, 1920)}
@@ -39,37 +40,29 @@ export default function Menu() {
             </div>
           )
         ) : (
-          <div className="cat-list">
+          <>
             {!menu && <p className="empty">{error ?? 'Chargement du menu…'}</p>}
-            {menu?.map((c) => (
-              <Link key={c.slug} to={`/menu/${c.slug}`} className={`cat-banner cat-banner--${c.tone.toLowerCase()}`}>
-                <div className="cat-banner__text">
-                  <span className="cat-banner__ar">{c.arabic}</span>
-                  <h2>
-                    <span>{c.light}</span>
-                    <strong>{c.bold}</strong>
-                  </h2>
-                  <span className="cat-banner__count">
-                    {c.items.length} produits <Arrow size={22} />
-                  </span>
+            <div className="cat-grid">
+              {menu?.map((c) => (
+                <Link key={c.slug} to={`/menu/${c.slug}`} className="cat-card">
+                  <img src={menuPhoto(c.photo, 700)} alt="" loading="lazy" />
+                  <div className="cat-card__body">
+                    {c.arabic && <span className="cat-card__ar" lang="ar">{c.arabic}</span>}
+                    <h2>{c.light} <strong>{c.bold}</strong></h2>
+                    <span className="cat-card__count">{c.items.length} produits <Arrow size={18} /></span>
+                  </div>
+                </Link>
+              ))}
+              <Link to="/jus" className="cat-card cat-card--juice">
+                <img src={img('1613478223719-2ab802602423', 700)} alt="" loading="lazy" />
+                <div className="cat-card__body">
+                  <span className="cat-card__ar" lang="ar">عصير على ذوقك</span>
+                  <h2>Compose <strong>ton jus</strong></h2>
+                  <span className="cat-card__count">Base, fruits, touche Kidima <Arrow size={18} /></span>
                 </div>
-                <div className="cat-banner__img" style={{ backgroundImage: `url(${menuPhoto(c.photo, 1000)})` }} />
               </Link>
-            ))}
-            <Link to="/jus" className="cat-banner cat-banner--accent">
-              <div className="cat-banner__text">
-                <span className="cat-banner__ar">عصير على مزاجك</span>
-                <h2>
-                  <span>Compose</span>
-                  <strong>ton jus</strong>
-                </h2>
-                <span className="cat-banner__count">
-                  Base, fruits, touche Kidima : à ton goût <Arrow size={22} />
-                </span>
-              </div>
-              <div className="cat-banner__img" style={{ backgroundImage: `url(${img('1613478223719-2ab802602423', 1000)})` }} />
-            </Link>
-          </div>
+            </div>
+          </>
         )}
         <p className="menu-note">Lait végétal (avoine, amande) : +4 DH · Shot supplémentaire : +5 DH · Prix TTC.</p>
       </section>

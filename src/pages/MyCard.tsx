@@ -87,7 +87,7 @@ export default function MyCard() {
 
   return (
     <>
-      <section className="app-top">
+      <section className="app-top on-dark">
         <Header small />
       </section>
       <section className="section container mycard">

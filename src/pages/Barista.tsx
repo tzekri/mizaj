@@ -43,7 +43,7 @@ export default function Barista() {
 
   return (
     <>
-      <section className="app-top">
+      <section className="app-top on-dark">
         <Header small />
       </section>
       <section className="section container barista">

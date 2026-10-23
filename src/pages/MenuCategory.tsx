@@ -41,7 +41,7 @@ export default function MenuCategory() {
   if (!menu) {
     return (
       <>
-        <section className="app-top"><Header small /></section>
+        <section className="app-top on-dark"><Header small /></section>
         <section className="section container"><p className="empty">{error ?? 'Chargement du menu…'}</p></section>
       </>
     );
