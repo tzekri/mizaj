@@ -43,21 +43,3 @@ export const SHOPS = [
 ];
 
 // Le menu (catégories, produits, prix) est géré dans l'administration : voir src/menu.ts et /api/public/menu.
-
-export const SLIDES = [
-  {
-    title: 'Time to Drink Coffee',
-    text: 'Chaque mardi, votre espresso est à seulement 5 dh ! Venez découvrir nos origines du moment, discuter avec nos baristas et vivre une expérience unique à chaque visite.',
-    photo: PHOTOS.espressoPour,
-  },
-  {
-    title: 'Taste and Aroma',
-    text: 'Un Cold Brew pour les chaudes journées d’été ou un filtre parfait à partir de grains fraîchement torréfiés : nos cafés artisanaux sont toujours à l’honneur.',
-    photo: PHOTOS.chemex,
-  },
-  {
-    title: 'Fresh Every Morning',
-    text: 'Nos grains sont torréfiés chaque semaine à Casablanca, en petits lots, pour garantir une fraîcheur et une constance irréprochables dans votre tasse.',
-    photo: PHOTOS.roasterVintage,
-  },
-];
