@@ -30,7 +30,7 @@ Règles :
 - Le QR contient un jeton aléatoire (pas le numéro). Le client peut le régénérer : l'ancien ne fonctionne plus.
 - **Pas de code à l'inscription** (sans Twilio) : un numéro déjà inscrit ne s'ouvre jamais à distance, seulement avec le code de récupération donné en caisse (usage unique, 10 min, 5 essais). Inscriptions limitées à 40 / heure / IP (Wi-Fi partagé du coffee shop).
 - Si Twilio est configuré : code envoyé à l'inscription (10 min, 5 essais, 60 s entre deux envois, 5 / heure / numéro, 15 / heure / IP).
-- Formules en base, gérées dans Administration (prix, boissons, durée, visibilité). Au premier démarrage : Découverte (50 DH, 10 espressos, 15 j), Espresso (135 DH, 30 espressos, 30 j), Lait & Douceur (220 DH, 30 boissons au lait, 30 j).
+- Formules en base, gérées dans Administration (prix, boissons, durée, visibilité). Au premier démarrage : Découverte (50 DH, 10 espressos, 15 j), Espresso (135 DH, 30 espressos, 30 j), Lait & Douceur (210 DH, 30 boissons au lait, 30 j).
 
 Rôles : `BARISTA` (comptoir) et `ADMIN` (comptoir + statistiques, formules, abonnés, gestion du personnel).
 

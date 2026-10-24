@@ -58,7 +58,7 @@ public class DataSeeder implements ApplicationRunner {
 		if (plans.count() == 0) {
 			plans.save(new Plan("decouverte", "Découverte", "Pour essayer, sans engagement", 50, 10, 15, "espresso", "espressos", 1));
 			plans.save(new Plan("espresso", "Espresso", "Le classique : un espresso par jour", 135, 30, 30, "espresso", "espressos", 2));
-			plans.save(new Plan("lait-douceur", "Lait & Douceur", "Cappuccino, latte, flat white, nouss-nouss…", 220, 30, 30,
+			plans.save(new Plan("lait-douceur", "Lait & Douceur", "Cappuccino, latte, flat white, nouss-nouss…", 210, 30, 30,
 					"boisson au lait", "boissons au lait", 3));
 			log.info("Formules d'abonnement de départ créées (Découverte, Espresso, Lait & Douceur).");
 		}
@@ -100,11 +100,11 @@ public class DataSeeder implements ApplicationRunner {
 	}
 
 	/**
-	 * Nouveaux tarifs (octobre 2026) : Découverte 45 → 50 DH, Espresso 120 → 135 DH. Appliqués une seule fois, et seulement si
+	 * Nouveaux tarifs (octobre 2026) : Découverte 45 → 50 DH, Espresso 120 → 135 DH, Lait & Douceur 220 → 210 DH. Appliqués une seule fois, et seulement si
 	 * l'administrateur n'a pas déjà changé le prix ; les abonnements déjà activés gardent le prix payé.
 	 */
 	void updateFormerPlanPrices() {
-		for (String[] change : new String[][] {{"decouverte", "45", "50"}, {"espresso", "120", "135"}}) {
+		for (String[] change : new String[][] {{"decouverte", "45", "50"}, {"espresso", "120", "135"}, {"lait-douceur", "220", "210"}}) {
 			plans.findByCode(change[0]).filter(p -> p.getPrice() == Integer.parseInt(change[1])).ifPresent(p -> {
 				p.update(p.getName(), p.getDescription(), Integer.parseInt(change[2]), p.getDrinks(), p.getDays(), p.getUnit(),
 						p.getUnitPlural());
