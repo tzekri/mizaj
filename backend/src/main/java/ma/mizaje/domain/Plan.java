@@ -8,7 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 /**
- * Formule d'abonnement proposée aux clients (ex. « Espresso » : 120 DH, 30 espressos, 30 jours).
+ * Formule d'abonnement proposée aux clients (ex. « Espresso » : 135 DH, 30 espressos, 30 jours).
  * Modifiable par l'administrateur ; une période déjà activée garde son prix et son nombre de boissons.
  */
 @Entity

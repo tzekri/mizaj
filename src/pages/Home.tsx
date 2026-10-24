@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { api, type JuiceIngredient } from '../api';
+import { api, type JuiceIngredient, type Plan } from '../api';
 import { BRAND, FRANCHISE_ENABLED, PHOTOS, SHOPS, img } from '../config';
 import { menuPhoto, useMenu } from '../menu';
 import { Header } from '../components/Layout';
@@ -8,8 +8,23 @@ import { Arrow, Clock, Pin } from '../components/Icons';
 import { IngredientThumb, JuiceGlass } from '../components/juice';
 import { isOpenNow } from '../hours';
 
+/** Formules proposées : « dès X DH » et prix de l'espresso abonné, toujours à jour des tarifs de l'administration. */
+function usePlanPrices() {
+  const [plans, setPlans] = useState<Plan[]>([]);
+  useEffect(() => {
+    api.plans().then(setPlans).catch(() => {});
+  }, []);
+  const from = plans.length ? Math.min(...plans.map((p) => p.price)) : null;
+  const espresso = plans.filter((p) => p.unit === 'espresso' && p.drinks > 0).map((p) => p.price / p.drinks);
+  const perEspresso = espresso.length ? Math.min(...espresso) : null;
+  return { from, perEspresso };
+}
+
+const dh = (n: number) => `${n.toLocaleString('fr-FR', { maximumFractionDigits: 2, minimumFractionDigits: Number.isInteger(n) ? 0 : 2 })} DH`;
+
 /** Héros bleu nuit, comme le fond du logo : accroche à gauche, médaillon Kidima à droite. */
 function Hero() {
+  const { from, perEspresso } = usePlanPrices();
   return (
     <section className="k-hero on-dark">
       <Header hideLogo />
@@ -27,11 +42,11 @@ function Hero() {
           </p>
           <div className="k-hero__ctas">
             <Link to="/menu" className="btn btn--copper">Voir le menu</Link>
-            <SecondCta />
+            <SecondCta from={from} />
           </div>
           <ul className="k-hero__facts">
             <li><strong>{SHOPS.length}</strong> coffee shops</li>
-            <li><strong>4 DH</strong> l’espresso abonné</li>
+            {perEspresso !== null && <li><strong>{dh(perEspresso)}</strong> l’espresso abonné</li>}
             <li><strong>100 %</strong> pressé minute</li>
           </ul>
         </div>
@@ -45,11 +60,11 @@ function Hero() {
 }
 
 /** Second bouton du héros : la franchise, ou l'abonnement tant qu'elle est masquée. */
-function SecondCta() {
+function SecondCta({ from }: { from: number | null }) {
   return FRANCHISE_ENABLED ? (
     <Link to="/franchise" className="btn btn--ghost">Devenir franchisé</Link>
   ) : (
-    <Link to="/abonnement" className="btn btn--ghost">Je m’abonne dès 45 DH</Link>
+    <Link to="/abonnement" className="btn btn--ghost">Je m’abonne{from !== null ? ` dès ${dh(from)}` : ''}</Link>
   );
 }
 
@@ -155,6 +170,7 @@ function Products() {
 }
 
 function SubscriptionTeaser() {
+  const { from } = usePlanPrices();
   return (
     <section className="sub-teaser">
       <div className="container sub-teaser__inner">
@@ -162,8 +178,7 @@ function SubscriptionTeaser() {
           <p className="eyebrow">Abonnement</p>
           <h2>
             Votre café du quotidien
-            <br />
-            dès <strong>45 DH</strong>
+            {from !== null && <><br />dès <strong>{dh(from)}</strong></>}
           </h2>
           <ol className="k-steps">
             <li><b>Choisissez</b> votre formule : Découverte, Espresso ou Lait &amp; Douceur.</li>
