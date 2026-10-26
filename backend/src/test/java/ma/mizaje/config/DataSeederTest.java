@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 import ma.mizaje.domain.Plan;
+import ma.mizaje.repo.AppSettingRepository;
 import ma.mizaje.repo.JuiceIngredientRepository;
 import ma.mizaje.repo.PlanRepository;
 import ma.mizaje.repo.StaffUserRepository;
@@ -23,7 +24,7 @@ class DataSeederTest {
 		Plan lait = new Plan("lait-douceur", "Lait & Douceur", null, 220, 30, 30, "boisson au lait", "boissons au lait", 3);
 		when(plans.findByCode("espresso")).thenReturn(Optional.of(espresso));
 		when(plans.findByCode("lait-douceur")).thenReturn(Optional.of(lait));
-		new DataSeeder(mock(StaffUserRepository.class), plans, mock(JuiceIngredientRepository.class), mock(PasswordEncoder.class),
+		new DataSeeder(mock(StaffUserRepository.class), plans, mock(JuiceIngredientRepository.class), mock(PasswordEncoder.class), mock(AppSettingRepository.class),
 				"admin@kidima.ma", "x", false).updateFormerPlanPrices();
 		assertEquals(50, decouverte.getPrice());
 		assertEquals(125, espresso.getPrice());

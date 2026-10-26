@@ -6,7 +6,7 @@ import { PageHero } from '../components/Layout';
 import { Whatsapp } from '../components/Icons';
 
 /** Prix de référence d'une boisson à l'unité, pour afficher l'économie. */
-const UNIT_PRICE: Record<string, number> = { espresso: 10, 'boisson au lait': 20 };
+const UNIT_PRICE: Record<string, number> = { espresso: 8, 'boisson au lait': 15 };
 
 const STEPS = [
   { n: '01', title: 'Choisissez', text: 'Sélectionnez votre formule et saisissez votre numéro : votre carte QR est créée dans votre téléphone.' },

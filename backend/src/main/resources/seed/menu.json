@@ -9,8 +9,8 @@
     "items": [
       {
         "name": "Espresso",
-        "description": "Notre assemblage signature, corsé et intense, crema noisette.",
-        "price": 10,
+        "description": "Notre assemblage signature, corsé et intense, crema noisette. Servi avec un verre d’eau.",
+        "price": 8,
         "intensity": 5,
         "volume": "30 ml",
         "photo": "1612183515105-8c737ba7585d",
@@ -20,7 +20,7 @@
       {
         "name": "Ristretto",
         "description": "Extraction courte, concentrée en arômes, finale chocolatée.",
-        "price": 12,
+        "price": 8,
         "intensity": 5,
         "volume": "20 ml",
         "photo": "1786431851384-b3ebeffe7946",
@@ -30,7 +30,7 @@
       {
         "name": "Américano",
         "description": "Espresso allongé d’eau chaude, doux et aromatique.",
-        "price": 14,
+        "price": 10,
         "intensity": 3,
         "volume": "200 ml",
         "photo": "1630338606772-392095666116",
@@ -40,7 +40,7 @@
       {
         "name": "Macchiato",
         "description": "Espresso tâché d’une touche de mousse de lait.",
-        "price": 13,
+        "price": 10,
         "intensity": 4,
         "volume": "60 ml",
         "photo": "1543336179-44da3606afa4",
@@ -50,7 +50,7 @@
       {
         "name": "Cortado",
         "description": "Moitié espresso, moitié lait chaud. L’équilibre parfait.",
-        "price": 16,
+        "price": 12,
         "intensity": 4,
         "volume": "120 ml",
         "photo": "1741261524028-cd200446df20",
@@ -60,7 +60,7 @@
       {
         "name": "Café turc",
         "description": "Préparé au cezve, mouture extra-fine, parfum de cardamome.",
-        "price": 20,
+        "price": 15,
         "intensity": 5,
         "volume": "80 ml",
         "photo": "1664398346444-f6feafaa88b6",
@@ -80,7 +80,7 @@
       {
         "name": "Cappuccino",
         "description": "Café mousseux avec une fine mousse de lait. Un grand classique équilibré.",
-        "price": 20,
+        "price": 15,
         "intensity": 3,
         "volume": "180 ml",
         "photo": "1558220829-4694a46bb01f",
@@ -90,7 +90,7 @@
       {
         "name": "Café Latte",
         "description": "Espresso et lait onctueux, latte art réalisé par nos baristas.",
-        "price": 22,
+        "price": 16,
         "intensity": 2,
         "volume": "250 ml",
         "photo": "1763208387697-fe0a913bfed9",
@@ -100,7 +100,7 @@
       {
         "name": "Flat White",
         "description": "Double ristretto et micro-mousse soyeuse, plus de café, moins de lait.",
-        "price": 22,
+        "price": 18,
         "intensity": 4,
         "volume": "160 ml",
         "photo": "1620052087057-bfd8235f5874",
@@ -110,7 +110,7 @@
       {
         "name": "Spanish Latte",
         "description": "Latte légèrement sucré au lait concentré, crémeux et réconfortant.",
-        "price": 28,
+        "price": 22,
         "intensity": 2,
         "volume": "250 ml",
         "photo": "1770494347735-4a6b50086124",
@@ -120,7 +120,7 @@
       {
         "name": "Caramel Latte",
         "description": "Latte chaud au caramel beurre salé maison.",
-        "price": 26,
+        "price": 20,
         "intensity": 2,
         "volume": "250 ml",
         "photo": "1760630691241-7c8aa2e680ce",
@@ -130,7 +130,7 @@
       {
         "name": "Mocaccino",
         "description": "Mélange irrésistible de café et de chocolat noir. Riche et gourmand.",
-        "price": 26,
+        "price": 20,
         "intensity": 3,
         "volume": "250 ml",
         "photo": "1618576230663-9714aecfb99a",
@@ -140,7 +140,7 @@
       {
         "name": "Nouss-Nouss",
         "description": "Le classique marocain : moitié café, moitié lait.",
-        "price": 12,
+        "price": 10,
         "intensity": 3,
         "volume": "150 ml",
         "photo": "1497636577773-f1231844b336",
@@ -160,7 +160,7 @@
       {
         "name": "Iced Latte",
         "description": "Espresso, lait frais et glaçons. Simple et rafraîchissant.",
-        "price": 24,
+        "price": 18,
         "intensity": 2,
         "volume": "350 ml",
         "photo": "1764298490445-6add12301888",
@@ -170,7 +170,7 @@
       {
         "name": "Iced Spanish Latte",
         "description": "Notre Spanish latte servi sur glace, doux et crémeux.",
-        "price": 30,
+        "price": 24,
         "intensity": 2,
         "volume": "350 ml",
         "photo": "1527156231393-7023794f363c",
@@ -180,7 +180,7 @@
       {
         "name": "Iced Caramel Macchiato",
         "description": "Lait vanillé, espresso et filet de caramel sur glace.",
-        "price": 30,
+        "price": 24,
         "intensity": 2,
         "volume": "350 ml",
         "photo": "1527678357412-ef45dfbd9ecc",
@@ -190,7 +190,7 @@
       {
         "name": "Iced Americano",
         "description": "Double espresso allongé d’eau fraîche sur glaçons.",
-        "price": 20,
+        "price": 14,
         "intensity": 4,
         "volume": "350 ml",
         "photo": "1680327284937-1e1cb66c3ac7",
@@ -200,7 +200,7 @@
       {
         "name": "Cold Brew",
         "description": "Infusé à froid pendant 18 heures. Notes de cacao, faible acidité.",
-        "price": 25,
+        "price": 20,
         "intensity": 4,
         "volume": "330 ml",
         "photo": "1531835207745-506a1bc035d8",
@@ -210,7 +210,7 @@
       {
         "name": "Frappé Caramel",
         "description": "Café glacé mixé, caramel et crème fouettée.",
-        "price": 32,
+        "price": 25,
         "intensity": 2,
         "volume": "400 ml",
         "photo": "1579888071069-c107a6f79d82",
@@ -230,7 +230,7 @@
       {
         "name": "Milkshake Oreo",
         "description": "Glace vanille, biscuits Oreo et chantilly.",
-        "price": 32,
+        "price": 25,
         "intensity": null,
         "volume": "400 ml",
         "photo": "1572490122747-3968b75cc699",
@@ -240,7 +240,7 @@
       {
         "name": "Milkshake Chocolat",
         "description": "Chocolat noir fondant, glace et éclats de cacao.",
-        "price": 30,
+        "price": 23,
         "intensity": null,
         "volume": "400 ml",
         "photo": "1577805947697-89e18249d767",
@@ -250,7 +250,7 @@
       {
         "name": "Milkshake Fraise",
         "description": "Fraises fraîches mixées avec glace vanille.",
-        "price": 30,
+        "price": 23,
         "intensity": null,
         "volume": "400 ml",
         "photo": "1579954115545-a95591f28bfc",
@@ -260,7 +260,7 @@
       {
         "name": "Milkshake Vanille",
         "description": "Vanille de Madagascar, lait entier, crème fouettée.",
-        "price": 28,
+        "price": 22,
         "intensity": null,
         "volume": "400 ml",
         "photo": "1568901839119-631418a3910d",
@@ -270,7 +270,7 @@
       {
         "name": "Milkshake Brownie",
         "description": "Brownie maison, sauce chocolat et chantilly.",
-        "price": 35,
+        "price": 28,
         "intensity": null,
         "volume": "400 ml",
         "photo": "1619158403521-ed9795026d47",
@@ -290,7 +290,7 @@
       {
         "name": "Virgin Mojito",
         "description": "Menthe fraîche, citron vert, sucre de canne et eau pétillante.",
-        "price": 28,
+        "price": 22,
         "intensity": null,
         "volume": "400 ml",
         "photo": "1634496064950-02f043806b09",
@@ -300,7 +300,7 @@
       {
         "name": "Red Berries",
         "description": "Fruits rouges, citron et romarin.",
-        "price": 30,
+        "price": 24,
         "intensity": null,
         "volume": "400 ml",
         "photo": "1595981267035-7b04ca84a82d",
@@ -310,7 +310,7 @@
       {
         "name": "Purple Kidima",
         "description": "Thé butterfly pea, citron et sirop de lavande. Change de couleur !",
-        "price": 32,
+        "price": 25,
         "intensity": null,
         "volume": "400 ml",
         "photo": "1595977514600-72cbc8376c38",
@@ -320,7 +320,7 @@
       {
         "name": "Citronnade Menthe",
         "description": "Citrons pressés, menthe et une pointe de fleur d’oranger.",
-        "price": 22,
+        "price": 15,
         "intensity": null,
         "volume": "400 ml",
         "photo": "1575596510825-f748919a2bf7",
@@ -330,7 +330,7 @@
       {
         "name": "Jus d’orange pressé",
         "description": "Oranges du Souss pressées minute.",
-        "price": 20,
+        "price": 15,
         "intensity": null,
         "volume": "330 ml",
         "photo": "1613478223719-2ab802602423",
@@ -350,7 +350,7 @@
       {
         "name": "Atay à la menthe",
         "description": "Le thé marocain : gunpowder, menthe fraîche, servi à la théière.",
-        "price": 15,
+        "price": 10,
         "intensity": null,
         "volume": "Théière",
         "photo": "1591299089616-c9604047b1a6",
@@ -360,7 +360,7 @@
       {
         "name": "Atay Royal",
         "description": "Menthe, chiba et verveine, servi avec le service traditionnel.",
-        "price": 25,
+        "price": 18,
         "intensity": null,
         "volume": "Théière",
         "photo": "1518439532222-5dcc881e74b8",
@@ -370,7 +370,7 @@
       {
         "name": "Thé noir",
         "description": "Ceylan sélectionné, infusé à la minute.",
-        "price": 15,
+        "price": 10,
         "intensity": null,
         "volume": "300 ml",
         "photo": "1546641555-20676239fb5d",
@@ -380,7 +380,7 @@
       {
         "name": "Chai Latte",
         "description": "Thé noir épicé (cannelle, gingembre, cardamome) et lait mousseux.",
-        "price": 24,
+        "price": 18,
         "intensity": null,
         "volume": "300 ml",
         "photo": "1661499102718-aebb4886a0bc",
@@ -390,7 +390,7 @@
       {
         "name": "Matcha Latte",
         "description": "Matcha japonais fouetté et lait onctueux.",
-        "price": 30,
+        "price": 25,
         "intensity": null,
         "volume": "250 ml",
         "photo": "1515823064-d6e0c04616a7",
@@ -400,7 +400,7 @@
       {
         "name": "Infusion Bien-être",
         "description": "Verveine, camomille ou tilleul, au choix.",
-        "price": 15,
+        "price": 10,
         "intensity": null,
         "volume": "300 ml",
         "photo": "1558160074-4d7d8bdf4256",
@@ -420,7 +420,7 @@
       {
         "name": "Ice Tea Citron",
         "description": "Thé noir infusé à froid, citron vert et menthe.",
-        "price": 22,
+        "price": 16,
         "intensity": null,
         "volume": "400 ml",
         "photo": "1556679343-c7306c1976bc",
@@ -430,7 +430,7 @@
       {
         "name": "Ice Tea Pêche",
         "description": "Thé glacé à la pêche blanche, peu sucré.",
-        "price": 24,
+        "price": 18,
         "intensity": null,
         "volume": "400 ml",
         "photo": "1616434963473-030c8f1ce663",
@@ -440,7 +440,7 @@
       {
         "name": "Ice Tea Fruits Rouges",
         "description": "Thé noir, framboise et cassis.",
-        "price": 24,
+        "price": 18,
         "intensity": null,
         "volume": "400 ml",
         "photo": "1601390395693-364c0e22031a",
@@ -450,7 +450,7 @@
       {
         "name": "Hibiscus Glacé",
         "description": "Bissap infusé, gingembre et citron. Acidulé et désaltérant.",
-        "price": 22,
+        "price": 16,
         "intensity": null,
         "volume": "400 ml",
         "photo": "1654922704274-cd34f165c5e7",
@@ -460,7 +460,7 @@
       {
         "name": "Iced Matcha",
         "description": "Matcha cérémonial sur lait froid et glaçons.",
-        "price": 32,
+        "price": 26,
         "intensity": null,
         "volume": "350 ml",
         "photo": "1717603545560-28f9da83ecc3",

@@ -4,9 +4,11 @@ import java.util.List;
 import java.util.Map;
 import ma.mizaje.domain.JuiceCategory;
 import ma.mizaje.domain.JuiceIngredient;
+import ma.mizaje.domain.AppSetting;
 import ma.mizaje.domain.Plan;
 import ma.mizaje.domain.StaffRole;
 import ma.mizaje.domain.StaffUser;
+import ma.mizaje.repo.AppSettingRepository;
 import ma.mizaje.repo.JuiceIngredientRepository;
 import ma.mizaje.repo.PlanRepository;
 import ma.mizaje.repo.StaffUserRepository;
@@ -35,18 +37,20 @@ public class DataSeeder implements ApplicationRunner {
 	private final PlanRepository plans;
 	private final JuiceIngredientRepository juiceIngredients;
 	private final PasswordEncoder passwordEncoder;
+	private final AppSettingRepository settings;
 	private final String adminEmail;
 	private final String adminPassword;
 	private final boolean seedDemo;
 
 	public DataSeeder(StaffUserRepository staffUsers, PlanRepository plans, JuiceIngredientRepository juiceIngredients,
-			PasswordEncoder passwordEncoder,
+			PasswordEncoder passwordEncoder, AppSettingRepository settings,
 			@Value("${app.admin.email}") String adminEmail, @Value("${app.admin.password}") String adminPassword,
 			@Value("${app.seed-demo}") boolean seedDemo) {
 		this.staffUsers = staffUsers;
 		this.plans = plans;
 		this.juiceIngredients = juiceIngredients;
 		this.passwordEncoder = passwordEncoder;
+		this.settings = settings;
 		this.adminEmail = adminEmail.trim().toLowerCase();
 		this.adminPassword = adminPassword;
 		this.seedDemo = seedDemo;
@@ -61,6 +65,7 @@ public class DataSeeder implements ApplicationRunner {
 			plans.save(new Plan("lait-douceur", "Lait & Douceur", "Cappuccino, latte, flat white, nouss-nouss…", 210, 30, 30,
 					"boisson au lait", "boissons au lait", 3));
 			log.info("Formules d'abonnement de départ créées (Découverte, Espresso, Lait & Douceur).");
+			settings.save(new AppSetting(PLAN_PRICES_2026_10, "done")); // formules de départ déjà aux nouveaux tarifs
 		}
 		updateFormerPlanPrices();
 		if (juiceIngredients.count() == 0) {
@@ -99,11 +104,17 @@ public class DataSeeder implements ApplicationRunner {
 		}
 	}
 
+	static final String PLAN_PRICES_2026_10 = "plans.prices.2026-10";
+
 	/**
 	 * Nouveaux tarifs (octobre 2026) : Découverte 45 → 50 DH, Espresso 120 → 135 DH, Lait & Douceur 220 → 210 DH. Appliqués une seule fois, et seulement si
 	 * l'administrateur n'a pas déjà changé le prix ; les abonnements déjà activés gardent le prix payé.
 	 */
 	void updateFormerPlanPrices() {
+		if (settings.existsById(PLAN_PRICES_2026_10)) {
+			return; // déjà appliqué : un prix choisi ensuite dans l'administration n'est jamais écrasé
+		}
+		settings.save(new AppSetting(PLAN_PRICES_2026_10, "done"));
 		for (String[] change : new String[][] {{"decouverte", "45", "50"}, {"espresso", "120", "135"}, {"lait-douceur", "220", "210"}}) {
 			plans.findByCode(change[0]).filter(p -> p.getPrice() == Integer.parseInt(change[1])).ifPresent(p -> {
 				p.update(p.getName(), p.getDescription(), Integer.parseInt(change[2]), p.getDrinks(), p.getDays(), p.getUnit(),
