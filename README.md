@@ -44,6 +44,13 @@ plus le supplément de chaque ingrédient (×1,4 en 50 cl). Aperçu du verre aux
 - Abonnés : jusqu'à 10 **favoris**, recommandés en un geste depuis « Ma carte » (au prix actuel).
 - Administration → « Jus composés » : ingrédients (supplément, couleur, disponibilité, ajout), jus servis et mix les plus servis sur 30 jours.
 
+## Défi 10 secondes (`/defi`)
+
+Le client démarre le chrono et l’arrête : pile **10.00 s** (10,000 à 10,009 s) → bon cadeau (code 7 caractères + QR
+`KIDIMA-GAIN:…`) à montrer en caisse, scanné et remis une seule fois dans l’espace barista. 3 essais par jour et par téléphone ;
+le départ est enregistré par le serveur (un temps annoncé plus long que le temps réellement écoulé est refusé).
+Administration → « Défi 10 secondes » : jeu ouvert / en pause, lot, validité du bon, gagnants max par jour, statistiques.
+
 ## Menu & prix (administration)
 
 Espace barista → compte admin → onglet **« Menu & prix »** :

@@ -15,6 +15,7 @@ import {
   type StaffSession,
   type Stats,
   type Subscriber,
+  type ChronoPrize,
   type JuiceIngredient,
   type JuiceOrder,
   type JuiceStats,
@@ -26,10 +27,13 @@ import {
 import { SHOPS } from '../config';
 import Dashboard from './Dashboard';
 import MenuAdmin from './MenuAdmin';
+import ChronoAdmin from './ChronoAdmin';
 import { IngredientThumb, JuiceGlass } from '../components/juice';
 
 /** Codes de jus ; « MIZAJ-JUS: » : codes générés des premières versions (ancien nom « Mizaj »). */
 const JUICE_QR_PREFIXES = ['MIZAJE-JUS:', 'MIZAJ-JUS:'];
+/** Bons gagnés au défi « 10 secondes ». */
+const PRIZE_QR_PREFIX = 'KIDIMA-GAIN:';
 import { Header } from '../components/Layout';
 
 export default function Barista() {
@@ -119,6 +123,7 @@ type Notice = { kind: 'ok' | 'error'; text: string } | null;
 function Counter({ onAuthError }: { onAuthError: () => void }) {
   const [card, setCard] = useState<StaffCard | null>(null);
   const [juice, setJuice] = useState<JuiceOrder | null>(null);
+  const [prize, setPrize] = useState<ChronoPrize | null>(null);
   const [notice, setNotice] = useState<Notice>(null);
   const [busy, setBusy] = useState(false);
   const [today, setToday] = useState<Today | null>(null);
@@ -153,14 +158,13 @@ function Counter({ onAuthError }: { onAuthError: () => void }) {
       setBusy(true);
       setNotice(null);
       try {
-        // Le même scanner lit les cartes d'abonné et les codes de jus composés
-        if (JUICE_QR_PREFIXES.some((p) => data.toUpperCase().startsWith(p))) {
-          setCard(null);
-          setJuice(await api.juiceScan(data));
-        } else {
-          setJuice(null);
-          setCard(await api.scan(data));
-        }
+        // Le même scanner lit les cartes d'abonné, les codes de jus composés et les bons du défi
+        setCard(null);
+        setJuice(null);
+        setPrize(null);
+        if (data.toUpperCase().startsWith(PRIZE_QR_PREFIX)) setPrize(await api.chronoScan(data));
+        else if (JUICE_QR_PREFIXES.some((p) => data.toUpperCase().startsWith(p))) setJuice(await api.juiceScan(data));
+        else setCard(await api.scan(data));
       } catch (e) {
         fail(e);
       } finally {
@@ -175,15 +179,14 @@ function Counter({ onAuthError }: { onAuthError: () => void }) {
     setBusy(true);
     setNotice(null);
     try {
-      // 6 caractères : code de jus ; sinon numéro de téléphone
+      // 6 caractères : code de jus ; 7 caractères : bon du défi ; sinon numéro de téléphone
       const compact = phone.replace(/[\s-]/g, '');
-      if (compact.length === 6) {
-        setCard(null);
-        setJuice(await api.juiceScan(compact));
-      } else {
-        setJuice(null);
-        setCard(await api.lookup(phone));
-      }
+      setCard(null);
+      setJuice(null);
+      setPrize(null);
+      if (compact.length === 6) setJuice(await api.juiceScan(compact));
+      else if (compact.length === 7 && /[a-z]/i.test(compact)) setPrize(await api.chronoScan(compact));
+      else setCard(await api.lookup(phone));
       setPhone('');
     } catch (err) {
       fail(err);
@@ -263,9 +266,25 @@ function Counter({ onAuthError }: { onAuthError: () => void }) {
     }
   }
 
+  async function redeemPrize() {
+    if (!prize) return;
+    setBusy(true);
+    setNotice(null);
+    try {
+      const done = await api.chronoRedeem(prize.code);
+      setPrize(done);
+      setNotice({ kind: 'ok', text: `Cadeau remis ✓ — ${done.label}.` });
+    } catch (e) {
+      fail(e);
+    } finally {
+      setBusy(false);
+    }
+  }
+
   function reset() {
     setCard(null);
     setJuice(null);
+    setPrize(null);
     setNotice(null);
   }
 
@@ -278,20 +297,22 @@ function Counter({ onAuthError }: { onAuthError: () => void }) {
             <div><strong>{today.activations}</strong><span>abonnements activés</span></div>
           </div>
         )}
-        {card || juice ? (
+        {card || juice || prize ? (
           <button className="btn btn--accent btn--block" onClick={reset}>Scanner un autre client</button>
         ) : (
           <Scanner onResult={onScan} paused={busy} />
         )}
         <form className="lookup" onSubmit={lookup}>
-          <input type="tel" inputMode="tel" placeholder="Numéro (06…) ou code jus" value={phone} onChange={(e) => setPhone(e.target.value)} />
+          <input type="tel" inputMode="tel" placeholder="Numéro (06…), code jus ou bon" value={phone} onChange={(e) => setPhone(e.target.value)} />
           <button className="btn btn--outline btn--sm" disabled={busy || !phone.trim()}>Rechercher</button>
         </form>
       </div>
 
       <div className="counter__right">
         {notice && <p className={`notice notice--${notice.kind}`} role="status">{notice.text}</p>}
-        {juice ? (
+        {prize ? (
+          <PrizePanel prize={prize} busy={busy} onRedeem={redeemPrize} />
+        ) : juice ? (
           <JuicePanel order={juice} busy={busy} onServe={serveJuice} />
         ) : card ? (
           <CustomerPanel
@@ -436,6 +457,33 @@ function JuicePanel({ order, busy, onServe }: { order: JuiceOrder; busy: boolean
   );
 }
 
+/** Bon gagné au défi « 10 secondes » : lot, validité, puis « Remettre le cadeau ». */
+function PrizePanel({ prize, busy, onRedeem }: { prize: ChronoPrize; busy: boolean; onRedeem: () => void }) {
+  return (
+    <div className={`customer customer--${prize.status === 'PENDING' ? 'active' : 'expired'}`}>
+      <div className="customer__head">
+        <div>
+          <h2>{prize.label}</h2>
+          <p>Bon {prize.code} · gagné le {fmtDateTime(prize.createdAt)} au défi 10 secondes</p>
+        </div>
+        <span className={`badge ${prize.status === 'PENDING' ? 'badge--active' : 'badge--empty'}`}>
+          {prize.status === 'PENDING' ? 'À remettre' : prize.status === 'REDEEMED' ? 'Déjà remis' : 'Expiré'}
+        </span>
+      </div>
+      {prize.status === 'PENDING' && <p className="customer__msg">Valable jusqu’au {fmtDate(prize.expiresAt)}.</p>}
+      {prize.status === 'REDEEMED' && (
+        <p className="customer__msg">Remis le {fmtDateTime(prize.redeemedAt)}{prize.shop ? ` · ${prize.shop}` : ''}.</p>
+      )}
+      {prize.status === 'EXPIRED' && <p className="customer__msg">Ce bon a expiré le {fmtDate(prize.expiresAt)}.</p>}
+      {prize.status === 'PENDING' && (
+        <div className="customer__actions">
+          <button className="btn btn--accent btn--xl" disabled={busy} onClick={onRedeem}>Remettre le cadeau</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /** Code à lire au client (présent en caisse) pour qu'il ouvre sa carte sur un nouveau téléphone. */
 function RecoveryCode({ customerId }: { customerId: number }) {
   const [code, setCode] = useState<{ code: string; expiresAt: string } | null>(null);
@@ -562,6 +610,8 @@ function Admin({ onAuthError }: { onAuthError: () => void }) {
       <PlansEditor />
 
       <JuiceAdmin />
+
+      <ChronoAdmin />
 
       <h2>Abonnés</h2>
       {subs.length === 0 ? (

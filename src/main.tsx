@@ -7,6 +7,7 @@ import Menu from './pages/Menu';
 import MenuCategory from './pages/MenuCategory';
 import Shops from './pages/Shops';
 import Franchise from './pages/Franchise';
+import Chrono from './pages/Chrono';
 import { FRANCHISE_ENABLED } from './config';
 import Subscribe from './pages/Subscribe';
 import MyCard from './pages/MyCard';
@@ -39,6 +40,7 @@ createRoot(document.getElementById('root')!).render(
           <Route path="/barista" element={<Barista />} />
           <Route path="/affiche" element={<Poster />} />
           <Route path="/jus" element={<Juice />} />
+          <Route path="/defi" element={<Chrono />} />
           <Route path="*" element={<Home />} />
         </Routes>
       </main>

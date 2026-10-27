@@ -105,6 +105,25 @@ export type DashboardData = {
   topCustomers: { customerId: number; firstName?: string; phone: string; planName?: string; redemptions: number }[];
 };
 
+// --- Défi « 10 secondes » ---
+
+export type ChronoInfo = { enabled: boolean; prize: string; attemptsPerDay: number; remaining: number; validityDays: number };
+export type ChronoPrize = {
+  code: string;
+  /** Contenu du QR code (« KIDIMA-GAIN:CODE ») */
+  qr: string;
+  label: string;
+  elapsedMs: number;
+  createdAt: string;
+  expiresAt: string;
+  status: 'PENDING' | 'REDEEMED' | 'EXPIRED';
+  redeemedAt?: string;
+  shop?: string;
+};
+export type ChronoStop = { elapsedMs: number; win: boolean; prize?: ChronoPrize; remaining: number };
+export type ChronoSettings = { enabled: boolean; prize: string; validityDays: number; maxWinnersPerDay: number };
+export type ChronoStats = { attemptsToday: number; winnersToday: number; redeemedToday: number; attempts30: number; winners30: number; redeemed30: number };
+
 // --- Composeur de jus ---
 
 export type JuiceCategory = 'BASE' | 'FRUIT' | 'EXTRA';
@@ -365,6 +384,15 @@ export const api = {
     request<StaffMember>('POST', '/api/admin/staff', s, staffSession.get()?.token),
   setStaffActive: (id: number, value: boolean) =>
     request<StaffMember>('POST', `/api/admin/staff/${id}/active?value=${value}`, undefined, staffSession.get()?.token),
+  chronoInfo: (device: string) => request<ChronoInfo>('GET', `/api/public/chrono?device=${encodeURIComponent(device)}`),
+  chronoStart: (device: string) => request<{ token: string; remaining: number }>('POST', '/api/public/chrono/start', { device }),
+  chronoStop: (token: string, elapsedMs: number) => request<ChronoStop>('POST', '/api/public/chrono/stop', { token, elapsedMs }),
+  chronoScan: (code: string) => request<ChronoPrize>('POST', '/api/staff/chrono/scan', { code }, staffSession.get()?.token),
+  chronoRedeem: (code: string) =>
+    request<ChronoPrize>('POST', `/api/staff/chrono/${encodeURIComponent(code)}/redeem`, undefined, staffSession.get()?.token),
+  chronoSettings: () => request<ChronoSettings>('GET', '/api/admin/chrono', undefined, staffSession.get()?.token),
+  saveChronoSettings: (s: ChronoSettings) => request<ChronoSettings>('PUT', '/api/admin/chrono', s, staffSession.get()?.token),
+  chronoStats: () => request<ChronoStats>('GET', '/api/admin/chrono/stats', undefined, staffSession.get()?.token),
 };
 
 // --- Affichage ---
