@@ -3,6 +3,7 @@ import QRCode from 'qrcode';
 import { ApiError, api, type ChronoInfo, type ChronoPrize } from '../api';
 import { fmtChrono as fmt, syncClock, useScreen, verdict } from '../chronoLive';
 import { PageHero } from '../components/Layout';
+import LedDisplay, { ledText } from '../components/LedDisplay';
 import { img } from '../config';
 
 const DEVICE_KEY = 'kidima.device';
@@ -150,9 +151,8 @@ export default function Chrono() {
               <span className="chrono__unit">Regardez l’écran !</span>
             </div>
           ) : (
-            <div className={`chrono__screen ${last?.win ? 'chrono__screen--win' : ''}`} aria-live="polite">
-              <span className="chrono__digits">{fmt(display)}</span>
-              <span className="chrono__unit">secondes</span>
+            <div className="chrono__screen" aria-live="polite">
+              <LedDisplay text={ledText(display)} blink={!!last?.win} label={`${fmt(display)} secondes`} />
             </div>
           )}
 
@@ -160,7 +160,7 @@ export default function Chrono() {
             <p className="notice">Le défi est en pause pour le moment. Revenez bientôt !</p>
           ) : (
             <button
-              className={`chrono__btn ${running ? 'chrono__btn--stop' : ''}`}
+              className={`arcade ${running ? 'arcade--stop' : ''}`}
               onClick={running ? stop : start}
               disabled={busy || (out && !running) || !info || screenTaken}
             >

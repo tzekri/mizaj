@@ -987,3 +987,37 @@ h1, h2, h3 { line-height: 1.15; margin: 0 0 0.5em; }
   .tv { grid-template-columns: 1fr; align-content: center; }
   .tv__join { max-width: 60vw; margin: 0 auto; }
 }
+
+/* ---------- Afficheur LED 7 segments (défi 10 secondes) ---------- */
+.led { --led-on: #ff2d1a; --led-off: rgba(255, 45, 26, 0.07); --led-glow: rgba(255, 45, 26, 0.75);
+  display: inline-block; background: linear-gradient(180deg, #121212, #050505); border-radius: 14px; padding: 0.9em 1.1em;
+  box-shadow: inset 0 0 0 2px #222, inset 0 10px 30px rgba(0, 0, 0, 0.8), 0 18px 40px rgba(0, 0, 0, 0.45); font-size: 16px; }
+.led__digits { display: flex; align-items: flex-end; gap: 0.25em; transform: skewX(-7deg); }
+.led__digit { height: 6em; width: 3.84em; }
+.led__dot { height: 6em; width: 0.96em; }
+.led__seg { fill: var(--led-off); }
+.led__seg--on { fill: var(--led-on); filter: drop-shadow(0 0 0.25em var(--led-glow)); }
+.led--dim .led__seg--on { fill: rgba(255, 45, 26, 0.62); filter: drop-shadow(0 0 0.15em rgba(255, 45, 26, 0.35)); }
+.led--blink .led__seg--on { animation: led-blink 0.5s steps(2, jump-none) 8; }
+@keyframes led-blink { 50% { fill: var(--led-off); filter: none; } }
+
+/* Gros bouton rouge type « arcade » sur socle noir */
+.arcade { position: relative; width: 180px; height: 180px; border-radius: 50%; border: 0; color: var(--white); font: inherit; font-size: 1.3rem; font-weight: 800;
+  letter-spacing: 0.04em; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.35); cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+  background: radial-gradient(circle at 38% 30%, #ff7a6b 0, #f2271b 34%, #b8150d 78%);
+  box-shadow: 0 10px 0 #7a0904, 0 0 0 16px #141414, 0 6px 0 16px #050505, 0 26px 40px 14px rgba(0, 0, 0, 0.55);
+  transition: transform 0.06s, box-shadow 0.06s; margin: 18px 0 26px; }
+.arcade::after { content: ''; position: absolute; left: 22%; top: 12%; width: 56%; height: 30%; border-radius: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0)); pointer-events: none; }
+.arcade:active:not(:disabled) { transform: translateY(8px); box-shadow: 0 2px 0 #7a0904, 0 0 0 16px #141414, 0 -2px 0 16px #050505, 0 16px 30px 14px rgba(0, 0, 0, 0.5); }
+.arcade--stop { background: radial-gradient(circle at 38% 30%, #ff9a8e 0, #ff3b2e 34%, #c91a10 78%); animation: arcade-glow 1s ease-in-out infinite alternate; }
+@keyframes arcade-glow { to { filter: brightness(1.15) drop-shadow(0 0 18px rgba(255, 59, 46, 0.6)); } }
+.arcade:disabled { filter: grayscale(0.7) brightness(0.7); cursor: default; }
+.chrono__screen { margin-bottom: 18px; }
+.chrono__screen .led { font-size: clamp(9px, 2.6vw, 17px); }
+
+/* TV : afficheur géant */
+.tv__led .led { font-size: clamp(14px, 2.6vw, 44px); padding: 0.8em 1em; border-radius: 1.4vw; }
+@media (max-width: 860px) {
+  .chrono__screen .led { font-size: clamp(9px, 3.6vw, 15px); }
+}

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import QRCode from 'qrcode';
 import { api, type ChronoInfo } from '../api';
 import { fmtChrono, syncClock, useScreen, verdict } from '../chronoLive';
+import LedDisplay, { ledText } from '../components/LedDisplay';
 
 const SCREEN_KEY = 'kidima.screen';
 /** Durée d'affichage d'un résultat avant de revenir à l'invitation à jouer. */
@@ -85,7 +86,9 @@ export default function ChronoScreen() {
       <div className="tv__main">
         <p className="tv__title">Le défi 10 secondes</p>
         {/* Au repos : l'objectif « 10.00 » en contour ; pendant la partie et le résultat : le chrono plein */}
-        <div className={`tv__digits ${running || result ? '' : 'tv__digits--idle'}`}>{running || result ? fmtChrono(display) : '10.00'}</div>
+        <div className="tv__led">
+          <LedDisplay text={running || result ? ledText(display) : '10.00'} dim={!running && !result} blink={!!win} label={`${fmtChrono(display)} secondes`} />
+        </div>
         <p className="tv__status">
           {running
             ? 'Arrêtez pile sur 10.00 !'
