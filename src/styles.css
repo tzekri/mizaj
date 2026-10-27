@@ -919,13 +919,14 @@ h1, h2, h3 { line-height: 1.15; margin: 0 0 0.5em; }
 }
 
 /* ---------- Défi 10 secondes ---------- */
-.chrono { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 40px; align-items: start; }
+.chrono { display: grid; grid-template-columns: 1.3fr 0.7fr; gap: 40px; align-items: start; }
 .chrono__game { background: var(--bg-dark); color: var(--white); border-radius: 24px; padding: 40px 28px 32px; text-align: center; box-shadow: 0 24px 60px rgba(1, 12, 21, 0.3); position: relative; overflow: hidden; }
 .chrono__game::before { content: ''; position: absolute; inset: 0; background: radial-gradient(420px 260px at 50% 0%, rgba(214, 137, 71, 0.22), transparent 70%); pointer-events: none; }
 .chrono__screen { position: relative; display: flex; flex-direction: column; align-items: center; margin-bottom: 28px; }
-.chrono__digits { font-size: clamp(4.2rem, 16vw, 7.5rem); font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; color: var(--white); }
-.chrono__unit { text-transform: uppercase; letter-spacing: 0.3em; font-size: 0.78rem; color: var(--accent-on-dark); margin-top: 8px; }
-.chrono__screen--win .chrono__digits { color: var(--accent-on-dark); text-shadow: 0 0 30px rgba(233, 168, 103, 0.6); animation: k-pulse 1.2s ease-in-out 3; }
+/* Grand chronomètre vert, en gras, chiffres à largeur fixe (ils ne « dansent » pas en défilant) */
+.chrono__digits { font-size: clamp(5.6rem, 25vw, 11rem); font-weight: 900; line-height: 0.95; font-variant-numeric: tabular-nums; letter-spacing: -0.03em; color: #2fe07a; text-shadow: 0 0 28px rgba(47, 224, 122, 0.35); }
+.chrono__unit { text-transform: uppercase; letter-spacing: 0.3em; font-size: 0.85rem; font-weight: 700; color: #2fe07a; margin-top: 10px; }
+.chrono__screen--win .chrono__digits { color: #5dff9d; text-shadow: 0 0 40px rgba(93, 255, 157, 0.7); animation: k-pulse 1.2s ease-in-out 3; }
 @keyframes k-pulse { 50% { transform: scale(1.06); } }
 .chrono__btn { position: relative; width: 170px; height: 170px; border-radius: 50%; border: 0; background: var(--copper); color: var(--accent-dark); font-size: 1.35rem; font-weight: 800; box-shadow: 0 0 0 10px rgba(214, 137, 71, 0.18), 0 18px 40px rgba(0, 0, 0, 0.4); transition: transform 0.1s, background 0.2s; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 .chrono__btn:active { transform: scale(0.96); }
