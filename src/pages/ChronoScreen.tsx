@@ -101,7 +101,10 @@ export default function ChronoScreen() {
       <aside className="tv__join">
         <div className="tv__qr">{qr && <img src={qr} alt="QR code pour jouer" />}</div>
         <p className="tv__join-title">Scannez pour jouer</p>
-        <p className="tv__join-sub">Votre téléphone devient la manette · 3 essais par jour</p>
+        <p className="tv__join-sub">
+          Votre téléphone devient la manette
+          {info && info.attemptsPerDay > 0 ? ` · ${info.attemptsPerDay} essai${info.attemptsPerDay > 1 ? 's' : ''} par jour` : ''}
+        </p>
         {!connected && <p className="tv__offline">Connexion au serveur…</p>}
       </aside>
       <button className="tv__fullscreen" onClick={() => document.documentElement.requestFullscreen?.().catch(() => {})} aria-label="Plein écran">⛶</button>

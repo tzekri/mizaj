@@ -36,7 +36,8 @@ public class ChronoService {
 	static final int TARGET_MS = 10_000;
 	/** 10.00 s affiché (centièmes tronqués) : de 10 000 à 10 009 ms. */
 	static final int WIN_WINDOW_MS = 10;
-	static final int ATTEMPTS_PER_DAY = 3;
+	/** Essais par jour et par appareil par défaut ; réglable dans l'administration (0 = illimité, pour les tests). */
+	static final int DEFAULT_ATTEMPTS_PER_DAY = 3;
 	/** Plafond par adresse IP (Wi-Fi partagé du coffee shop) pour limiter les abus. */
 	static final int ATTEMPTS_PER_IP_PER_DAY = 80;
 	/** Tolérance d'horloge : le téléphone ne peut pas annoncer plus que le temps écoulé côté serveur. */
@@ -50,6 +51,7 @@ public class ChronoService {
 	static final String KEY_PRIZE = "chrono.prize";
 	static final String KEY_VALIDITY = "chrono.validity-days";
 	static final String KEY_MAX_WINNERS = "chrono.max-winners-per-day";
+	static final String KEY_ATTEMPTS = "chrono.attempts-per-day";
 	static final String DEFAULT_PRIZE = "Un café offert";
 	static final int DEFAULT_VALIDITY_DAYS = 7;
 	static final int DEFAULT_MAX_WINNERS = 20;
@@ -82,7 +84,7 @@ public class ChronoService {
 	public ChronoInfo info(String device) {
 		ChronoSettings s = settings();
 		int used = device == null ? 0 : (int) attempts.countByDeviceAndStartedAtGreaterThanEqual(device, startOfToday());
-		return new ChronoInfo(s.enabled(), s.prize(), ATTEMPTS_PER_DAY, Math.max(0, ATTEMPTS_PER_DAY - used), s.validityDays());
+		return new ChronoInfo(s.enabled(), s.prize(), s.attemptsPerDay(), remaining(s.attemptsPerDay(), used), s.validityDays());
 	}
 
 	@Transactional
@@ -97,11 +99,12 @@ public class ChronoService {
 			throw ApiException.conflict("GAME_OFF", "Le défi est en pause pour le moment. Revenez bientôt !");
 		}
 		Instant today = startOfToday();
+		int max = settings().attemptsPerDay();
 		long used = attempts.countByDeviceAndStartedAtGreaterThanEqual(device, today);
-		if (used >= ATTEMPTS_PER_DAY) {
-			throw ApiException.tooMany("Vous avez utilisé vos " + ATTEMPTS_PER_DAY + " essais du jour. Revenez demain !");
+		if (max > 0 && used >= max) {
+			throw ApiException.tooMany("Vous avez utilisé vos " + max + " essais du jour. Revenez demain !");
 		}
-		if (attempts.countByIpAndStartedAtGreaterThanEqual(ip, today) >= ATTEMPTS_PER_IP_PER_DAY) {
+		if (max > 0 && attempts.countByIpAndStartedAtGreaterThanEqual(ip, today) >= ATTEMPTS_PER_IP_PER_DAY) {
 			throw ApiException.tooMany("Trop d'essais depuis ce réseau aujourd'hui. Revenez demain !");
 		}
 		if (screen != null && screens.busy(screen)) {
@@ -112,7 +115,7 @@ public class ChronoService {
 		if (screen != null) {
 			screens.running(screen, attempt.getToken(), now.toEpochMilli());
 		}
-		return new StartView(attempt.getToken(), (int) (ATTEMPTS_PER_DAY - used - 1));
+		return new StartView(attempt.getToken(), remaining(max, (int) used + 1));
 	}
 
 	@Transactional
@@ -133,8 +136,8 @@ public class ChronoService {
 		}
 		Instant now = Instant.now(clock);
 		long serverMs = Duration.between(attempt.getStartedAt(), now).toMillis();
-		int remaining = Math.max(0, ATTEMPTS_PER_DAY
-				- (int) attempts.countByDeviceAndStartedAtGreaterThanEqual(attempt.getDevice(), startOfToday()));
+		int remaining = remaining(settings().attemptsPerDay(),
+				(int) attempts.countByDeviceAndStartedAtGreaterThanEqual(attempt.getDevice(), startOfToday()));
 		if (attempt.getScreen() != null) {
 			int latency = latencyMs == null ? 0 : Math.max(0, Math.min(MAX_LATENCY_MS, latencyMs));
 			elapsedMs = (int) Math.max(0, serverMs - latency);
@@ -153,6 +156,11 @@ public class ChronoService {
 			screens.result(attempt.getScreen(), token, elapsedMs, win, win ? prize.label() : null);
 		}
 		return new StopView(elapsedMs, win, prize, remaining);
+	}
+
+	/** Essais restants aujourd'hui ; 0 si les essais sont illimités (max = 0). */
+	private static int remaining(int max, int used) {
+		return max == 0 ? 0 : Math.max(0, max - used);
 	}
 
 	static boolean isWin(int elapsedMs) {
@@ -190,7 +198,8 @@ public class ChronoService {
 				!"false".equals(get(KEY_ENABLED, "true")),
 				get(KEY_PRIZE, DEFAULT_PRIZE),
 				intValue(get(KEY_VALIDITY, null), DEFAULT_VALIDITY_DAYS),
-				intValue(get(KEY_MAX_WINNERS, null), DEFAULT_MAX_WINNERS));
+				intValue(get(KEY_MAX_WINNERS, null), DEFAULT_MAX_WINNERS),
+				intValue(get(KEY_ATTEMPTS, null), DEFAULT_ATTEMPTS_PER_DAY));
 	}
 
 	@Transactional
@@ -199,6 +208,7 @@ public class ChronoService {
 		set(KEY_PRIZE, s.prize().trim());
 		set(KEY_VALIDITY, String.valueOf(s.validityDays()));
 		set(KEY_MAX_WINNERS, String.valueOf(s.maxWinnersPerDay()));
+		set(KEY_ATTEMPTS, String.valueOf(s.attemptsPerDay()));
 		return settings();
 	}
 

@@ -31,7 +31,7 @@ export default function ChronoAdmin() {
     <>
       <h2>Défi 10 secondes</h2>
       <p className="dash-note">
-        Le client arrête le chrono pile sur 10.00 s et gagne un bon à montrer en caisse (3 essais par jour et par téléphone).{' '}
+        Le client arrête le chrono pile sur 10.00 s et gagne un bon à montrer en caisse.{' '}
         <Link to="/defi">Voir la page du jeu</Link> ·{' '}
         <a href="/defi/ecran" target="_blank" rel="noreferrer">Ouvrir l’écran géant (TV)</a>
       </p>
@@ -59,6 +59,10 @@ export default function ChronoAdmin() {
           <label>
             Validité du bon (jours)
             <input type="number" min={1} max={90} value={form.validityDays} onChange={(e) => setForm({ ...form, validityDays: Number(e.target.value) })} />
+          </label>
+          <label>
+            Essais par jour et par téléphone (0 = illimité, pour les tests)
+            <input type="number" min={0} max={100} value={form.attemptsPerDay} onChange={(e) => setForm({ ...form, attemptsPerDay: Number(e.target.value) })} />
           </label>
           <label>
             Gagnants au maximum par jour

@@ -121,7 +121,8 @@ export type ChronoPrize = {
   shop?: string;
 };
 export type ChronoStop = { elapsedMs: number; win: boolean; prize?: ChronoPrize; remaining: number };
-export type ChronoSettings = { enabled: boolean; prize: string; validityDays: number; maxWinnersPerDay: number };
+/** attemptsPerDay : essais par jour et par téléphone, 0 = illimité (tests). */
+export type ChronoSettings = { enabled: boolean; prize: string; validityDays: number; maxWinnersPerDay: number; attemptsPerDay: number };
 export type ChronoStats = { attemptsToday: number; winnersToday: number; redeemedToday: number; attempts30: number; winners30: number; redeemed30: number };
 
 // --- Composeur de jus ---

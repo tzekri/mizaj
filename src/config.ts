@@ -9,8 +9,8 @@ export const BRAND = {
   /** Devise de la marque en darija (« bass bass, a ki dima »), jeu de mots avec Kidima. */
   slogan: 'بس بس ا كي ديما',
   since: 2024,
-  phone: '+212 6 00 00 00 00',
-  whatsapp: '212600000000',
+  phone: '+212 6 61 93 84 33',
+  whatsapp: '212661938433',
   email: 'contact@kidima.ma',
   instagram: 'https://www.instagram.com/',
   tiktok: 'https://www.tiktok.com/',

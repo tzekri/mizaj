@@ -13,7 +13,7 @@ public final class ChronoDtos {
 	private ChronoDtos() {
 	}
 
-	/** Règles affichées au joueur. remaining : essais restants aujourd'hui sur cet appareil. */
+	/** Règles affichées au joueur. attemptsPerDay : 0 = essais illimités ; remaining : essais restants aujourd'hui sur cet appareil. */
 	public record ChronoInfo(boolean enabled, String prize, int attemptsPerDay, int remaining, int validityDays) {
 	}
 
@@ -48,12 +48,16 @@ public final class ChronoDtos {
 	public record PrizeScanRequest(@NotBlank @Size(max = 40) String code) {
 	}
 
-	/** Réglages de l'administrateur. maxWinnersPerDay : nombre de bons au maximum par jour (tous appareils confondus). */
+	/**
+	 * Réglages de l'administrateur. maxWinnersPerDay : nombre de bons au maximum par jour (tous appareils confondus) ;
+	 * attemptsPerDay : essais par jour et par téléphone, 0 = illimité (tests).
+	 */
 	public record ChronoSettings(
 			boolean enabled,
 			@NotBlank @Size(max = 80) String prize,
 			@Min(1) @Max(90) int validityDays,
-			@Min(1) @Max(1000) int maxWinnersPerDay) {
+			@Min(1) @Max(1000) int maxWinnersPerDay,
+			@Min(0) @Max(100) int attemptsPerDay) {
 	}
 
 	public record ChronoStats(long attemptsToday, long winnersToday, long redeemedToday, long attempts30, long winners30, long redeemed30) {

@@ -98,7 +98,7 @@ export function Footer() {
         <div>
           <h4>Contact</h4>
           <ul className="footer__contact">
-            <li>{BRAND.phone}</li>
+            <li><a href={`tel:${BRAND.phone.replace(/\s/g, '')}`}>{BRAND.phone}</a></li>
             <li>{BRAND.email}</li>
           </ul>
           {FRANCHISE_ENABLED && <Link to="/franchise" className="btn btn--accent btn--sm">Devenir investisseur</Link>}

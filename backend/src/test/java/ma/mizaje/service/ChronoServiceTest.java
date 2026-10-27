@@ -16,6 +16,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Optional;
+import ma.mizaje.domain.AppSetting;
 import ma.mizaje.domain.ChronoAttempt;
 import ma.mizaje.domain.ChronoPrize;
 import ma.mizaje.repo.AppSettingRepository;
@@ -112,6 +113,18 @@ class ChronoServiceTest {
 		when(attempts.countByDeviceAndStartedAtGreaterThanEqual(eq("device-456"), any())).thenReturn(1L);
 		when(attempts.countByIpAndStartedAtGreaterThanEqual(anyString(), any())).thenReturn(0L);
 		assertEquals(1, service.start("device-456", "1.2.3.4").remaining());
+	}
+
+	@Test
+	void zeroAttemptsPerDayMeansUnlimited() {
+		AppSettingRepository settings = mock(AppSettingRepository.class);
+		when(settings.findById(ChronoService.KEY_ATTEMPTS)).thenReturn(Optional.of(new AppSetting(ChronoService.KEY_ATTEMPTS, "0")));
+		Clock clock = Clock.fixed(START, ZoneOffset.UTC);
+		ChronoService service = new ChronoService(attempts, prizes, settings, mock(StaffUserRepository.class),
+				new ChronoScreenHub(clock), clock, ZoneId.of("Africa/Casablanca"));
+		when(attempts.countByDeviceAndStartedAtGreaterThanEqual(eq("device-123"), any())).thenReturn(50L);
+		when(attempts.countByIpAndStartedAtGreaterThanEqual(anyString(), any())).thenReturn(500L);
+		assertEquals(0, service.start("device-123", "1.2.3.4").remaining());
 	}
 
 	@Test

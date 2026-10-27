@@ -112,7 +112,8 @@ export default function Chrono() {
 
   const running = phase === 'running';
   const busy = phase === 'starting' || phase === 'stopping';
-  const out = info !== null && info.remaining <= 0 && !running;
+  const unlimited = info?.attemptsPerDay === 0;
+  const out = info !== null && !unlimited && info.remaining <= 0 && !running;
   // Sur écran géant : quelqu'un d'autre joue (l'écran n'est pas libre et ce n'est pas notre partie)
   const screenTaken = !!screen && live.state?.status === 'RUNNING' && !running && !busy;
 
@@ -172,7 +173,8 @@ export default function Chrono() {
               {!live.connected ? 'Connexion à l’écran…' : screenTaken ? 'Un joueur est en cours sur l’écran, c’est bientôt à vous…' : 'Écran libre : à vous de jouer !'}
             </p>
           )}
-          {info && info.enabled && (
+          {info && info.enabled && unlimited && <p className="chrono__tries">Essais illimités</p>}
+          {info && info.enabled && !unlimited && (
             <p className="chrono__tries">
               {Array.from({ length: info.attemptsPerDay }, (_, k) => (
                 <i key={k} className={k < info.remaining ? 'on' : ''} />
@@ -197,7 +199,9 @@ export default function Chrono() {
                 <li>Pile <b>10.00 s</b> ? Vous gagnez <b>{info?.prize ?? 'un cadeau'}</b>, à montrer en caisse dans nos coffee shops.</li>
               </ol>
               <p className="sub-fine">
-                {info ? `${info.attemptsPerDay} essais par jour et par téléphone. Bon valable ${info.validityDays} jours, une seule fois.` : ''}
+                {info
+                  ? `${unlimited ? 'Essais illimités' : `${info.attemptsPerDay} essais par jour et par téléphone`}. Bon valable ${info.validityDays} jours, une seule fois.`
+                  : ''}
               </p>
             </div>
           )}
