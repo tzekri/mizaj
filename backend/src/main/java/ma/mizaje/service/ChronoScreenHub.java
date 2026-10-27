@@ -53,7 +53,7 @@ public class ChronoScreenHub {
 		emitter.onCompletion(remove);
 		emitter.onTimeout(remove);
 		emitter.onError(e -> remove.run());
-		send(emitter, state(screen));
+		send(screen, emitter, SseEmitter.event().name("state").data(state(screen)));
 		return emitter;
 	}
 
@@ -87,14 +87,27 @@ public class ChronoScreenHub {
 
 	private void broadcast(String screen) {
 		ScreenState s = state(screen);
-		emitters.getOrDefault(screen, List.of()).forEach(e -> send(e, s));
+		emitters.getOrDefault(screen, List.of()).forEach(e -> send(screen, e, SseEmitter.event().name("state").data(s)));
 	}
 
-	private void send(SseEmitter emitter, ScreenState s) {
+	/**
+	 * Envoi à une TV ou une manette. Une connexion coupée (TV éteinte, page rechargée) est retirée sans bruit :
+	 * elle ne doit jamais faire échouer la partie des autres joueurs.
+	 */
+	private void send(String screen, SseEmitter emitter, SseEmitter.SseEventBuilder event) {
 		try {
-			emitter.send(SseEmitter.event().name("state").data(s));
-		} catch (IOException | IllegalStateException e) {
-			emitter.completeWithError(e);
+			emitter.send(event);
+		} catch (IOException | RuntimeException e) {
+			drop(screen, emitter);
+		}
+	}
+
+	private void drop(String screen, SseEmitter emitter) {
+		emitters.getOrDefault(screen, List.of()).remove(emitter);
+		try {
+			emitter.complete();
+		} catch (RuntimeException ignored) {
+			// connexion déjà fermée côté serveur d'application
 		}
 	}
 
@@ -108,11 +121,7 @@ public class ChronoScreenHub {
 				broadcast(screen);
 			}
 			for (SseEmitter e : list) {
-				try {
-					e.send(SseEmitter.event().comment("ping"));
-				} catch (IOException | IllegalStateException ex) {
-					e.completeWithError(ex);
-				}
+				send(screen, e, SseEmitter.event().comment("ping"));
 			}
 		});
 	}
