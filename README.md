@@ -51,6 +51,11 @@ Le client démarre le chrono et l’arrête : pile **10.00 s** (10,000 à 10,009
 le départ est enregistré par le serveur (un temps annoncé plus long que le temps réellement écoulé est refusé).
 Administration → « Défi 10 secondes » : jeu ouvert / en pause, lot, validité du bon, gagnants max par jour, statistiques.
 
+**Écran géant** : `/defi/ecran` (TV du coffee shop, plein écran avec ⛶). Le QR code affiché mène à `/defi?ecran=ID` : le
+téléphone devient la manette, le chrono défile en direct sur la TV (SSE, un joueur à la fois). La TV cale son horloge sur
+celle du serveur et le serveur mesure le temps, moins le trajet réseau du téléphone. Identifiant fixe possible :
+`/defi/ecran?id=LISSASFA1` (sinon généré et gardé par le navigateur de la TV).
+
 ## Menu & prix (administration)
 
 Espace barista → compte admin → onglet **« Menu & prix »** :

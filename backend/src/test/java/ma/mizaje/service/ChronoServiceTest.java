@@ -40,13 +40,38 @@ class ChronoServiceTest {
 		when(attempts.save(any(ChronoAttempt.class))).thenAnswer(i -> i.getArgument(0));
 	}
 
-	/** Service dont l'horloge marque START + serverMs, avec un essai démarré à START. */
-	private ChronoService serviceAt(long serverMs) {
+	/** Service dont l'horloge marque START + serverMs, avec un essai démarré à START (sur un écran géant si screen). */
+	private ChronoService serviceAt(long serverMs, String screen) {
 		Clock clock = Clock.fixed(START.plusMillis(serverMs), ZoneOffset.UTC);
-		ChronoAttempt attempt = new ChronoAttempt("TOKEN", "device-123", "1.2.3.4", START);
+		ChronoAttempt attempt = new ChronoAttempt("TOKEN", "device-123", "1.2.3.4", START, screen);
 		when(attempts.findByToken("TOKEN")).thenReturn(Optional.of(attempt));
-		return new ChronoService(attempts, prizes, mock(AppSettingRepository.class), mock(StaffUserRepository.class), clock,
-				ZoneId.of("Africa/Casablanca"));
+		return new ChronoService(attempts, prizes, mock(AppSettingRepository.class), mock(StaffUserRepository.class),
+				new ChronoScreenHub(clock), clock, ZoneId.of("Africa/Casablanca"));
+	}
+
+	private ChronoService serviceAt(long serverMs) {
+		return serviceAt(serverMs, null);
+	}
+
+	@Test
+	void onBigScreenTheServerMeasuresTimeMinusNetworkDelay() {
+		// Reçu 10,080 s après le départ, trajet réseau de 75 ms : 10,005 s → gagné, quel que soit le temps du téléphone
+		var result = serviceAt(10_080, "TV1234").stop("TOKEN", 3_000, 75);
+		assertEquals(10_005, result.elapsedMs());
+		assertTrue(result.win());
+		// Délai annoncé plafonné à 250 ms
+		assertEquals(9_750, serviceAt(10_000, "TV1234").stop("TOKEN", 0, 4_000).elapsedMs());
+	}
+
+	@Test
+	void bigScreenTakesOnePlayerAtATime() {
+		Clock clock = Clock.fixed(START, ZoneOffset.UTC);
+		ChronoScreenHub hub = new ChronoScreenHub(clock);
+		ChronoService service = new ChronoService(attempts, prizes, mock(AppSettingRepository.class), mock(StaffUserRepository.class),
+				hub, clock, ZoneId.of("Africa/Casablanca"));
+		service.start("device-aaa1", "1.2.3.4", "TV1234");
+		assertEquals("RUNNING", hub.state("TV1234").status());
+		assertThrows(ApiException.class, () -> service.start("device-bbb2", "1.2.3.5", "TV1234"));
 	}
 
 	@Test

@@ -385,8 +385,13 @@ export const api = {
   setStaffActive: (id: number, value: boolean) =>
     request<StaffMember>('POST', `/api/admin/staff/${id}/active?value=${value}`, undefined, staffSession.get()?.token),
   chronoInfo: (device: string) => request<ChronoInfo>('GET', `/api/public/chrono?device=${encodeURIComponent(device)}`),
-  chronoStart: (device: string) => request<{ token: string; remaining: number }>('POST', '/api/public/chrono/start', { device }),
-  chronoStop: (token: string, elapsedMs: number) => request<ChronoStop>('POST', '/api/public/chrono/stop', { token, elapsedMs }),
+  /** screen : écran géant sur lequel jouer (le téléphone sert de manette). */
+  chronoStart: (device: string, screen?: string) =>
+    request<{ token: string; remaining: number }>('POST', '/api/public/chrono/start', { device, screen }),
+  /** latencyMs : sur écran géant, trajet réseau du téléphone (déduit par le serveur). */
+  chronoStop: (token: string, elapsedMs: number, latencyMs?: number) =>
+    request<ChronoStop>('POST', '/api/public/chrono/stop', { token, elapsedMs, latencyMs }),
+  chronoPing: () => request<{ serverTime: number }>('GET', '/api/public/chrono/ping'),
   chronoScan: (code: string) => request<ChronoPrize>('POST', '/api/staff/chrono/scan', { code }, staffSession.get()?.token),
   chronoRedeem: (code: string) =>
     request<ChronoPrize>('POST', `/api/staff/chrono/${encodeURIComponent(code)}/redeem`, undefined, staffSession.get()?.token),

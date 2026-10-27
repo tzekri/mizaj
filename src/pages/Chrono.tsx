@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import QRCode from 'qrcode';
 import { ApiError, api, type ChronoInfo, type ChronoPrize } from '../api';
+import { fmtChrono as fmt, syncClock, useScreen, verdict } from '../chronoLive';
 import { PageHero } from '../components/Layout';
 import { img } from '../config';
 
@@ -21,20 +22,17 @@ function deviceId(): string {
   }
 }
 
-/** Centièmes tronqués : 9 996 ms → « 9.99 », 10 004 ms → « 10.00 » (comme le serveur). */
-const fmt = (ms: number) => (Math.floor(ms / 10) / 100).toFixed(2);
-
-function verdict(ms: number) {
-  const diff = Math.abs(ms - 10_000) / 1000;
-  if (diff < 0.05) return 'Si près ! À un cheveu…';
-  if (diff < 0.2) return 'Très proche, encore un effort !';
-  if (diff < 0.6) return 'Pas mal, concentrez-vous.';
-  return ms < 10_000 ? 'Trop tôt !' : 'Trop tard !';
+/** Écran géant rejoint en scannant le QR code de la TV (?ecran=…) : le téléphone devient la manette. */
+function screenParam(): string | null {
+  const s = new URLSearchParams(window.location.search).get('ecran');
+  return s && /^[A-Za-z0-9]{6,16}$/.test(s) ? s : null;
 }
 
 type Phase = 'idle' | 'starting' | 'running' | 'stopping';
 
 export default function Chrono() {
+  const [screen] = useState(screenParam);
+  const live = useScreen(screen);
   const [info, setInfo] = useState<ChronoInfo | null>(null);
   const [phase, setPhase] = useState<Phase>('idle');
   const [display, setDisplay] = useState(0);
@@ -51,10 +49,16 @@ export default function Chrono() {
   const t0 = useRef(0);
   const token = useRef('');
   const frame = useRef(0);
+  const latency = useRef(0);
 
   useEffect(() => {
     api.chronoInfo(deviceId()).then(setInfo).catch((e) => setError((e as ApiError).message));
-  }, []);
+    // Manette : on mesure le trajet réseau du téléphone, déduit côté serveur à l'arrêt, et on amène le bouton à l'écran
+    if (screen) {
+      syncClock().then((s) => (latency.current = s.latencyMs)).catch(() => {});
+      setTimeout(() => document.querySelector('.chrono__game')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+    }
+  }, [screen]);
 
   const tick = useCallback(() => {
     setDisplay(performance.now() - t0.current);
@@ -67,14 +71,14 @@ export default function Chrono() {
     setLast(null);
     setPhase('starting');
     try {
-      const s = await api.chronoStart(deviceId());
+      const s = await api.chronoStart(deviceId(), screen ?? undefined);
       token.current = s.token;
       setInfo((i) => (i ? { ...i, remaining: s.remaining } : i));
       // Le chrono part après la réponse du serveur : le temps mesuré ne dépasse jamais le temps réel côté serveur
       t0.current = performance.now();
       setDisplay(0);
       setPhase('running');
-      frame.current = requestAnimationFrame(tick);
+      if (!screen) frame.current = requestAnimationFrame(tick);
     } catch (e) {
       setPhase('idle');
       setError((e as ApiError).message);
@@ -87,8 +91,9 @@ export default function Chrono() {
     setDisplay(ms);
     setPhase('stopping');
     try {
-      const r = await api.chronoStop(token.current, ms);
+      const r = await api.chronoStop(token.current, ms, screen ? latency.current : undefined);
       setLast({ ms: r.elapsedMs, win: r.win });
+      setDisplay(r.elapsedMs);
       setInfo((i) => (i ? { ...i, remaining: r.remaining } : i));
       if (r.prize) {
         setPrize(r.prize);
@@ -108,6 +113,8 @@ export default function Chrono() {
   const running = phase === 'running';
   const busy = phase === 'starting' || phase === 'stopping';
   const out = info !== null && info.remaining <= 0 && !running;
+  // Sur écran géant : quelqu'un d'autre joue (l'écran n'est pas libre et ce n'est pas notre partie)
+  const screenTaken = !!screen && live.state?.status === 'RUNNING' && !running && !busy;
 
   // Barre d'espace / Entrée : démarrer et arrêter sans viser le bouton
   useEffect(() => {
@@ -116,7 +123,7 @@ export default function Chrono() {
       if ((e.target as HTMLElement)?.tagName === 'INPUT') return;
       e.preventDefault();
       if (running) stop();
-      else if (!busy && !out && info?.enabled) start();
+      else if (!busy && !out && !screenTaken && info?.enabled) start();
     }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -125,17 +132,28 @@ export default function Chrono() {
   return (
     <>
       <PageHero
-        eyebrow="Jeu"
+        eyebrow={screen ? 'Écran géant' : 'Jeu'}
         title="Le défi 10 secondes"
-        subtitle={`Arrêtez le chrono pile sur 10.00 s et gagnez : ${info?.prize ?? 'un cadeau'}.`}
+        subtitle={
+          screen
+            ? 'Votre téléphone est la manette : regardez le chrono sur l’écran et arrêtez-le pile sur 10.00 s.'
+            : `Arrêtez le chrono pile sur 10.00 s et gagnez : ${info?.prize ?? 'un cadeau'}.`
+        }
         photo={img('1495474472287-4d71bcdd2085', 600)}
       />
       <section className="section container chrono">
         <div className="chrono__game">
-          <div className={`chrono__screen ${last?.win ? 'chrono__screen--win' : ''}`} aria-live="polite">
-            <span className="chrono__digits">{fmt(display)}</span>
-            <span className="chrono__unit">secondes</span>
-          </div>
+          {screen && running ? (
+            <div className="chrono__screen chrono__screen--look" aria-live="polite">
+              <span className="chrono__look">👀</span>
+              <span className="chrono__unit">Regardez l’écran !</span>
+            </div>
+          ) : (
+            <div className={`chrono__screen ${last?.win ? 'chrono__screen--win' : ''}`} aria-live="polite">
+              <span className="chrono__digits">{fmt(display)}</span>
+              <span className="chrono__unit">secondes</span>
+            </div>
+          )}
 
           {info && !info.enabled ? (
             <p className="notice">Le défi est en pause pour le moment. Revenez bientôt !</p>
@@ -143,12 +161,17 @@ export default function Chrono() {
             <button
               className={`chrono__btn ${running ? 'chrono__btn--stop' : ''}`}
               onClick={running ? stop : start}
-              disabled={busy || (out && !running) || !info}
+              disabled={busy || (out && !running) || !info || screenTaken}
             >
-              {running ? 'Arrêter' : phase === 'starting' ? '…' : 'Démarrer'}
+              {running ? 'Arrêter' : phase === 'starting' ? '…' : screenTaken ? 'Patientez' : 'Démarrer'}
             </button>
           )}
 
+          {screen && !running && (
+            <p className="chrono__live">
+              {!live.connected ? 'Connexion à l’écran…' : screenTaken ? 'Un joueur est en cours sur l’écran, c’est bientôt à vous…' : 'Écran libre : à vous de jouer !'}
+            </p>
+          )}
           {info && info.enabled && (
             <p className="chrono__tries">
               {Array.from({ length: info.attemptsPerDay }, (_, k) => (
@@ -169,8 +192,8 @@ export default function Chrono() {
             <div className="chrono__rules">
               <h2>Les règles</h2>
               <ol>
-                <li>Appuyez sur <b>Démarrer</b> : le chrono se lance.</li>
-                <li>Appuyez sur <b>Arrêter</b> quand vous pensez être à 10 secondes (barre d’espace possible sur ordinateur).</li>
+                <li>Appuyez sur <b>Démarrer</b> : le chrono se lance{screen ? ' sur l’écran' : ''}.</li>
+                <li>Appuyez sur <b>Arrêter</b> quand {screen ? 'l’écran affiche' : 'vous pensez être à'} 10 secondes{screen ? '' : ' (barre d’espace possible sur ordinateur)'}.</li>
                 <li>Pile <b>10.00 s</b> ? Vous gagnez <b>{info?.prize ?? 'un cadeau'}</b>, à montrer en caisse dans nos coffee shops.</li>
               </ol>
               <p className="sub-fine">

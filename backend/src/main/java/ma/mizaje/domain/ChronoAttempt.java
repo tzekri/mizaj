@@ -39,7 +39,16 @@ public class ChronoAttempt {
 	@Column(nullable = false)
 	private boolean win;
 
+	/** Écran géant sur lequel la partie est affichée (téléphone manette) ; null : partie sur le téléphone seul. */
+	@Column(length = 16)
+	private String screen;
+
 	protected ChronoAttempt() {
+	}
+
+	public ChronoAttempt(String token, String device, String ip, Instant startedAt, String screen) {
+		this(token, device, ip, startedAt);
+		this.screen = screen;
 	}
 
 	public ChronoAttempt(String token, String device, String ip, Instant startedAt) {
@@ -62,4 +71,5 @@ public class ChronoAttempt {
 	public Instant getStoppedAt() { return stoppedAt; }
 	public Integer getElapsedMs() { return elapsedMs; }
 	public boolean isWin() { return win; }
+	public String getScreen() { return screen; }
 }

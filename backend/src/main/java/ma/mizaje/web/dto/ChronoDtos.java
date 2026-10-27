@@ -17,15 +17,23 @@ public final class ChronoDtos {
 	public record ChronoInfo(boolean enabled, String prize, int attemptsPerDay, int remaining, int validityDays) {
 	}
 
-	/** device : identifiant aléatoire de l'appareil, gardé dans le navigateur. */
-	public record StartRequest(@NotBlank @Pattern(regexp = "[A-Za-z0-9-]{8,64}") String device) {
+	/**
+	 * device : identifiant aléatoire de l'appareil, gardé dans le navigateur.
+	 * screen : écran géant sur lequel jouer (téléphone manette), ou absent.
+	 */
+	public record StartRequest(@NotBlank @Pattern(regexp = "[A-Za-z0-9-]{8,64}") String device,
+			@Pattern(regexp = "[A-Za-z0-9]{6,16}") String screen) {
 	}
 
 	public record StartView(String token, int remaining) {
 	}
 
-	/** elapsedMs : temps mesuré par le téléphone entre « Démarrer » et « Arrêter ». */
-	public record StopRequest(@NotBlank @Size(max = 32) String token, @Min(0) @Max(600_000) int elapsedMs) {
+	/**
+	 * elapsedMs : temps mesuré par le téléphone entre « Démarrer » et « Arrêter ».
+	 * latencyMs : sur écran géant, moitié de l'aller-retour réseau mesuré par le téléphone.
+	 */
+	public record StopRequest(@NotBlank @Size(max = 32) String token, @Min(0) @Max(600_000) int elapsedMs,
+			@Min(0) @Max(5_000) Integer latencyMs) {
 	}
 
 	/** status : PENDING (à remettre), REDEEMED (déjà remis), EXPIRED. qr : contenu du QR code. */

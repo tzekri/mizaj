@@ -32,7 +32,12 @@ export default function ChronoAdmin() {
       <h2>Défi 10 secondes</h2>
       <p className="dash-note">
         Le client arrête le chrono pile sur 10.00 s et gagne un bon à montrer en caisse (3 essais par jour et par téléphone).{' '}
-        <Link to="/defi">Voir la page du jeu</Link>
+        <Link to="/defi">Voir la page du jeu</Link> ·{' '}
+        <a href="/defi/ecran" target="_blank" rel="noreferrer">Ouvrir l’écran géant (TV)</a>
+      </p>
+      <p className="dash-note">
+        Écran géant : ouvrez ce lien dans le navigateur de la TV (ou d’un boîtier relié à la TV), puis le bouton ⛶ pour le plein écran.
+        Les clients scannent le QR code affiché : leur téléphone devient la manette et le chrono défile en grand sur la TV.
       </p>
       {stats && (
         <div className="kpis kpis--3">

@@ -43,6 +43,8 @@ public class ChronoService {
 	static final long CLOCK_TOLERANCE_MS = 300;
 	/** Au-delà, l'essai a trop traîné sur le réseau pour être fiable. */
 	static final long MAX_NETWORK_LAG_MS = 15_000;
+	/** Délai réseau du téléphone manette pris en compte au plus (moitié de l'aller-retour mesuré). */
+	static final int MAX_LATENCY_MS = 250;
 
 	static final String KEY_ENABLED = "chrono.enabled";
 	static final String KEY_PRIZE = "chrono.prize";
@@ -58,16 +60,18 @@ public class ChronoService {
 	private final ChronoPrizeRepository prizes;
 	private final AppSettingRepository settings;
 	private final StaffUserRepository staffUsers;
+	private final ChronoScreenHub screens;
 	private final Clock clock;
 	private final ZoneId zone;
 	private final SecureRandom random = new SecureRandom();
 
 	public ChronoService(ChronoAttemptRepository attempts, ChronoPrizeRepository prizes, AppSettingRepository settings,
-			StaffUserRepository staffUsers, Clock clock, ZoneId appZone) {
+			StaffUserRepository staffUsers, ChronoScreenHub screens, Clock clock, ZoneId appZone) {
 		this.attempts = attempts;
 		this.prizes = prizes;
 		this.settings = settings;
 		this.staffUsers = staffUsers;
+		this.screens = screens;
 		this.clock = clock;
 		this.zone = appZone;
 	}
@@ -83,6 +87,12 @@ public class ChronoService {
 
 	@Transactional
 	public StartView start(String device, String ip) {
+		return start(device, ip, null);
+	}
+
+	/** screen : écran géant sur lequel s'affiche la partie (le téléphone sert de manette) ; null : téléphone seul. */
+	@Transactional
+	public StartView start(String device, String ip, String screen) {
 		if (!settings().enabled()) {
 			throw ApiException.conflict("GAME_OFF", "Le défi est en pause pour le moment. Revenez bientôt !");
 		}
@@ -94,12 +104,29 @@ public class ChronoService {
 		if (attempts.countByIpAndStartedAtGreaterThanEqual(ip, today) >= ATTEMPTS_PER_IP_PER_DAY) {
 			throw ApiException.tooMany("Trop d'essais depuis ce réseau aujourd'hui. Revenez demain !");
 		}
-		ChronoAttempt attempt = attempts.save(new ChronoAttempt(token(), device, ip, Instant.now(clock)));
+		if (screen != null && screens.busy(screen)) {
+			throw ApiException.conflict("SCREEN_BUSY", "Un joueur est en train de jouer sur l'écran. Patientez quelques secondes !");
+		}
+		Instant now = Instant.now(clock);
+		ChronoAttempt attempt = attempts.save(new ChronoAttempt(token(), device, ip, now, screen));
+		if (screen != null) {
+			screens.running(screen, attempt.getToken(), now.toEpochMilli());
+		}
 		return new StartView(attempt.getToken(), (int) (ATTEMPTS_PER_DAY - used - 1));
 	}
 
 	@Transactional
 	public StopView stop(String token, int elapsedMs) {
+		return stop(token, elapsedMs, null);
+	}
+
+	/**
+	 * Sur écran géant, le joueur regarde le chrono de la TV (calé sur l'heure du serveur) : le temps est mesuré par le
+	 * serveur, de la réception de « Démarrer » à celle de « Arrêter », moins le trajet réseau de « Arrêter »
+	 * (latencyMs, moitié de l'aller-retour mesuré par le téléphone, plafonnée).
+	 */
+	@Transactional
+	public StopView stop(String token, int elapsedMs, Integer latencyMs) {
 		ChronoAttempt attempt = attempts.findByToken(token).orElseThrow(() -> ApiException.notFound("Essai introuvable."));
 		if (attempt.getStoppedAt() != null) {
 			throw ApiException.conflict("ALREADY_STOPPED", "Cet essai est déjà terminé.");
@@ -108,7 +135,10 @@ public class ChronoService {
 		long serverMs = Duration.between(attempt.getStartedAt(), now).toMillis();
 		int remaining = Math.max(0, ATTEMPTS_PER_DAY
 				- (int) attempts.countByDeviceAndStartedAtGreaterThanEqual(attempt.getDevice(), startOfToday()));
-		if (elapsedMs > serverMs + CLOCK_TOLERANCE_MS || serverMs - elapsedMs > MAX_NETWORK_LAG_MS) {
+		if (attempt.getScreen() != null) {
+			int latency = latencyMs == null ? 0 : Math.max(0, Math.min(MAX_LATENCY_MS, latencyMs));
+			elapsedMs = (int) Math.max(0, serverMs - latency);
+		} else if (elapsedMs > serverMs + CLOCK_TOLERANCE_MS || serverMs - elapsedMs > MAX_NETWORK_LAG_MS) {
 			attempt.stop(now, null, false);
 			throw ApiException.badRequest("Essai non valable : la connexion a été trop lente. Réessayez avec une bonne connexion.");
 		}
@@ -118,6 +148,9 @@ public class ChronoService {
 		if (win) {
 			ChronoSettings s = settings();
 			prize = view(prizes.save(new ChronoPrize(newCode(), s.prize(), elapsedMs, now, now.plus(Duration.ofDays(s.validityDays())))));
+		}
+		if (attempt.getScreen() != null) {
+			screens.result(attempt.getScreen(), token, elapsedMs, win, win ? prize.label() : null);
 		}
 		return new StopView(elapsedMs, win, prize, remaining);
 	}
