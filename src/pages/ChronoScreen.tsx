@@ -62,9 +62,12 @@ export default function ChronoScreen() {
       };
       tick();
     } else if (state?.status === 'RESULT' && state.elapsedMs != null) {
+      // Résultat affiché quelques secondes après la fin de la partie (pas un vieux résultat à l'ouverture de la TV)
+      const left = RESULT_MS - (state.serverNow - state.changedAt);
       setDisplay(state.elapsedMs);
-      setShowResult(true);
-      const t = setTimeout(() => setShowResult(false), RESULT_MS);
+      setShowResult(left > 0);
+      if (left <= 0) return;
+      const t = setTimeout(() => setShowResult(false), left);
       return () => clearTimeout(t);
     } else {
       setDisplay(0);
@@ -81,14 +84,15 @@ export default function ChronoScreen() {
       <img className="tv__logo" src="/brand/logo.png" alt="Kidima Coffee House" />
       <div className="tv__main">
         <p className="tv__title">Le défi 10 secondes</p>
-        <div className={`tv__digits ${running || result ? '' : 'tv__digits--idle'}`}>{fmtChrono(display)}</div>
+        {/* Au repos : l'objectif « 10.00 » en contour ; pendant la partie et le résultat : le chrono plein */}
+        <div className={`tv__digits ${running || result ? '' : 'tv__digits--idle'}`}>{running || result ? fmtChrono(display) : '10.00'}</div>
         <p className="tv__status">
           {running
             ? 'Arrêtez pile sur 10.00 !'
             : win
               ? `GAGNÉ ! ${state?.prize ?? ''} 🎉`
               : result && state?.elapsedMs != null
-                ? `${verdict(state.elapsedMs)} — à qui le tour ?`
+                ? <>{verdict(state.elapsedMs)}<br />À qui le tour ?</>
                 : info && !info.enabled
                   ? 'Le défi est en pause'
                   : `Arrêtez le chrono pile sur 10.00 et gagnez ${info?.prize?.toLowerCase() ?? 'un cadeau'}`}

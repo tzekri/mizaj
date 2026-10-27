@@ -9,6 +9,8 @@ export type ScreenState = {
   elapsedMs?: number;
   win: boolean;
   prize?: string;
+  /** Heure serveur du dernier changement (ms) */
+  changedAt: number;
   serverNow: number;
 };
 

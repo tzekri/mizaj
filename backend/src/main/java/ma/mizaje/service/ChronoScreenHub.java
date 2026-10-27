@@ -24,15 +24,17 @@ public class ChronoScreenHub {
 
 	/**
 	 * État d'un écran. status : IDLE (libre), RUNNING (partie en cours), RESULT (dernier résultat affiché).
-	 * startedAt : heure serveur du départ (ms) ; serverNow : heure serveur à l'envoi, pour caler l'horloge de la TV.
+	 * startedAt : heure serveur du départ (ms) ; changedAt : heure serveur du dernier changement (un vieux résultat n'est pas
+	 * réaffiché) ; serverNow : heure serveur à l'envoi, pour caler l'horloge de la TV.
 	 */
-	public record ScreenState(String status, long startedAt, Integer elapsedMs, boolean win, String prize, long serverNow) {
+	public record ScreenState(String status, long startedAt, Integer elapsedMs, boolean win, String prize, long changedAt,
+			long serverNow) {
 	}
 
-	private record Game(String status, String token, long startedAt, Integer elapsedMs, boolean win, String prize) {
+	private record Game(String status, String token, long startedAt, Integer elapsedMs, boolean win, String prize, long changedAt) {
 	}
 
-	private static final Game IDLE = new Game("IDLE", null, 0, null, false, null);
+	private static final Game IDLE = new Game("IDLE", null, 0, null, false, null, 0);
 
 	private final Map<String, Game> games = new ConcurrentHashMap<>();
 	private final Map<String, List<SseEmitter>> emitters = new ConcurrentHashMap<>();
@@ -62,7 +64,7 @@ public class ChronoScreenHub {
 	}
 
 	public void running(String screen, String token, long startedAt) {
-		games.put(screen, new Game("RUNNING", token, startedAt, null, false, null));
+		games.put(screen, new Game("RUNNING", token, startedAt, null, false, null, clock.millis()));
 		broadcast(screen);
 	}
 
@@ -70,7 +72,7 @@ public class ChronoScreenHub {
 	public void result(String screen, String token, int elapsedMs, boolean win, String prize) {
 		Game g = games.get(screen);
 		if (g != null && token.equals(g.token())) {
-			games.put(screen, new Game("RESULT", token, g.startedAt(), elapsedMs, win, prize));
+			games.put(screen, new Game("RESULT", token, g.startedAt(), elapsedMs, win, prize, clock.millis()));
 			broadcast(screen);
 		}
 	}
@@ -80,7 +82,7 @@ public class ChronoScreenHub {
 		if ("RUNNING".equals(g.status()) && !busy(screen)) {
 			g = IDLE; // partie abandonnée
 		}
-		return new ScreenState(g.status(), g.startedAt(), g.elapsedMs(), g.win(), g.prize(), clock.millis());
+		return new ScreenState(g.status(), g.startedAt(), g.elapsedMs(), g.win(), g.prize(), g.changedAt(), clock.millis());
 	}
 
 	private void broadcast(String screen) {
