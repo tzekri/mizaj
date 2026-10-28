@@ -12,16 +12,20 @@ export async function renderCardImage(opts: { qrToken: string; firstName?: strin
   canvas.height = H;
   const ctx = canvas.getContext('2d')!;
 
-  // Fond crème, liseré cuivré en bas (couleurs du logo)
+  // Fond crème, liseré rouge · cuivre · vert en bas (couleurs du logo)
   const bg = ctx.createLinearGradient(0, 0, 0, H);
   bg.addColorStop(0, '#fbf6f0');
   bg.addColorStop(1, '#f1e3d2');
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, W, H);
   const line = ctx.createLinearGradient(0, 0, W, 0);
-  line.addColorStop(0, '#a95f2a');
-  line.addColorStop(0.5, '#f6b877');
-  line.addColorStop(1, '#a95f2a');
+  // Rouge · cuivre · vert, comme le logo
+  line.addColorStop(0, '#c4302b');
+  line.addColorStop(0.333, '#c4302b');
+  line.addColorStop(0.333, '#d9a43a');
+  line.addColorStop(0.666, '#d9a43a');
+  line.addColorStop(0.666, '#1f7a3d');
+  line.addColorStop(1, '#1f7a3d');
   ctx.fillStyle = line;
   ctx.fillRect(0, H - 18, W, 18);
 
@@ -34,7 +38,7 @@ export async function renderCardImage(opts: { qrToken: string; firstName?: strin
   ctx.drawImage(logo, (W - lw) / 2, 48, lw, lh);
   ctx.textAlign = 'center';
   ctx.font = '600 32px Poppins, sans-serif';
-  ctx.fillStyle = '#9a5524';
+  ctx.fillStyle = '#8a6410';
   ctx.fillText('CARTE ABONNÉ', W / 2, 48 + lh + 52);
 
   // QR sur fond blanc arrondi
