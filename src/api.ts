@@ -123,6 +123,20 @@ export type ChronoPrize = {
 export type ChronoStop = { elapsedMs: number; win: boolean; prize?: ChronoPrize; remaining: number };
 /** attemptsPerDay : essais par jour et par téléphone, 0 = illimité (tests). */
 export type ChronoSettings = { enabled: boolean; prize: string; validityDays: number; maxWinnersPerDay: number; attemptsPerDay: number };
+/** Gagnant vu par l'administrateur. */
+export type ChronoWinner = {
+  code: string;
+  label: string;
+  elapsedMs: number;
+  createdAt: string;
+  expiresAt: string;
+  status: 'PENDING' | 'REDEEMED' | 'EXPIRED';
+  redeemedAt?: string;
+  shop?: string;
+  redeemedBy?: string;
+};
+/** Tableau d'honneur public (sans les codes des bons). */
+export type HonourBoard = { total30: number; recent: { elapsedMs: number; createdAt: string }[] };
 export type ChronoStats = { attemptsToday: number; winnersToday: number; redeemedToday: number; attempts30: number; winners30: number; redeemed30: number };
 
 // --- Composeur de jus ---
@@ -398,6 +412,8 @@ export const api = {
     request<ChronoPrize>('POST', `/api/staff/chrono/${encodeURIComponent(code)}/redeem`, undefined, staffSession.get()?.token),
   chronoSettings: () => request<ChronoSettings>('GET', '/api/admin/chrono', undefined, staffSession.get()?.token),
   saveChronoSettings: (s: ChronoSettings) => request<ChronoSettings>('PUT', '/api/admin/chrono', s, staffSession.get()?.token),
+  chronoHonour: () => request<HonourBoard>('GET', '/api/public/chrono/winners'),
+  chronoWinners: (days = 30) => request<ChronoWinner[]>('GET', `/api/admin/chrono/winners?days=${days}`, undefined, staffSession.get()?.token),
   chronoStats: () => request<ChronoStats>('GET', '/api/admin/chrono/stats', undefined, staffSession.get()?.token),
 };
 

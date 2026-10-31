@@ -6,6 +6,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.List;
 import ma.mizaje.domain.AppSetting;
 import ma.mizaje.domain.ChronoAttempt;
 import ma.mizaje.domain.ChronoPrize;
@@ -18,9 +19,12 @@ import ma.mizaje.web.ApiException;
 import ma.mizaje.web.dto.ChronoDtos.ChronoInfo;
 import ma.mizaje.web.dto.ChronoDtos.ChronoSettings;
 import ma.mizaje.web.dto.ChronoDtos.ChronoStats;
+import ma.mizaje.web.dto.ChronoDtos.HonourBoard;
+import ma.mizaje.web.dto.ChronoDtos.HonourEntry;
 import ma.mizaje.web.dto.ChronoDtos.PrizeView;
 import ma.mizaje.web.dto.ChronoDtos.StartView;
 import ma.mizaje.web.dto.ChronoDtos.StopView;
+import ma.mizaje.web.dto.ChronoDtos.WinnerView;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -167,6 +171,15 @@ public class ChronoService {
 		return elapsedMs >= TARGET_MS && elapsedMs < TARGET_MS + WIN_WINDOW_MS;
 	}
 
+	/** Tableau d'honneur affiché sur la page du jeu. */
+	@Transactional(readOnly = true)
+	public HonourBoard honourBoard() {
+		List<HonourEntry> recent = prizes.findTop12ByOrderByCreatedAtDesc().stream()
+				.map(p -> new HonourEntry(p.getElapsedMs(), p.getCreatedAt()))
+				.toList();
+		return new HonourBoard(prizes.countByCreatedAtGreaterThanEqual(daysAgo(29)), recent);
+	}
+
 	// --- Comptoir ---
 
 	@Transactional(readOnly = true)
@@ -215,10 +228,24 @@ public class ChronoService {
 	@Transactional(readOnly = true)
 	public ChronoStats stats() {
 		Instant today = startOfToday();
-		Instant month = LocalDate.now(clock.withZone(zone)).minusDays(29).atStartOfDay(zone).toInstant();
+		Instant month = daysAgo(29);
 		return new ChronoStats(attempts.countByStartedAtGreaterThanEqual(today), prizes.countByCreatedAtGreaterThanEqual(today),
 				prizes.countByRedeemedAtGreaterThanEqual(today), attempts.countByStartedAtGreaterThanEqual(month),
 				prizes.countByCreatedAtGreaterThanEqual(month), prizes.countByRedeemedAtGreaterThanEqual(month));
+	}
+
+	/** Gagnants des derniers jours (aujourd'hui compris), du plus récent au plus ancien. */
+	@Transactional(readOnly = true)
+	public List<WinnerView> winners(int days) {
+		Instant now = Instant.now(clock);
+		return prizes.findByCreatedAtGreaterThanEqualOrderByCreatedAtDesc(daysAgo(Math.max(1, days) - 1)).stream()
+				.map(p -> {
+					String status = p.getRedeemedAt() != null ? "REDEEMED" : p.getExpiresAt().isAfter(now) ? "PENDING" : "EXPIRED";
+					String by = p.getRedeemedBy() == null ? null : p.getRedeemedBy().getFullName();
+					return new WinnerView(p.getCode(), p.getLabel(), p.getElapsedMs(), p.getCreatedAt(), p.getExpiresAt(), status,
+							p.getRedeemedAt(), p.getShop(), by);
+				})
+				.toList();
 	}
 
 	// --- Outils ---
@@ -240,7 +267,12 @@ public class ChronoService {
 	}
 
 	private Instant startOfToday() {
-		return LocalDate.now(clock.withZone(zone)).atStartOfDay(zone).toInstant();
+		return daysAgo(0);
+	}
+
+	/** Début de la journée d'il y a n jours (0 : aujourd'hui), heure du Maroc. */
+	private Instant daysAgo(int n) {
+		return LocalDate.now(clock.withZone(zone)).minusDays(n).atStartOfDay(zone).toInstant();
 	}
 
 	private String get(String key, String fallback) {

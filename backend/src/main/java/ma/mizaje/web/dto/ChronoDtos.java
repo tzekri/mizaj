@@ -60,6 +60,19 @@ public final class ChronoDtos {
 			@Min(0) @Max(100) int attemptsPerDay) {
 	}
 
+	/** Gagnant vu par l'administrateur : bon, état et barista qui l'a remis. */
+	public record WinnerView(String code, String label, int elapsedMs, Instant createdAt, Instant expiresAt, String status,
+			Instant redeemedAt, String shop, String redeemedBy) {
+	}
+
+	/** Tableau d'honneur public : jamais le code du bon (il servirait à le réclamer à la place du gagnant). */
+	public record HonourEntry(int elapsedMs, Instant createdAt) {
+	}
+
+	/** total30 : gagnants des 30 derniers jours ; recent : les derniers gagnants, du plus récent au plus ancien. */
+	public record HonourBoard(long total30, java.util.List<HonourEntry> recent) {
+	}
+
 	public record ChronoStats(long attemptsToday, long winnersToday, long redeemedToday, long attempts30, long winners30, long redeemed30) {
 	}
 }

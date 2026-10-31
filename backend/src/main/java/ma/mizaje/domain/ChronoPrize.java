@@ -69,4 +69,5 @@ public class ChronoPrize {
 	public Instant getExpiresAt() { return expiresAt; }
 	public Instant getRedeemedAt() { return redeemedAt; }
 	public String getShop() { return shop; }
+	public StaffUser getRedeemedBy() { return redeemedBy; }
 }

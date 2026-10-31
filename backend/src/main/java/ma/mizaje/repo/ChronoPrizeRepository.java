@@ -1,6 +1,7 @@
 package ma.mizaje.repo;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import ma.mizaje.domain.ChronoPrize;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,4 +15,8 @@ public interface ChronoPrizeRepository extends JpaRepository<ChronoPrize, Long> 
 	long countByCreatedAtGreaterThanEqual(Instant since);
 
 	long countByRedeemedAtGreaterThanEqual(Instant since);
+
+	List<ChronoPrize> findByCreatedAtGreaterThanEqualOrderByCreatedAtDesc(Instant since);
+
+	List<ChronoPrize> findTop12ByOrderByCreatedAtDesc();
 }

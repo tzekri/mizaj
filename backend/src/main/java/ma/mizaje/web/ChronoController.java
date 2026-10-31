@@ -3,18 +3,21 @@ package ma.mizaje.web;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import ma.mizaje.security.Principals;
+import java.util.List;
 import java.util.Map;
 import ma.mizaje.service.ChronoScreenHub;
 import ma.mizaje.service.ChronoService;
 import ma.mizaje.web.dto.ChronoDtos.ChronoInfo;
 import ma.mizaje.web.dto.ChronoDtos.ChronoSettings;
 import ma.mizaje.web.dto.ChronoDtos.ChronoStats;
+import ma.mizaje.web.dto.ChronoDtos.HonourBoard;
 import ma.mizaje.web.dto.ChronoDtos.PrizeScanRequest;
 import ma.mizaje.web.dto.ChronoDtos.PrizeView;
 import ma.mizaje.web.dto.ChronoDtos.StartRequest;
 import ma.mizaje.web.dto.ChronoDtos.StartView;
 import ma.mizaje.web.dto.ChronoDtos.StopRequest;
 import ma.mizaje.web.dto.ChronoDtos.StopView;
+import ma.mizaje.web.dto.ChronoDtos.WinnerView;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -54,6 +57,11 @@ public class ChronoController {
 		return chrono.info(device);
 	}
 
+	@GetMapping("/api/public/chrono/winners")
+	HonourBoard honourBoard() {
+		return chrono.honourBoard();
+	}
+
 	@PostMapping("/api/public/chrono/start")
 	StartView start(@Valid @RequestBody StartRequest req, HttpServletRequest http) {
 		return chrono.start(req.device(), http.getRemoteAddr(), req.screen());
@@ -87,5 +95,10 @@ public class ChronoController {
 	@GetMapping("/api/admin/chrono/stats")
 	ChronoStats stats() {
 		return chrono.stats();
+	}
+
+	@GetMapping("/api/admin/chrono/winners")
+	List<WinnerView> winners(@RequestParam(defaultValue = "30") int days) {
+		return chrono.winners(Math.min(days, 365));
 	}
 }

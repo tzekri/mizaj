@@ -497,6 +497,10 @@ h1, h2, h3 { line-height: 1.15; margin: 0 0 0.5em; }
   border-radius: 50%; background: var(--accent); color: var(--white); font-weight: 800;
 }
 .poster__url { font-size: 0.8rem; opacity: 0.8; margin: 16px 0 0; }
+.poster__led { margin: 0 0 12px; }
+.poster__led .led { font-size: 15px; }
+.poster__prize { font-size: 1.25rem; margin: 0 0 18px; }
+.poster__prize strong { color: var(--red); font-weight: 800; }
 
 @media (max-width: 960px) {
   .poster-page { grid-template-columns: 1fr; }
@@ -517,6 +521,10 @@ h1, h2, h3 { line-height: 1.15; margin: 0 0 0.5em; }
   .poster__cta { font-size: 2.6rem; margin: 12px 0 8px; }
   .poster__steps { font-size: 1.1rem; }
   .poster__url { font-size: 1rem; }
+  .poster__led { margin-bottom: 8px; }
+  .poster__led .led { font-size: 14px; }
+  .poster__prize { font-size: 1.6rem; margin-bottom: 12px; }
+  .poster__led ~ .poster__qr { width: 33%; }
 }
 
 /* ---------- Tableau de bord ---------- */
@@ -948,6 +956,26 @@ h1, h2, h3 { line-height: 1.15; margin: 0 0 0.5em; }
 .chrono__rules h2 { font-size: 1.4rem; }
 .chrono__rules ol { padding-left: 20px; display: grid; gap: 10px; color: var(--muted); }
 .chrono__rules b { color: var(--ink); }
+.honour { position: relative; overflow: hidden; margin-top: 22px; background: var(--white); border-radius: 20px; padding: 28px 28px 24px; box-shadow: 0 14px 34px rgba(3, 24, 38, 0.08); }
+.honour::before { content: ''; position: absolute; inset: 0 0 auto; height: 5px; background: var(--brand-line); }
+.honour h2 { font-size: 1.25rem; margin: 0 0 4px; }
+.honour ol { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 6px; }
+.honour li { display: flex; justify-content: space-between; gap: 12px; padding: 8px 12px; border-radius: 10px; background: var(--bg-cream); font-size: 0.9rem; }
+.honour li b { color: var(--green); font-variant-numeric: tabular-nums; }
+.honour li span { color: var(--muted); }
+
+/* Admin du défi : état ouvert / en pause bien visible */
+.game-state { display: flex; align-items: center; gap: 16px; padding: 16px 20px; border-radius: 14px; margin: 18px 0; border: 2px solid; }
+.game-state > div { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.game-state strong { font-size: 1.1rem; }
+.game-state span:not(.game-state__dot) { color: var(--muted); font-size: 0.88rem; }
+.game-state__dot { width: 14px; height: 14px; border-radius: 50%; flex: none; }
+.game-state--on { background: #e8f5ec; border-color: var(--green); color: var(--green); }
+.game-state--on .game-state__dot { background: var(--green); box-shadow: 0 0 0 5px rgba(31, 122, 61, 0.2); animation: game-pulse 1.6s ease-in-out infinite; }
+.game-state--off { background: #fbeceb; border-color: var(--red); color: var(--red); }
+.game-state--off .game-state__dot { background: var(--red); }
+@keyframes game-pulse { 50% { box-shadow: 0 0 0 9px rgba(31, 122, 61, 0.05); } }
+@media (max-width: 600px) { .game-state { flex-wrap: wrap; } .game-state .btn { width: 100%; } }
 .prize-ticket { background: var(--white); border-radius: 20px; padding: 28px; text-align: center; box-shadow: 0 14px 34px rgba(3, 24, 38, 0.12); border: 2px dashed var(--copper); }
 .prize-ticket .k-eyebrow { color: var(--gold-dark); }
 .prize-ticket h2 { font-size: 1.6rem; margin-bottom: 14px; }

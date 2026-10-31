@@ -15,6 +15,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.Optional;
 import ma.mizaje.domain.AppSetting;
 import ma.mizaje.domain.ChronoAttempt;
@@ -132,5 +133,26 @@ class ChronoServiceTest {
 		ChronoService service = serviceAt(10_100);
 		when(prizes.countByCreatedAtGreaterThanEqual(any())).thenReturn(20L);
 		assertFalse(service.stop("TOKEN", 10_002).win());
+	}
+
+	@Test
+	void winnersListShowsWhetherThePrizeWasHandedOver() {
+		ChronoPrize pending = new ChronoPrize("ABC2345", "Un café offert", 10_004, START, START.plusSeconds(86_400));
+		ChronoPrize expired = new ChronoPrize("XYZ6789", "Un café offert", 10_001, START.minusSeconds(864_000), START.minusSeconds(1));
+		when(prizes.findByCreatedAtGreaterThanEqualOrderByCreatedAtDesc(any())).thenReturn(List.of(pending, expired));
+		var winners = serviceAt(60_000).winners(30);
+		assertEquals(List.of("PENDING", "EXPIRED"), winners.stream().map(w -> w.status()).toList());
+		assertNull(winners.get(0).redeemedBy());
+	}
+
+	@Test
+	void honourBoardNeverShowsTheVoucherCode() {
+		when(prizes.findTop12ByOrderByCreatedAtDesc())
+				.thenReturn(List.of(new ChronoPrize("ABC2345", "Un café offert", 10_004, START, START.plusSeconds(86_400))));
+		when(prizes.countByCreatedAtGreaterThanEqual(any())).thenReturn(7L);
+		var board = serviceAt(60_000).honourBoard();
+		assertEquals(7, board.total30());
+		assertEquals(10_004, board.recent().get(0).elapsedMs());
+		assertFalse(board.toString().contains("ABC2345"));
 	}
 }

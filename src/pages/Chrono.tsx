@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import QRCode from 'qrcode';
-import { ApiError, api, type ChronoInfo, type ChronoPrize } from '../api';
+import { ApiError, api, type ChronoInfo, type ChronoPrize, type HonourBoard } from '../api';
 import { fmtChrono as fmt, syncClock, useScreen, verdict } from '../chronoLive';
 import { PageHero } from '../components/Layout';
 import LedDisplay, { ledText } from '../components/LedDisplay';
@@ -205,9 +205,43 @@ export default function Chrono() {
               </p>
             </div>
           )}
+          <Honour refresh={prize?.code} />
         </div>
       </section>
     </>
+  );
+}
+
+/** Tableau d'honneur : les derniers 10.00 s pile (sans le code des bons). Rechargé après un gain. */
+function Honour({ refresh }: { refresh?: string }) {
+  const [board, setBoard] = useState<HonourBoard | null>(null);
+  useEffect(() => {
+    api.chronoHonour().then(setBoard).catch(() => {});
+  }, [refresh]);
+  if (!board) return null;
+  return (
+    <div className="honour">
+      <h2>Tableau d’honneur</h2>
+      {board.recent.length === 0 ? (
+        <p className="sub-fine">Personne n’a encore réussi le 10.00 s pile. Et si c’était vous ?</p>
+      ) : (
+        <>
+          <p className="sub-fine">
+            {board.total30} gagnant{board.total30 > 1 ? 's' : ''} ces 30 derniers jours.
+          </p>
+          <ol>
+            {board.recent.map((w, k) => (
+              <li key={k}>
+                <b>{(w.elapsedMs / 1000).toFixed(3)} s</b>
+                <span>
+                  {new Date(w.createdAt).toLocaleString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Africa/Casablanca' })}
+                </span>
+              </li>
+            ))}
+          </ol>
+        </>
+      )}
+    </div>
   );
 }
 
