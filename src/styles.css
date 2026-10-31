@@ -945,7 +945,7 @@ h1, h2, h3 { line-height: 1.15; margin: 0 0 0.5em; }
 .chrono__btn:active { transform: scale(0.96); }
 .chrono__btn--stop { background: var(--white); color: var(--accent-dark); box-shadow: 0 0 0 10px rgba(255, 255, 255, 0.15), 0 18px 40px rgba(0, 0, 0, 0.4); }
 .chrono__btn:disabled { opacity: 0.45; cursor: default; }
-.chrono__tries { position: relative; display: flex; align-items: center; justify-content: center; gap: 8px; margin: 26px 0 0; font-size: 0.88rem; color: rgba(255, 255, 255, 0.75); }
+.chrono__tries { position: relative; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; text-align: center; margin: 26px 0 0; font-size: 0.88rem; color: rgba(255, 255, 255, 0.75); }
 .chrono__tries i { width: 10px; height: 10px; border-radius: 50%; background: rgba(255, 255, 255, 0.2); }
 .chrono__tries i.on { background: var(--accent-on-dark); }
 .chrono__tries i:last-of-type { margin-right: 6px; }

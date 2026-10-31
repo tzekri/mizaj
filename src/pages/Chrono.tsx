@@ -176,7 +176,8 @@ export default function Chrono() {
           {info && info.enabled && unlimited && <p className="chrono__tries">Essais illimités</p>}
           {info && info.enabled && !unlimited && (
             <p className="chrono__tries">
-              {Array.from({ length: info.attemptsPerDay }, (_, k) => (
+              {/* Une pastille par essai, tant qu'elles tiennent sur une ligne */}
+              {info.attemptsPerDay <= 10 && Array.from({ length: info.attemptsPerDay }, (_, k) => (
                 <i key={k} className={k < info.remaining ? 'on' : ''} />
               ))}
               {out ? 'Plus d’essai aujourd’hui : revenez demain !' : `${info.remaining} essai${info.remaining > 1 ? 's' : ''} restant${info.remaining > 1 ? 's' : ''} aujourd’hui`}
