@@ -105,6 +105,38 @@ export type DashboardData = {
   topCustomers: { customerId: number; firstName?: string; phone: string; planName?: string; redemptions: number }[];
 };
 
+// --- Partenaires (pubs sur l'écran géant) ---
+
+/** Pub diffusée sur la TV. image : adresse de l'image, ou absente. */
+export type Ad = { id: number; name: string; offer: string; details?: string; image?: string };
+/** Partenaire vu par l'administrateur. shops vide : tous les coffee shops ; live : diffusé aujourd'hui. */
+export type Partner = {
+  id: number;
+  name: string;
+  offer: string;
+  details?: string;
+  shops: string[];
+  startsOn?: string;
+  endsOn?: string;
+  active: boolean;
+  live: boolean;
+  image?: string;
+  shownToday: number;
+  shown30: number;
+  shownTotal: number;
+};
+/** image : undefined garde l'image actuelle, '' la retire, sinon « data URL ». */
+export type PartnerInput = {
+  name: string;
+  offer: string;
+  details?: string;
+  shops: string[];
+  startsOn?: string | null;
+  endsOn?: string | null;
+  active: boolean;
+  image?: string;
+};
+
 // --- Défi « 10 secondes » ---
 
 export type ChronoInfo = { enabled: boolean; prize: string; attemptsPerDay: number; remaining: number; validityDays: number };
@@ -412,6 +444,15 @@ export const api = {
     request<ChronoPrize>('POST', `/api/staff/chrono/${encodeURIComponent(code)}/redeem`, undefined, staffSession.get()?.token),
   chronoSettings: () => request<ChronoSettings>('GET', '/api/admin/chrono', undefined, staffSession.get()?.token),
   saveChronoSettings: (s: ChronoSettings) => request<ChronoSettings>('PUT', '/api/admin/chrono', s, staffSession.get()?.token),
+  ads: (shop?: string | null) => request<Ad[]>('GET', `/api/public/partners/ads${shop ? `?shop=${encodeURIComponent(shop)}` : ''}`),
+  adShown: (id: number, shop: string | null, screen: string) =>
+    request<void>('POST', `/api/public/partners/${id}/shown?screen=${encodeURIComponent(screen)}${shop ? `&shop=${encodeURIComponent(shop)}` : ''}`),
+  partners: () => request<Partner[]>('GET', '/api/admin/partners', undefined, staffSession.get()?.token),
+  createPartner: (p: PartnerInput) => request<Partner>('POST', '/api/admin/partners', p, staffSession.get()?.token),
+  updatePartner: (id: number, p: PartnerInput) => request<Partner>('PUT', `/api/admin/partners/${id}`, p, staffSession.get()?.token),
+  movePartner: (id: number, direction: 'up' | 'down') =>
+    request<void>('POST', `/api/admin/partners/${id}/move`, { direction }, staffSession.get()?.token),
+  deletePartner: (id: number) => request<void>('DELETE', `/api/admin/partners/${id}`, undefined, staffSession.get()?.token),
   chronoHonour: () => request<HonourBoard>('GET', '/api/public/chrono/winners'),
   chronoWinners: (days = 30) => request<ChronoWinner[]>('GET', `/api/admin/chrono/winners?days=${days}`, undefined, staffSession.get()?.token),
   chronoStats: () => request<ChronoStats>('GET', '/api/admin/chrono/stats', undefined, staffSession.get()?.token),

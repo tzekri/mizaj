@@ -1,6 +1,8 @@
 import { useEffect, useState, type FormEvent, type WheelEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { ApiError, api, type ChronoSettings, type ChronoStats, type ChronoWinner } from '../api';
+import { SHOPS } from '../config';
+import { tvLink } from './PartnersAdmin';
 
 const STATUS: Record<ChronoWinner['status'], { label: string; css: string }> = {
   PENDING: { label: 'À remettre', css: 'badge--none' },
@@ -56,7 +58,12 @@ export default function ChronoAdmin() {
       <p className="dash-note">
         Le client arrête le chrono pile sur 10.00 s et gagne un bon à montrer en caisse.{' '}
         <Link to="/defi">Voir la page du jeu</Link> ·{' '}
-        <a href="/defi/ecran" target="_blank" rel="noreferrer">Ouvrir l’écran géant (TV)</a> ·{' '}
+        Écran géant (TV) :{' '}
+        {SHOPS.map((s) => (
+          <span key={s.name}>
+            <a href={tvLink(s.name)} target="_blank" rel="noreferrer">{s.name}</a> ·{' '}
+          </span>
+        ))}
         <Link to="/affiche/defi">Imprimer l’affiche du jeu</Link>
       </p>
       <p className="dash-note">

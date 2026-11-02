@@ -1054,3 +1054,46 @@ h1, h2, h3 { line-height: 1.15; margin: 0 0 0.5em; }
 @media (max-width: 860px) {
   .chrono__screen .led { font-size: clamp(9px, 3.6vw, 15px); }
 }
+
+/* ---------- Pubs des partenaires (écran géant + administration) ---------- */
+/* Une pub : tailles en em, l'échelle vient du parent (TV ou aperçu) */
+.ad { display: flex; flex-direction: column; gap: 1.1em; text-align: center; color: var(--white); }
+.ad__img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 1.1em; box-shadow: 0 1.4em 3em rgba(0, 0, 0, 0.45); }
+.ad__text p { margin: 0; }
+.ad__eyebrow { text-transform: uppercase; letter-spacing: 0.3em; font-size: 0.75em; font-weight: 800; color: var(--accent-on-dark); }
+.ad__name { font-size: 1.5em; font-weight: 800; margin-top: 0.2em !important; }
+.ad__offer { font-size: 2.2em; font-weight: 900; line-height: 1.1; color: var(--accent-on-dark); margin-top: 0.15em !important; }
+.ad__details { font-size: 0.95em; color: rgba(255, 255, 255, 0.78); margin-top: 0.5em !important; }
+.ad--text { justify-content: center; min-height: 18em; }
+.ad--text .ad__text { padding-top: 1em; border-top: 0.35em solid transparent; border-image: var(--brand-line) 1; }
+.ad--text .ad__name { font-size: 3em; }
+.ad--text .ad__offer { font-size: 3.4em; }
+.tv__ad { font-size: clamp(11px, 1.45vw, 30px); padding-top: 13vh; animation: ad-in 0.6s ease-out; }
+.tv__ad .ad__img { width: 88%; margin: 0 auto; }
+@keyframes ad-in { from { opacity: 0; transform: translateY(2vh); } }
+.ad-preview { margin-top: 6px; max-width: 440px; padding: 18px 20px; font-size: 8.5px; border-radius: 14px; background: var(--bg-dark); }
+
+.partners-admin h2 { margin-top: 8px; }
+.partner-list { margin: 18px 0; display: grid; gap: 12px; }
+.partner { display: grid; grid-template-columns: 76px 1fr auto auto; gap: 18px; align-items: center; padding: 14px 18px; border-radius: 16px; background: var(--white);
+  box-shadow: 0 1px 0 rgba(16, 40, 74, 0.06), 0 6px 20px rgba(16, 40, 74, 0.05); }
+.partner.muted .partner__thumb, .partner.muted .partner__body { opacity: 0.6; }
+.partner__thumb { width: 76px; height: 76px; border-radius: 12px; overflow: hidden; background: var(--bg-dark); display: grid; place-items: center; }
+.partner__thumb img { width: 100%; height: 100%; object-fit: cover; }
+.partner__thumb span { color: var(--accent-on-dark); font-size: 2rem; font-weight: 800; }
+.partner__body h3 { margin: 0; font-size: 1.05rem; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.partner__offer { margin: 4px 0 2px; font-weight: 600; }
+.partner__body small, .partner__stats small { color: var(--muted); }
+.partner__stats { font-size: 0.85rem; color: var(--muted); line-height: 1.5; white-space: nowrap; }
+.partner__stats strong { color: var(--ink); font-size: 1rem; }
+.partner__actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+.partner .partner-form { grid-column: 1 / -1; margin: 6px 0 0; }
+.partner-form__shops { border: 0; padding: 0; margin: 0; display: flex; gap: 22px; flex-wrap: wrap; }
+.partner-form__shops legend { font-weight: 600; font-size: 0.88rem; margin-bottom: 8px; padding: 0; }
+.partner-form__image > span, .partner-form__label { display: block; font-weight: 600; font-size: 0.88rem; margin-bottom: 8px; }
+.partner-form__image .btn { cursor: pointer; }
+@media (max-width: 760px) {
+  .partner { grid-template-columns: 56px 1fr; }
+  .partner__thumb { width: 56px; height: 56px; }
+  .partner__stats, .partner__actions { grid-column: 1 / -1; justify-content: flex-start; white-space: normal; }
+}

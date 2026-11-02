@@ -1,12 +1,21 @@
 import { useEffect, useRef, useState } from 'react';
 import QRCode from 'qrcode';
-import { api, type ChronoInfo } from '../api';
+import { api, type Ad, type ChronoInfo } from '../api';
 import { fmtChrono, syncClock, useScreen, verdict } from '../chronoLive';
+import AdSlide from '../components/AdSlide';
 import LedDisplay, { ledText } from '../components/LedDisplay';
 
 const SCREEN_KEY = 'kidima.screen';
 /** Durée d'affichage d'un résultat avant de revenir à l'invitation à jouer. */
 const RESULT_MS = 9_000;
+/** Écran au repos : le jeu reste affiché GAME_MS, puis une pub partenaire AD_MS, chacune son tour. */
+const GAME_MS = 20_000;
+const AD_MS = 10_000;
+/** Les pubs sont rechargées toutes les 5 minutes (nouveau partenaire, fin de diffusion). */
+const ADS_REFRESH_MS = 5 * 60_000;
+
+/** Coffee shop de cette TV (?boutique=…) : choisit ses pubs et range ses affichages. */
+const shopOf = () => new URLSearchParams(window.location.search).get('boutique')?.trim() || null;
 
 /** Identifiant de cet écran, gardé dans le navigateur de la TV (le QR code reste le même d'un jour à l'autre). */
 function screenId(): string {
@@ -33,6 +42,10 @@ export default function ChronoScreen() {
   const [qr, setQr] = useState<string | null>(null);
   const [display, setDisplay] = useState(0);
   const [showResult, setShowResult] = useState(false);
+  const [shop] = useState(shopOf);
+  const [ads, setAds] = useState<Ad[]>([]);
+  const [ad, setAd] = useState<Ad | null>(null);
+  const nextAd = useRef(0);
   const offset = useRef(0);
   const frame = useRef(0);
   const joinUrl = `${window.location.origin}/defi?ecran=${screen}`;
@@ -48,6 +61,17 @@ export default function ChronoScreen() {
     }, 60_000);
     return () => clearInterval(t);
   }, []);
+
+  useEffect(() => {
+    const load = () =>
+      api.ads(shop).then((list) =>
+        // Même liste qu'avant : on garde l'objet pour ne pas relancer la rotation
+        setAds((old) => (JSON.stringify(old) === JSON.stringify(list) ? old : list)),
+      ).catch(() => {});
+    load();
+    const t = setInterval(load, ADS_REFRESH_MS);
+    return () => clearInterval(t);
+  }, [shop]);
 
   useEffect(() => {
     QRCode.toDataURL(joinUrl, { width: 520, margin: 1, errorCorrectionLevel: 'M' }).then(setQr).catch(() => {});
@@ -79,31 +103,59 @@ export default function ChronoScreen() {
   const running = state?.status === 'RUNNING';
   const result = state?.status === 'RESULT' && showResult;
   const win = result && state?.win;
+  const idle = !running && !result;
+
+  // Rotation des pubs, seulement quand personne ne joue : une partie qui démarre reprend l'écran tout de suite
+  useEffect(() => {
+    if (!idle || ads.length === 0) {
+      setAd(null);
+      return;
+    }
+    let timer = 0;
+    const showGame = () => {
+      setAd(null);
+      timer = window.setTimeout(showAd, GAME_MS);
+    };
+    const showAd = () => {
+      const next = ads[nextAd.current++ % ads.length];
+      setAd(next);
+      api.adShown(next.id, shop, screen).catch(() => {});
+      timer = window.setTimeout(showGame, AD_MS);
+    };
+    showGame();
+    return () => clearTimeout(timer);
+  }, [idle, ads, shop, screen]);
 
   return (
     <div className={`tv ${win ? 'tv--win' : ''}`}>
       <img className="tv__logo" src="/brand/logo.png" alt="Kidima Coffee House" />
-      <div className="tv__main">
-        <p className="tv__title">Le défi 10 secondes</p>
-        {/* Au repos : l'objectif « 10.00 » en contour ; pendant la partie et le résultat : le chrono plein */}
-        <div className="tv__led">
-          <LedDisplay text={running || result ? ledText(display) : '10.00'} dim={!running && !result} blink={!!win} label={`${fmtChrono(display)} secondes`} />
+      {ad ? (
+        <div className="tv__ad" key={ad.id}>
+          <AdSlide ad={ad} />
         </div>
-        <p className="tv__status">
-          {running
-            ? 'Arrêtez pile sur 10.00 !'
-            : win
-              ? `GAGNÉ ! ${state?.prize ?? ''} 🎉`
-              : result && state?.elapsedMs != null
-                ? <>{verdict(state.elapsedMs)}<br />À qui le tour ?</>
-                : info && !info.enabled
-                  ? 'Le défi est en pause'
-                  : `Arrêtez le chrono pile sur 10.00 et gagnez ${info?.prize?.toLowerCase() ?? 'un cadeau'}`}
-        </p>
-      </div>
+      ) : (
+        <div className="tv__main">
+          <p className="tv__title">Le défi 10 secondes</p>
+          {/* Au repos : l'objectif « 10.00 » en contour ; pendant la partie et le résultat : le chrono plein */}
+          <div className="tv__led">
+            <LedDisplay text={running || result ? ledText(display) : '10.00'} dim={!running && !result} blink={!!win} label={`${fmtChrono(display)} secondes`} />
+          </div>
+          <p className="tv__status">
+            {running
+              ? 'Arrêtez pile sur 10.00 !'
+              : win
+                ? `GAGNÉ ! ${state?.prize ?? ''} 🎉`
+                : result && state?.elapsedMs != null
+                  ? <>{verdict(state.elapsedMs)}<br />À qui le tour ?</>
+                  : info && !info.enabled
+                    ? 'Le défi est en pause'
+                    : `Arrêtez le chrono pile sur 10.00 et gagnez ${info?.prize?.toLowerCase() ?? 'un cadeau'}`}
+          </p>
+        </div>
+      )}
       <aside className="tv__join">
         <div className="tv__qr">{qr && <img src={qr} alt="QR code pour jouer" />}</div>
-        <p className="tv__join-title">Scannez pour jouer</p>
+        <p className="tv__join-title">{ad ? 'Défi 10 secondes : scannez pour jouer' : 'Scannez pour jouer'}</p>
         <p className="tv__join-sub">
           Votre téléphone devient la manette
           {info && info.attemptsPerDay > 0 ? ` · ${info.attemptsPerDay} essai${info.attemptsPerDay > 1 ? 's' : ''} par jour` : ''}
