@@ -25,6 +25,9 @@ export type Card = {
   expiresAt?: string;
   plan: Plan;
   history: { at: string; shop?: string }[];
+  /** Boissons servies aujourd'hui ; maxPerDay : limite par jour (0 = sans limite). */
+  drinksToday: number;
+  maxPerDay: number;
 };
 
 export type OtpStart = {
@@ -53,6 +56,9 @@ export type StaffCard = {
   memberSince: string;
   plan: Plan;
   preferredPlan: Plan;
+  /** Boissons servies aujourd'hui ; maxPerDay : limite par jour (0 = sans limite). */
+  drinksToday: number;
+  maxPerDay: number;
 };
 
 export type Today = { shop?: string; redemptions: number; activations: number };
@@ -333,7 +339,7 @@ async function request<T>(method: string, path: string, body?: unknown, token?: 
 export const api = {
   plans: () => request<Plan[]>('GET', '/api/public/plans'),
   /** verification=false : inscription directe sans code (Twilio non configuré). */
-  config: () => request<{ verification: boolean }>('GET', '/api/public/config'),
+  config: () => request<{ verification: boolean; maxPerDay: number }>('GET', '/api/public/config'),
   signup: (phone: string, firstName?: string, planCode?: string) =>
     request<{ token: string; card: Card }>('POST', '/api/public/signup', { phone, firstName, planCode }),
   otpStart: (phone: string, firstName?: string, planCode?: string, channel?: 'whatsapp' | 'sms') =>
@@ -359,6 +365,9 @@ export const api = {
     request<{ code: string; expiresAt: string }>('POST', `/api/staff/customers/${customerId}/recovery-code`, undefined, staffSession.get()?.token),
   today: () => request<Today>('GET', '/api/staff/today', undefined, staffSession.get()?.token),
 
+  subscriptionRules: () => request<{ maxPerDay: number }>('GET', '/api/admin/subscription-rules', undefined, staffSession.get()?.token),
+  saveSubscriptionRules: (maxPerDay: number) =>
+    request<{ maxPerDay: number }>('PUT', '/api/admin/subscription-rules', { maxPerDay }, staffSession.get()?.token),
   adminPlans: () => request<Plan[]>('GET', '/api/admin/plans', undefined, staffSession.get()?.token),
   createPlan: (p: PlanInput) => request<Plan>('POST', '/api/admin/plans', p, staffSession.get()?.token),
   updatePlan: (code: string, p: PlanInput) => request<Plan>('PUT', `/api/admin/plans/${code}`, p, staffSession.get()?.token),

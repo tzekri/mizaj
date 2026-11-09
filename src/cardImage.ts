@@ -57,7 +57,7 @@ export async function renderCardImage(opts: { qrToken: string; firstName?: strin
   await qr.decode();
   ctx.drawImage(qr, x + 40, y + 40, box - 80, box - 80);
 
-  ctx.fillStyle = '#0a2436';
+  ctx.fillStyle = '#13315c';
   ctx.font = '700 64px Poppins, sans-serif';
   ctx.fillText(opts.firstName || 'Abonné Kidima', W / 2, y + box + 92);
   ctx.font = '500 38px Poppins, sans-serif';

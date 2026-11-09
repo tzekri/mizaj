@@ -3,6 +3,8 @@ package ma.mizaje.service;
 import java.security.SecureRandom;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import ma.mizaje.domain.Customer;
 import ma.mizaje.domain.OtpChallenge;
 import ma.mizaje.domain.Plan;
@@ -30,15 +32,17 @@ public class CardService {
 	private final RedemptionRepository redemptions;
 	private final PlanService plans;
 	private final Clock clock;
+	private final ZoneId zone;
 	private final SecureRandom random = new SecureRandom();
 
 	public CardService(CustomerRepository customers, SubscriptionRepository subscriptions,
-			RedemptionRepository redemptions, PlanService plans, Clock clock) {
+			RedemptionRepository redemptions, PlanService plans, Clock clock, ZoneId appZone) {
 		this.customers = customers;
 		this.subscriptions = subscriptions;
 		this.redemptions = redemptions;
 		this.plans = plans;
 		this.clock = clock;
+		this.zone = appZone;
 	}
 
 	/** Après validation du code : retrouve le compte du numéro, ou le crée, et enregistre la formule choisie. */
@@ -122,7 +126,10 @@ public class CardService {
 				current == null ? null : current.getActivatedAt(),
 				current == null ? null : current.getExpiresAt(),
 				PlanView.of(plan),
-				history);
+				history,
+				current == null ? 0 : (int) redemptions.countBySubscriptionAndRedeemedAtGreaterThanEqualAndCancelledAtIsNull(current,
+						LocalDate.now(clock.withZone(zone)).atStartOfDay(zone).toInstant()),
+				plans.maxPerDay());
 	}
 
 	private Customer load(long customerId) {

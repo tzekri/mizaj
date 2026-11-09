@@ -11,6 +11,7 @@ import ma.mizaje.service.ExportService;
 import ma.mizaje.service.PlanService;
 import ma.mizaje.web.dto.DashboardDtos.Dashboard;
 import ma.mizaje.web.dto.Dtos.CreateStaffRequest;
+import ma.mizaje.web.dto.Dtos.SubscriptionRules;
 import ma.mizaje.web.dto.Dtos.PlanRequest;
 import ma.mizaje.web.dto.Dtos.PlanView;
 import ma.mizaje.web.dto.Dtos.StaffView;
@@ -87,6 +88,16 @@ public class AdminController {
 	@PutMapping("/plans/{code}")
 	PlanView updatePlan(@PathVariable String code, @Valid @RequestBody PlanRequest req) {
 		return plans.update(code, req);
+	}
+
+	@GetMapping("/subscription-rules")
+	SubscriptionRules subscriptionRules() {
+		return new SubscriptionRules(plans.maxPerDay());
+	}
+
+	@PutMapping("/subscription-rules")
+	SubscriptionRules saveSubscriptionRules(@Valid @RequestBody SubscriptionRules req) {
+		return new SubscriptionRules(plans.setMaxPerDay(req.maxPerDay()));
 	}
 
 	@GetMapping("/stats")

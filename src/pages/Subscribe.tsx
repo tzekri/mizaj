@@ -118,6 +118,7 @@ type Step = 'form' | 'code' | 'recover';
 function SignupForm({ plan }: { plan?: Plan }) {
   const navigate = useNavigate();
   const [verification, setVerification] = useState<boolean | null>(null);
+  const [maxPerDay, setMaxPerDay] = useState(0);
   const [step, setStep] = useState<Step>('form');
   const [phone, setPhone] = useState('');
   const [firstName, setFirstName] = useState('');
@@ -136,7 +137,7 @@ function SignupForm({ plan }: { plan?: Plan }) {
   }, [step]);
 
   useEffect(() => {
-    api.config().then((c) => setVerification(c.verification)).catch(() => setVerification(false));
+    api.config().then((c) => { setVerification(c.verification); setMaxPerDay(c.maxPerDay); }).catch(() => setVerification(false));
   }, []);
 
   useEffect(() => {
@@ -323,6 +324,11 @@ function SignupForm({ plan }: { plan?: Plan }) {
       <button type="button" className="link sub-resend" onClick={() => { setStep('recover'); setNotice(null); setError(null); }}>
         J’ai déjà une carte (nouveau téléphone)
       </button>
+      {maxPerDay > 0 && (
+        <p className="sub-legal">
+          Avec l’abonnement : {maxPerDay} boisson{maxPerDay > 1 ? 's' : ''} au maximum par jour.
+        </p>
+      )}
       <p className="sub-legal">
         {verification
           ? `Un code vous est envoyé sur WhatsApp (ou par SMS) pour vérifier votre numéro. En continuant, vous acceptez de recevoir un message de ${BRAND.name} Coffee.`

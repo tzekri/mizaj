@@ -17,6 +17,8 @@ public interface RedemptionRepository extends JpaRepository<Redemption, Long> {
 
 	long countByRedeemedAtGreaterThanEqualAndCancelledAtIsNull(Instant from);
 
+	long countBySubscriptionAndRedeemedAtGreaterThanEqualAndCancelledAtIsNull(Subscription subscription, Instant from);
+
 	long countByRedeemedAtGreaterThanEqualAndShopAndCancelledAtIsNull(Instant from, String shop);
 
 	/** Validations non annulées sur [from, to), avec abonnement, client, formule et barista (tableau de bord, export). */

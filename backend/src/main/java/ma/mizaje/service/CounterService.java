@@ -87,6 +87,12 @@ public class CounterService {
 			default -> {
 			}
 		}
+		// Limite par jour : « Valider quand même » (force) ne sert qu'au double scan, pas à dépasser la limite
+		int max = plans.maxPerDay();
+		if (max > 0 && redemptions.countBySubscriptionAndRedeemedAtGreaterThanEqualAndCancelledAtIsNull(sub, startOfToday()) >= max) {
+			throw ApiException.conflict("DAILY_LIMIT", "Limite atteinte : " + max + (max > 1 ? " boissons" : " boisson")
+					+ " par jour avec l'abonnement. Prochaine boisson demain (ou à payer normalement).");
+		}
 		if (!force) {
 			redemptions.findFirstBySubscriptionAndCancelledAtIsNullOrderByRedeemedAtDesc(sub)
 					.filter(r -> r.getRedeemedAt().isAfter(now.minus(DOUBLE_SCAN_WINDOW)))
@@ -141,7 +147,7 @@ public class CounterService {
 	@Transactional(readOnly = true)
 	public TodayView today(long staffId) {
 		StaffUser staff = loadStaff(staffId);
-		Instant startOfDay = LocalDate.now(clock.withZone(zone)).atStartOfDay(zone).toInstant();
+		Instant startOfDay = startOfToday();
 		String shop = staff.getShop();
 		if (shop == null) {
 			return new TodayView(null, redemptions.countByRedeemedAtGreaterThanEqualAndCancelledAtIsNull(startOfDay),
@@ -170,7 +176,13 @@ public class CounterService {
 				undoable,
 				customer.getCreatedAt(),
 				PlanView.of(displayed),
-				PlanView.of(plans.proposed(customer)));
+				PlanView.of(plans.proposed(customer)),
+				current == null ? 0 : (int) redemptions.countBySubscriptionAndRedeemedAtGreaterThanEqualAndCancelledAtIsNull(current, startOfToday()),
+				plans.maxPerDay());
+	}
+
+	private Instant startOfToday() {
+		return LocalDate.now(clock.withZone(zone)).atStartOfDay(zone).toInstant();
 	}
 
 	private Customer loadCustomer(long id) {

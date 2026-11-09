@@ -53,8 +53,11 @@ public final class Dtos {
 			String channel, boolean smsAvailable) {
 	}
 
-	/** verification : true si un code est envoyé au client à l'inscription ; false : inscription directe. */
-	public record SignupConfig(boolean verification) {
+	/**
+	 * verification : true si un code est envoyé au client à l'inscription ; false : inscription directe.
+	 * maxPerDay : boissons au maximum par jour avec l'abonnement (0 = sans limite).
+	 */
+	public record SignupConfig(boolean verification, int maxPerDay) {
 	}
 
 	/** Inscription directe (sans code), quand l'envoi de code n'est pas configuré. */
@@ -73,9 +76,10 @@ public final class Dtos {
 	}
 
 	/** plan : formule de la période en cours, sinon celle choisie par le client. */
+	/** drinksToday : boissons servies aujourd'hui ; maxPerDay : limite par jour (0 = sans limite). */
 	public record CardView(String firstName, String phone, String qrToken, SubscriptionStatus status,
 			int drinksLeft, int drinksTotal, Instant activatedAt, Instant expiresAt, PlanView plan,
-			List<HistoryEntry> history) {
+			List<HistoryEntry> history, int drinksToday, int maxPerDay) {
 	}
 
 	public record UpdateProfileRequest(@Size(max = 60) String firstName, @Size(max = 40) String planCode) {
@@ -90,9 +94,10 @@ public final class Dtos {
 	}
 
 	/** plan : formule de la période en cours ; preferredPlan : formule à proposer à l'activation. */
+	/** drinksToday : boissons servies aujourd'hui ; maxPerDay : limite par jour (0 = sans limite). */
 	public record StaffCardView(long customerId, String firstName, String phone, SubscriptionStatus status,
 			int drinksLeft, int drinksTotal, Instant activatedAt, Instant expiresAt, Instant lastRedemptionAt,
-			Long undoableRedemptionId, Instant memberSince, PlanView plan, PlanView preferredPlan) {
+			Long undoableRedemptionId, Instant memberSince, PlanView plan, PlanView preferredPlan, int drinksToday, int maxPerDay) {
 	}
 
 	public record ScanRequest(@NotBlank String token) {
@@ -126,5 +131,9 @@ public final class Dtos {
 
 	public record SubscriberView(long customerId, String firstName, String phone, String planName, SubscriptionStatus status,
 			int drinksLeft, Instant expiresAt) {
+	}
+
+	/** Réglage de l'abonnement : boissons au maximum par jour et par abonné (0 = sans limite). */
+	public record SubscriptionRules(@jakarta.validation.constraints.Min(0) @jakarta.validation.constraints.Max(20) int maxPerDay) {
 	}
 }

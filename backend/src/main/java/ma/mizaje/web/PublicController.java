@@ -58,7 +58,7 @@ public class PublicController {
 
 	@GetMapping("/config")
 	SignupConfig config() {
-		return new SignupConfig(otp.verificationEnabled());
+		return new SignupConfig(otp.verificationEnabled(), plans.maxPerDay());
 	}
 
 	/** Inscription directe (sans code) : disponible seulement quand l'envoi de code n'est pas configuré. */

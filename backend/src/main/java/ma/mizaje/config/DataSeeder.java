@@ -72,6 +72,7 @@ public class DataSeeder implements ApplicationRunner {
 			seedJuiceIngredients();
 		}
 		addMissingJuicePhotos();
+		hideRemovedFruits();
 		renameLegacyStaffEmails();
 		if (adminEmail.isBlank() || adminPassword.length() < 8) {
 			log.warn("ADMIN_EMAIL / ADMIN_PASSWORD (8 caractères min.) non renseignés : aucun compte administrateur créé.");
@@ -101,6 +102,27 @@ public class DataSeeder implements ApplicationRunner {
 					}
 				}
 			}
+		}
+	}
+
+	static final String FRUITS_REMOVED_2026_11 = "juice.fruits-removed.2026-11";
+	/** Fruits retirés du composeur (novembre 2026). */
+	static final List<String> REMOVED_FRUITS = List.of("pasteque", "grenade");
+
+	/**
+	 * Pastèque et grenade ne sont plus proposées : masquées une seule fois (pas supprimées, les anciens jus restent lisibles).
+	 * L'administrateur peut les reproposer ensuite, ce choix n'est jamais écrasé.
+	 */
+	void hideRemovedFruits() {
+		if (settings.existsById(FRUITS_REMOVED_2026_11)) {
+			return;
+		}
+		settings.save(new AppSetting(FRUITS_REMOVED_2026_11, "done"));
+		for (String code : REMOVED_FRUITS) {
+			juiceIngredients.findByCode(code).filter(JuiceIngredient::isAvailable).ifPresent(i -> {
+				i.update(i.getName(), i.getCategory(), i.getPrice(), i.getColor(), false);
+				log.info("Ingrédient retiré du composeur de jus : {}", i.getName());
+			});
 		}
 	}
 
@@ -138,8 +160,6 @@ public class DataSeeder implements ApplicationRunner {
 			Map.entry("avocat", "1519162808019-7de1683fa2ad"),
 			Map.entry("kiwi", "1662303645991-185042acc773"),
 			Map.entry("fruits-rouges", "1710528184650-fc75ae862c13"),
-			Map.entry("pasteque", "1581074817932-af423ba4566e"),
-			Map.entry("grenade", "1615485925600-97237c4fc1ec"),
 			Map.entry("menthe", "1588908933351-eeb8cd4c4521"),
 			Map.entry("gingembre", "1615484478243-c94e896edbae"),
 			Map.entry("miel", "1655169947079-5b2a38815147"),
@@ -173,8 +193,6 @@ public class DataSeeder implements ApplicationRunner {
 				{"avocat", "Avocat", JuiceCategory.FRUIT, 8, "#93b44f"},
 				{"kiwi", "Kiwi", JuiceCategory.FRUIT, 5, "#7cb342"},
 				{"fruits-rouges", "Fruits rouges", JuiceCategory.FRUIT, 7, "#a8264a"},
-				{"pasteque", "Pastèque", JuiceCategory.FRUIT, 4, "#ef6b6b"},
-				{"grenade", "Grenade", JuiceCategory.FRUIT, 6, "#c2185b"},
 				{"menthe", "Menthe fraîche", JuiceCategory.EXTRA, 2, "#3e9b5b"},
 				{"gingembre", "Gingembre", JuiceCategory.EXTRA, 2, "#d8b26a"},
 				{"miel", "Miel", JuiceCategory.EXTRA, 3, "#dfa530"},

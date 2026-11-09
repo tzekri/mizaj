@@ -359,6 +359,7 @@ function CustomerPanel({
   onUndo: () => void;
 }) {
   const active = card.status === 'ACTIVE';
+  const limitReached = active && card.maxPerDay > 0 && card.drinksToday >= card.maxPerDay;
   const chosen = plans.find((p) => p.code === planCode) ?? card.preferredPlan;
   const { unit, unitPlural } = card.plan;
   return (
@@ -381,6 +382,12 @@ function CustomerPanel({
       {card.status === 'EXPIRED' && <p className="customer__msg">Abonnement terminé le {fmtDate(card.expiresAt)}.</p>}
       {card.status === 'EMPTY' && <p className="customer__msg">Toutes les boissons de la formule ({card.drinksTotal} {unitPlural}) ont été servies.</p>}
       {card.status === 'NONE' && <p className="customer__msg">Compte créé, abonnement jamais activé : encaissez la formule choisie puis activez.</p>}
+      {active && card.maxPerDay > 0 && (
+        <p className={`customer__today ${limitReached ? 'customer__today--full' : ''}`}>
+          Aujourd’hui : <b>{card.drinksToday} / {card.maxPerDay}</b> {card.maxPerDay > 1 ? unitPlural : unit}
+          {limitReached && ' — limite du jour atteinte, prochaine boisson demain'}
+        </p>
+      )}
       {card.lastRedemptionAt && <p className="customer__last">Dernière validation : {fmtDateTime(card.lastRedemptionAt)}</p>}
 
       {plans.length > 1 && (
@@ -399,7 +406,9 @@ function CustomerPanel({
 
       <div className="customer__actions">
         {active ? (
-          <button className="btn btn--accent btn--xl" disabled={busy} onClick={onRedeem}>Valider 1 {unit}</button>
+          <button className="btn btn--accent btn--xl" disabled={busy || limitReached} onClick={onRedeem}>
+            {limitReached ? `Limite de ${card.maxPerDay} par jour atteinte` : `Valider 1 ${unit}`}
+          </button>
         ) : (
           <button className="btn btn--accent btn--xl" disabled={busy} onClick={onActivate}>
             {card.status === 'NONE' ? 'Activer' : 'Renouveler'} {chosen.name} — {chosen.price} DH encaissés
@@ -683,6 +692,43 @@ const EMPTY_PLAN: PlanInput = {
   active: true,
 };
 
+/** Boissons au maximum par jour et par abonné, pour toutes les formules (0 = sans limite). */
+function DailyLimit() {
+  const [value, setValue] = useState<number | null>(null);
+  const [saved, setSaved] = useState<number | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    api.subscriptionRules().then((r) => { setValue(r.maxPerDay); setSaved(r.maxPerDay); }).catch((e) => setError((e as ApiError).message));
+  }, []);
+
+  async function save(e: FormEvent) {
+    e.preventDefault();
+    if (value == null) return;
+    setError(null);
+    try {
+      const r = await api.saveSubscriptionRules(value);
+      setValue(r.maxPerDay);
+      setSaved(r.maxPerDay);
+    } catch (err) {
+      setError((err as ApiError).message);
+    }
+  }
+
+  if (value == null) return error ? <p className="form-error">{error}</p> : null;
+  return (
+    <form className="daily-limit" onSubmit={save}>
+      <label>
+        Boissons au maximum par jour et par abonné (0 = sans limite)
+        <input type="number" min={0} max={20} value={value} onWheel={(e) => e.currentTarget.blur()} onChange={(e) => setValue(Number(e.target.value))} />
+      </label>
+      <button className="btn btn--accent btn--sm" disabled={value === saved}>Enregistrer</button>
+      {value === saved && <span className="daily-limit__now">{saved === 0 ? 'Sans limite' : `Limite actuelle : ${saved} par jour`}</span>}
+      {error && <p className="form-error">{error}</p>}
+    </form>
+  );
+}
+
 /** Formules d'abonnement : modification (prix, boissons, durée, activation) et création. */
 function PlansEditor() {
   const [plans, setPlans] = useState<Plan[]>([]);
@@ -720,6 +766,7 @@ function PlansEditor() {
   return (
     <>
       <h2>Formules d’abonnement</h2>
+      <DailyLimit />
       <div className="table-wrap">
         <table className="table">
           <thead>

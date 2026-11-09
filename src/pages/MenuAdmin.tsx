@@ -187,7 +187,8 @@ function MenuEditor() {
     <>
       <h2>Menu du coffee shop</h2>
       <p className="dash-note">
-        Modifiez un prix directement dans le tableau (validé en quittant la case ou avec Entrée). Les changements sont visibles tout de suite sur le site.
+        Modifiez un prix directement dans le tableau (validé en quittant la case ou avec Entrée). Les changements sont visibles tout de suite sur le site,
+        et en moins d’une minute sur l’<a href="/menu/ecran" target="_blank" rel="noreferrer">écran menu (TV)</a>.
       </p>
       {error && !editing && <p className="form-error">{error}</p>}
       {menu.map((c, ci) => (

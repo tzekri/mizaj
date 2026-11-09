@@ -2,9 +2,11 @@ package ma.mizaje.service;
 
 import java.text.Normalizer;
 import java.util.List;
+import ma.mizaje.domain.AppSetting;
 import ma.mizaje.domain.Customer;
 import ma.mizaje.domain.Plan;
 import ma.mizaje.domain.Subscription;
+import ma.mizaje.repo.AppSettingRepository;
 import ma.mizaje.repo.PlanRepository;
 import ma.mizaje.web.ApiException;
 import ma.mizaje.web.dto.Dtos.PlanRequest;
@@ -16,10 +18,32 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class PlanService {
 
-	private final PlanRepository plans;
+	/** Boissons au maximum par jour et par abonné, réglable par l'administrateur (0 = sans limite). */
+	static final String KEY_MAX_PER_DAY = "subscription.max-per-day";
+	static final int DEFAULT_MAX_PER_DAY = 2;
 
-	public PlanService(PlanRepository plans) {
+	private final PlanRepository plans;
+	private final AppSettingRepository settings;
+
+	public PlanService(PlanRepository plans, AppSettingRepository settings) {
 		this.plans = plans;
+		this.settings = settings;
+	}
+
+	@Transactional(readOnly = true)
+	public int maxPerDay() {
+		try {
+			return settings.findById(KEY_MAX_PER_DAY).map(s -> Integer.parseInt(s.getValue())).orElse(DEFAULT_MAX_PER_DAY);
+		} catch (NumberFormatException e) {
+			return DEFAULT_MAX_PER_DAY;
+		}
+	}
+
+	@Transactional
+	public int setMaxPerDay(int max) {
+		String value = String.valueOf(max);
+		settings.findById(KEY_MAX_PER_DAY).ifPresentOrElse(s -> s.setValue(value), () -> settings.save(new AppSetting(KEY_MAX_PER_DAY, value)));
+		return max;
 	}
 
 	@Transactional(readOnly = true)

@@ -122,6 +122,12 @@ export default function MyCard() {
                       <span style={{ width: `${(card.drinksLeft / card.drinksTotal) * 100}%` }} />
                     </div>
                     <p>Valable jusqu’au {fmtDate(card.expiresAt)} · {daysLeft(card.expiresAt)} jour(s)</p>
+                    {card.maxPerDay > 0 && (
+                      <p>
+                        Aujourd’hui : {card.drinksToday} / {card.maxPerDay} {card.maxPerDay > 1 ? card.plan.unitPlural : card.plan.unit}
+                        {card.drinksToday >= card.maxPerDay ? ' · à demain !' : ''}
+                      </p>
+                    )}
                   </div>
                 )}
               </div>

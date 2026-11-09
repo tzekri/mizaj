@@ -6,6 +6,7 @@ import { Floating, Footer } from './components/Layout';
 import Home from './pages/Home';
 import Menu from './pages/Menu';
 import MenuCategory from './pages/MenuCategory';
+import MenuScreen from './pages/MenuScreen';
 import Shops from './pages/Shops';
 import Franchise from './pages/Franchise';
 import Chrono from './pages/Chrono';
@@ -21,7 +22,8 @@ import './styles.css';
 /** Pied de page et boutons flottants, sauf sur l'écran géant du défi (TV en plein écran). */
 function SiteChrome({ children }: { children: ReactNode }) {
   const { pathname } = useLocation();
-  return pathname.startsWith('/defi/ecran') ? null : <>{children}</>;
+  // Écrans TV (défi, menu) : plein écran, sans pied de page ni boutons flottants
+  return pathname.startsWith('/defi/ecran') || pathname.startsWith('/menu/ecran') ? null : <>{children}</>;
 }
 
 function ScrollTop() {
@@ -40,6 +42,7 @@ createRoot(document.getElementById('root')!).render(
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/menu" element={<Menu />} />
+          <Route path="/menu/ecran" element={<MenuScreen />} />
           <Route path="/menu/:slug" element={<MenuCategory />} />
           <Route path="/nos-cafes" element={<Shops />} />
           {FRANCHISE_ENABLED && <Route path="/franchise" element={<Franchise />} />}
