@@ -54,6 +54,7 @@ public class MenuSeeder implements ApplicationRunner {
 		if (categories.count() > 0) {
 			renameLegacyBrand();
 			updateFormerPrices();
+			applyMenuBoard();
 			return;
 		}
 		List<SeedCategory> seed;
@@ -76,6 +77,103 @@ public class MenuSeeder implements ApplicationRunner {
 		}
 		log.info("Menu de départ chargé : {} catégories, {} produits.", seed.size(), n);
 		settings.save(new AppSetting(PRICES_2026_10, "done")); // le menu de départ a déjà les nouveaux prix
+		applyMenuBoard();
+	}
+
+	/** Drapeau en base : menu ramené aux boissons du tableau (novembre 2026), une seule fois. */
+	static final String BOARD_2026_11 = "menu.board.2026-11";
+
+	/**
+	 * Boisson du tableau. names : nom affiché puis anciens noms possibles ; si elle n'existe pas encore, elle est créée
+	 * avec ce prix, cette description, ce volume et la photo du produit {@code photoOf}.
+	 */
+	record BoardItem(List<String> names, int price, String description, String volume, Integer intensity, String photoOf) {
+		BoardItem(String name, String... formerNames) {
+			this(java.util.stream.Stream.concat(java.util.stream.Stream.of(name), java.util.stream.Stream.of(formerNames)).toList(), 0, null,
+					null, null, null);
+		}
+	}
+
+	/** Le menu du tableau, catégorie par catégorie, dans l'ordre d'affichage. */
+	static final Map<String, List<BoardItem>> BOARD = new java.util.LinkedHashMap<>();
+	static {
+		BOARD.put("coffee", List.of(
+				new BoardItem("Espresso"),
+				new BoardItem("Americano", "Américano"),
+				new BoardItem(List.of("Double Espresso"), 14, "Double dose de notre assemblage signature. Intenso 14 DH · Dolce crema 18 DH.",
+						"60 ml", 5, "Espresso"),
+				new BoardItem("Cortado")));
+		BOARD.put("hot-coffee", List.of(
+				new BoardItem("Latte", "Café Latte"),
+				new BoardItem("Cappuccino"),
+				new BoardItem("Flat White"),
+				new BoardItem("Mocha", "Mocaccino"),
+				new BoardItem(List.of("Chocolat chaud"), 12, "Chocolat chaud onctueux au lait. Grand (L) : 16 DH.", "250 ml", null, "Mocha"),
+				new BoardItem(List.of("Chocolat fondu"), 18, "Chocolat fondu, épais et gourmand, à la cuillère.", "200 ml", null, "Mocha"),
+				new BoardItem("Spanish Latte"),
+				new BoardItem(List.of("Pistachio Latte"), 24, "Latte à la crème de pistache, doux et parfumé.", "250 ml", null, "Latte"),
+				new BoardItem("Matcha Latte"),
+				new BoardItem(List.of("Ubé Latte"), 30, "Latte à l’ubé, l’igname violette : doux, vanillé, couleur lavande.", "250 ml", null,
+						"Purple Kidima")));
+	}
+
+	/**
+	 * Le menu ne garde que les boissons du tableau : elles sont activées (créées si besoin, renommées comme sur le tableau,
+	 * prix existants conservés) ; les autres produits et catégories sont masqués, jamais supprimés. Une seule fois : ce que
+	 * l'administrateur réactive ensuite reste réactivé.
+	 */
+	void applyMenuBoard() {
+		if (settings.existsById(BOARD_2026_11)) {
+			return;
+		}
+		settings.save(new AppSetting(BOARD_2026_11, "done"));
+		List<MenuItem> all = new java.util.ArrayList<>(items.findAll());
+		java.util.Set<MenuItem> kept = new java.util.HashSet<>();
+		int order = 0;
+		for (MenuCategory c : categories.findAllByOrderBySortOrderAscIdAsc()) {
+			List<BoardItem> wanted = BOARD.get(c.getSlug());
+			c.update(c.getLight(), c.getBold(), c.getArabic(), c.getTone(), c.getPhoto(), wanted != null);
+			if (wanted == null) {
+				continue;
+			}
+			c.setSortOrder(order++);
+			for (int k = 0; k < wanted.size(); k++) {
+				BoardItem b = wanted.get(k);
+				MenuItem item = all.stream().filter(i -> b.names().contains(i.getName())).findFirst().orElse(null);
+				if (item == null && b.price() == 0) {
+					log.warn("Menu : {} introuvable (supprimé ?), à recréer dans l'administration.", b.names().get(0));
+					continue;
+				}
+				if (item == null) {
+					String photo = all.stream().filter(i -> i.getName().equals(b.photoOf()) || renamedFrom(i.getName(), b.photoOf()))
+							.map(MenuItem::getPhoto).findFirst().orElse(c.getPhoto());
+					item = new MenuItem(c, k);
+					item.update(b.names().get(0), b.description(), b.price(), b.intensity(), b.volume(), photo, false, null, true);
+					items.save(item);
+					all.add(item);
+					log.info("Menu : {} ajouté ({} DH)", b.names().get(0), b.price());
+				} else {
+					item.update(b.names().get(0), item.getDescription(), item.getPrice(), item.getIntensity(), item.getVolume(), item.getPhoto(),
+							item.isFeatured(), item.getTag(), true);
+					item.setCategory(c);
+					item.setSortOrder(k);
+				}
+				kept.add(item);
+			}
+		}
+		for (MenuItem i : all) {
+			if (!kept.contains(i) && i.isAvailable()) {
+				i.update(i.getName(), i.getDescription(), i.getPrice(), i.getIntensity(), i.getVolume(), i.getPhoto(), i.isFeatured(), i.getTag(),
+						false);
+			}
+		}
+		log.info("Menu ramené aux {} boissons du tableau ; autres produits et catégories masqués.", kept.size());
+	}
+
+	/** Le produit {@code name} porte-t-il un ancien nom de {@code boardName} (ex. « Mocaccino » pour « Mocha ») ? */
+	private static boolean renamedFrom(String name, String boardName) {
+		return BOARD.values().stream().flatMap(List::stream)
+				.anyMatch(b -> b.names().get(0).equals(boardName) && b.names().contains(name));
 	}
 
 	/** Produits nommés d'après une ancienne marque (« Mizaje Signature », « Marokoffy Intense »…) : renommés « Kidima ». */
