@@ -31,7 +31,7 @@ import ChronoAdmin from './ChronoAdmin';
 import PartnersAdmin from './PartnersAdmin';
 import { IngredientThumb, JuiceGlass } from '../components/juice';
 
-/** Codes de jus ; « MIZAJ-JUS: » : codes générés des premières versions (ancien nom « Mizaj »). */
+/** Codes des smoothies (préfixe d'origine « JUS » gardé : les codes déjà émis restent valables) ; « MIZAJ-JUS: » : codes générés des premières versions (ancien nom « Mizaj »). */
 const JUICE_QR_PREFIXES = ['MIZAJE-JUS:', 'MIZAJ-JUS:'];
 /** Bons gagnés au défi « 10 secondes ». */
 const PRIZE_QR_PREFIX = 'KIDIMA-GAIN:';
@@ -161,7 +161,7 @@ function Counter({ onAuthError }: { onAuthError: () => void }) {
       setBusy(true);
       setNotice(null);
       try {
-        // Le même scanner lit les cartes d'abonné, les codes de jus composés et les bons du défi
+        // Le même scanner lit les cartes d'abonné, les codes de smoothies composés et les bons du défi
         setCard(null);
         setJuice(null);
         setPrize(null);
@@ -182,7 +182,7 @@ function Counter({ onAuthError }: { onAuthError: () => void }) {
     setBusy(true);
     setNotice(null);
     try {
-      // 6 caractères : code de jus ; 7 caractères : bon du défi ; sinon numéro de téléphone
+      // 6 caractères : code de smoothie ; 7 caractères : bon du défi ; sinon numéro de téléphone
       const compact = phone.replace(/[\s-]/g, '');
       setCard(null);
       setJuice(null);
@@ -261,7 +261,7 @@ function Counter({ onAuthError }: { onAuthError: () => void }) {
     try {
       const served = await api.juiceServe(juice.code);
       setJuice(served);
-      setNotice({ kind: 'ok', text: `Jus servi ✓ — ${served.recipe.price} DH encaissés.` });
+      setNotice({ kind: 'ok', text: `Smoothie servi ✓ — ${served.recipe.price} DH encaissés.` });
     } catch (e) {
       fail(e);
     } finally {
@@ -306,7 +306,7 @@ function Counter({ onAuthError }: { onAuthError: () => void }) {
           <Scanner onResult={onScan} paused={busy} />
         )}
         <form className="lookup" onSubmit={lookup}>
-          <input type="tel" inputMode="tel" placeholder="Numéro (06…), code jus ou bon" value={phone} onChange={(e) => setPhone(e.target.value)} />
+          <input type="tel" inputMode="tel" placeholder="Numéro (06…), code smoothie ou bon" value={phone} onChange={(e) => setPhone(e.target.value)} />
           <button className="btn btn--outline btn--sm" disabled={busy || !phone.trim()}>Rechercher</button>
         </form>
       </div>
@@ -331,7 +331,7 @@ function Counter({ onAuthError }: { onAuthError: () => void }) {
         ) : (
           <div className="counter__empty">
             <h2>Scannez la carte du client</h2>
-            <p>Le client présente son QR code « Ma carte » (abonnement) ou le code de son jus composé devant la caméra.</p>
+            <p>Le client présente son QR code « Ma carte » (abonnement) ou le code de son smoothie composé devant la caméra.</p>
           </div>
         )}
       </div>
@@ -428,14 +428,14 @@ function CustomerPanel({
   );
 }
 
-/** Jus composé à préparer : recette, format et prix, puis « Servi ». */
+/** Smoothie composé à préparer : recette, format et prix, puis « Servi ». */
 function JuicePanel({ order, busy, onServe }: { order: JuiceOrder; busy: boolean; onServe: () => void }) {
   const r = order.recipe;
   return (
     <div className={`customer juice-panel customer--${order.status === 'PENDING' ? 'active' : 'expired'}`}>
       <div className="customer__head">
         <div>
-          <h2>{r.name || 'Jus composé'}</h2>
+          <h2>{r.name || 'Smoothie composé'}</h2>
           <p>Code {order.code.slice(0, 3)} {order.code.slice(3)} · créé le {fmtDateTime(order.createdAt)}</p>
         </div>
         <span className={`badge ${order.status === 'PENDING' ? 'badge--active' : 'badge--empty'}`}>
@@ -459,7 +459,7 @@ function JuicePanel({ order, busy, onServe }: { order: JuiceOrder; busy: boolean
         </div>
       </div>
       {order.status === 'SERVED' && <p className="customer__msg">Servi le {fmtDateTime(order.servedAt)}{order.shop ? ` · ${order.shop}` : ''}.</p>}
-      {order.status === 'EXPIRED' && <p className="customer__msg">Ce code a expiré : le client peut recréer son jus en un geste.</p>}
+      {order.status === 'EXPIRED' && <p className="customer__msg">Ce code a expiré : le client peut recréer son smoothie en un geste.</p>}
       {order.status === 'PENDING' && (
         <div className="customer__actions">
           <button className="btn btn--accent btn--xl" disabled={busy} onClick={onServe}>Servi — {r.price} DH encaissés</button>
@@ -828,7 +828,7 @@ const CATEGORY_LABEL: Record<JuiceIngredient['category'], string> = { BASE: 'Bas
 const EMPTY_INGREDIENT: Omit<JuiceIngredient, 'code'> = { name: '', category: 'FRUIT', price: 5, color: '#f2a03d', image: '', available: true };
 const isoDay = (d: Date) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Africa/Casablanca' }).format(d);
 
-/** Composeur de jus : ingrédients (prix, couleur, disponibilité) et jus servis sur 30 jours. */
+/** Composeur de smoothies : ingrédients (prix, couleur, disponibilité) et smoothies servis sur 30 jours. */
 function JuiceAdmin() {
   const [items, setItems] = useState<JuiceIngredient[]>([]);
   const [stats, setStats] = useState<JuiceStats | null>(null);
@@ -873,10 +873,10 @@ function JuiceAdmin() {
 
   return (
     <>
-      <h2>Jus composés</h2>
+      <h2>Smoothies composés</h2>
       {stats && (
         <div className="kpis kpis--3">
-          <Kpi value={stats.served} label="jus servis (30 jours)" />
+          <Kpi value={stats.served} label="smoothies servis (30 jours)" />
           <Kpi value={`${stats.revenue} DH`} label="encaissés (30 jours)" />
           <Kpi value={stats.created} label="codes créés (30 jours)" />
         </div>

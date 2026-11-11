@@ -177,7 +177,7 @@ export type ChronoWinner = {
 export type HonourBoard = { total30: number; recent: { elapsedMs: number; createdAt: string }[] };
 export type ChronoStats = { attemptsToday: number; winnersToday: number; redeemedToday: number; attempts30: number; winners30: number; redeemed30: number };
 
-// --- Composeur de jus ---
+// --- Composeur de smoothies (« juice » dans le code) ---
 
 export type JuiceCategory = 'BASE' | 'FRUIT' | 'EXTRA';
 export type JuiceSize = 'S33' | 'S50';
@@ -196,7 +196,7 @@ export type JuiceCatalog = {
   sizes: { code: JuiceSize; label: string; basePrice: number; factor: number }[];
   maxFruits: number;
   maxExtras: number;
-  /** true : le jus coûte le prix du format, quels que soient les fruits (suppléments ignorés). */
+  /** true : le smoothie coûte le prix du format, quels que soient les fruits (suppléments ignorés). */
   fixedPrice: boolean;
 };
 export type JuiceRecipe = {

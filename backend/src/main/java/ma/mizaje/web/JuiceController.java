@@ -147,7 +147,7 @@ public class JuiceController {
 
 	private void throttle(HttpServletRequest http) {
 		if (!ipThrottle.tryAcquire("juice:" + http.getRemoteAddr(), ORDERS_PER_HOUR_PER_IP)) {
-			throw ApiException.tooMany("Trop de jus composés depuis ce réseau. Réessayez dans un moment.");
+			throw ApiException.tooMany("Trop de smoothies composés depuis ce réseau. Réessayez dans un moment.");
 		}
 	}
 }

@@ -21,7 +21,7 @@ const NAV = [
   { to: '/', label: 'Accueil' },
   { to: '/menu', label: 'Menu' },
   { to: '/abonnement', label: 'Abonnement' },
-  { to: '/jus', label: 'Compose ton jus' },
+  { to: '/smoothie', label: 'Compose ton smoothie' },
   { to: '/defi', label: 'Défi 10 s' },
   { to: '/nos-cafes', label: 'Nos coffee shops' },
   ...(FRANCHISE_ENABLED ? [{ to: '/franchise', label: 'Devenez franchisé' }] : []),

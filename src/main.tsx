@@ -1,6 +1,6 @@
 import { StrictMode, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
-import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
+import { BrowserRouter, Route, Routes, useLocation, Navigate } from 'react-router-dom';
 import type { ReactNode } from 'react';
 import { Floating, Footer } from './components/Layout';
 import Home from './pages/Home';
@@ -51,7 +51,9 @@ createRoot(document.getElementById('root')!).render(
           <Route path="/barista" element={<Barista />} />
           <Route path="/affiche" element={<Poster />} />
           <Route path="/affiche/defi" element={<ChronoPoster />} />
-          <Route path="/jus" element={<Juice />} />
+          <Route path="/smoothie" element={<Juice />} />
+          {/* Ancienne adresse (jus) : liens et QR déjà partagés */}
+          <Route path="/jus" element={<Navigate to="/smoothie" replace />} />
           <Route path="/defi" element={<Chrono />} />
           <Route path="/defi/ecran" element={<ChronoScreen />} />
           <Route path="*" element={<Home />} />

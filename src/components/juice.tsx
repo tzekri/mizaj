@@ -1,27 +1,20 @@
-// Composeur de jus : aperçu du verre (couches aux couleurs des fruits) et ticket à présenter en caisse.
+// Composeur de smoothies : aperçu du verre (mélange aux couleurs des fruits) et ticket à présenter en caisse.
 
 import { useEffect, useId, useState } from 'react';
 import QRCode from 'qrcode';
 import { fmtDateTime, type JuiceIngredient, type JuiceOrder } from '../api';
 
 /**
- * Verre stylisé : la base occupe la moitié du jus, les fruits se partagent le reste ;
+ * Verre stylisé : smoothie mixé, en dégradé de la base (en bas) vers les fruits (en haut), avec un dessus crémeux ;
  * les extras apparaissent en garniture (feuilles, zeste…) au-dessus.
  */
 export function JuiceGlass({ items, size = 'S33', label }: { items: JuiceIngredient[]; size?: 'S33' | 'S50'; label?: string }) {
   const base = items.find((i) => i.category === 'BASE');
   const fruits = items.filter((i) => i.category === 'FRUIT');
   const extras = items.filter((i) => i.category === 'EXTRA');
-  const top = size === 'S50' ? 46 : 70; // niveau du jus (plus haut dans le grand format)
-  const bottom = 268;
-  const height = bottom - top;
-  const layers: { color: string; h: number }[] = [];
-  if (base) {
-    const share = fruits.length ? 0.5 : 1;
-    layers.push({ color: base.color, h: height * share });
-    fruits.forEach((f) => layers.push({ color: f.color, h: (height * 0.5) / fruits.length }));
-  }
-  let y = bottom;
+  const top = size === 'S50' ? 46 : 70; // niveau du smoothie (plus haut dans le grand format)
+  // Couleurs du mélange, du bas vers le haut : la base, puis les fruits qui se fondent dedans
+  const colors = base ? [base.color, ...fruits.map((f) => f.color)] : [];
   const id = `glass-${useId().replace(/:/g, '')}`;
   return (
     <svg className="juice-glass" viewBox="0 0 220 300" role="img" aria-label={label ? `Aperçu : ${label}` : 'Verre vide : choisissez une base'}>
@@ -29,6 +22,11 @@ export function JuiceGlass({ items, size = 'S33', label }: { items: JuiceIngredi
         <clipPath id={id}>
           <path d="M40 24 L180 24 L164 272 Q162 286 148 286 L72 286 Q58 286 56 272 Z" />
         </clipPath>
+        <linearGradient id={`${id}-mix`} x1="0" y1="1" x2="0" y2="0">
+          {colors.map((c, i) => (
+            <stop key={i} offset={colors.length === 1 ? 0 : (i / (colors.length - 1)) * 0.8 + 0.1} stopColor={c} />
+          ))}
+        </linearGradient>
         <linearGradient id={`${id}-shine`} x1="0" x2="1">
           <stop offset="0" stopColor="#fff" stopOpacity="0.35" />
           <stop offset="0.25" stopColor="#fff" stopOpacity="0" />
@@ -38,11 +36,17 @@ export function JuiceGlass({ items, size = 'S33', label }: { items: JuiceIngredi
       </defs>
       <g clipPath={`url(#${id})`}>
         <rect x="0" y="0" width="220" height="300" fill="#f7f2ea" />
-        {layers.map((l, i) => {
-          y -= l.h;
-          return <rect key={i} className="juice-glass__layer" x="0" y={y} width="220" height={l.h + 1} fill={l.color} />;
-        })}
-        {layers.length > 0 && <ellipse cx="110" cy={top} rx="80" ry="6" fill="#fff" opacity="0.35" />}
+        {colors.length > 0 && (
+          <>
+            <rect className="juice-glass__layer" x="0" y={top} width="220" height={300 - top} fill={`url(#${id}-mix)`} />
+            {/* Dessus crémeux du smoothie */}
+            <path
+              d={`M0 ${top + 4} Q28 ${top - 8} 55 ${top + 2} T110 ${top + 2} T165 ${top + 2} T220 ${top + 2} L220 ${top + 16} L0 ${top + 16} Z`}
+              fill="#fff"
+              opacity="0.4"
+            />
+          </>
+        )}
         <rect x="0" y="0" width="220" height="300" fill={`url(#${id}-shine)`} />
       </g>
       <path d="M40 24 L180 24 L164 272 Q162 286 148 286 L72 286 Q58 286 56 272 Z" fill="none" stroke="#c9bfb1" strokeWidth="3" />
@@ -75,7 +79,7 @@ const STATUS: Record<JuiceOrder['status'], string> = {
   EXPIRED: 'Code expiré',
 };
 
-/** Ticket du jus : code lisible + QR, à montrer au barista. */
+/** Ticket du smoothie : code lisible + QR, à montrer au barista. */
 export function JuiceTicket({ order }: { order: JuiceOrder }) {
   const [qr, setQr] = useState('');
   useEffect(() => {
@@ -86,13 +90,13 @@ export function JuiceTicket({ order }: { order: JuiceOrder }) {
   return (
     <div className={`juice-ticket juice-ticket--${order.status.toLowerCase()}`}>
       <div className="juice-ticket__head">
-        <strong>{order.recipe.name || 'Mon jus Kidima'}</strong>
+        <strong>{order.recipe.name || 'Mon smoothie Kidima'}</strong>
         <span className={`badge ${order.status === 'PENDING' ? 'badge--active' : 'badge--empty'}`}>{STATUS[order.status]}</span>
       </div>
       <div className="juice-ticket__body">
-        {qr && <img className="juice-ticket__qr" src={qr} alt={`QR du jus ${order.code}`} />}
+        {qr && <img className="juice-ticket__qr" src={qr} alt={`QR du smoothie ${order.code}`} />}
         <div>
-          <span className="juice-ticket__label">Code jus</span>
+          <span className="juice-ticket__label">Code smoothie</span>
           <span className="juice-ticket__code">{order.code.slice(0, 3)} {order.code.slice(3)}</span>
           <span className="juice-ticket__thumbs" aria-hidden>
             {order.recipe.ingredients.map((i) => <IngredientThumb key={i.code} item={i} size={30} />)}

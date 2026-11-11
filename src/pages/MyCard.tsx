@@ -285,7 +285,7 @@ function PlanSwitcher({ current, onChange }: { current: Plan; onChange: (c: Card
   );
 }
 
-/** Jus favoris de l'abonné : un geste pour obtenir un nouveau code à présenter en caisse. */
+/** Smoothies favoris de l'abonné : un geste pour obtenir un nouveau code à présenter en caisse. */
 function JuiceFavorites() {
   const [favorites, setFavorites] = useState<JuiceFavorite[] | null>(null);
   const [order, setOrder] = useState<JuiceOrder | null>(null);
@@ -306,7 +306,7 @@ function JuiceFavorites() {
   }
 
   async function remove(id: number) {
-    if (!confirm('Retirer ce jus de vos favoris ?')) return;
+    if (!confirm('Retirer ce smoothie de vos favoris ?')) return;
     try {
       await api.deleteJuiceFavorite(id);
       load();
@@ -318,11 +318,11 @@ function JuiceFavorites() {
   return (
     <div className="juice-favs">
       <div className="juice-favs__head">
-        <h3>Mes jus favoris</h3>
-        <Link to="/jus" className="link">Composer un jus</Link>
+        <h3>Mes smoothies favoris</h3>
+        <Link to="/smoothie" className="link">Composer un smoothie</Link>
       </div>
       {favorites && favorites.length === 0 && (
-        <p className="mycard__tip">Composez votre jus et enregistrez-le en favori : il vous attendra ici.</p>
+        <p className="mycard__tip">Composez votre smoothie et enregistrez-le en favori : il vous attendra ici.</p>
       )}
       <ul>
         {favorites?.map((f) => (

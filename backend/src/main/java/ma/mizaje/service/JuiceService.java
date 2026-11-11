@@ -154,10 +154,10 @@ public class JuiceService {
 		JuiceOrder order = load(raw);
 		Instant now = Instant.now(clock);
 		if (order.getServedAt() != null) {
-			throw ApiException.conflict("ALREADY_SERVED", "Ce jus a déjà été servi (code utilisé).");
+			throw ApiException.conflict("ALREADY_SERVED", "Ce smoothie a déjà été servi (code utilisé).");
 		}
 		if (expired(order, now)) {
-			throw ApiException.conflict("EXPIRED", "Ce code a expiré : le client peut recréer son jus en un geste.");
+			throw ApiException.conflict("EXPIRED", "Ce code a expiré : le client peut recréer son smoothie en un geste.");
 		}
 		StaffUser staff = staffUsers.findById(staffId).filter(StaffUser::isActive).orElseThrow(ApiException::forbidden);
 		order.serve(staff, now);
@@ -175,10 +175,10 @@ public class JuiceService {
 	public FavoriteView addFavorite(long customerId, RecipeRequest req) {
 		Customer customer = loadCustomer(customerId);
 		if (favorites.countByCustomer(customer) >= MAX_FAVORITES) {
-			throw ApiException.conflict("TOO_MANY", "Vous avez déjà " + MAX_FAVORITES + " jus favoris : supprimez-en un pour en ajouter un nouveau.");
+			throw ApiException.conflict("TOO_MANY", "Vous avez déjà " + MAX_FAVORITES + " smoothies favoris : supprimez-en un pour en ajouter un nouveau.");
 		}
 		Recipe recipe = resolve(req.ingredients(), req.size(), req.name(), true);
-		String name = recipe.name() == null ? "Mon jus Kidima" : recipe.name();
+		String name = recipe.name() == null ? "Mon smoothie Kidima" : recipe.name();
 		return favoriteView(favorites.save(new JuiceFavorite(customer, name, recipe.size(), recipe.codes(), Instant.now(clock))));
 	}
 
@@ -294,7 +294,7 @@ public class JuiceService {
 		long fruits = items.stream().filter(i -> i.getCategory() == JuiceCategory.FRUIT).count();
 		long extras = items.stream().filter(i -> i.getCategory() == JuiceCategory.EXTRA).count();
 		if (bases != 1) {
-			throw ApiException.badRequest("Choisissez une base (et une seule) pour votre jus.");
+			throw ApiException.badRequest("Choisissez une base (et une seule) pour votre smoothie.");
 		}
 		if (fruits > MAX_FRUITS) {
 			throw ApiException.badRequest(MAX_FRUITS + " fruits au maximum en plus de la base.");
@@ -345,7 +345,7 @@ public class JuiceService {
 			code = code.substring(LEGACY_QR_PREFIX.length());
 		}
 		code = code.replace("-", "").replace(" ", "");
-		return orders.findByCode(code).orElseThrow(() -> ApiException.notFound("Code de jus inconnu. Vérifiez les 6 caractères."));
+		return orders.findByCode(code).orElseThrow(() -> ApiException.notFound("Code de smoothie inconnu. Vérifiez les 6 caractères."));
 	}
 
 	private Customer loadCustomer(long id) {

@@ -53,11 +53,11 @@ export default function Menu() {
                   </div>
                 </Link>
               ))}
-              <Link to="/jus" className="cat-card cat-card--juice">
-                <img src={img('1613478223719-2ab802602423', 700)} alt="" loading="lazy" />
+              <Link to="/smoothie" className="cat-card cat-card--juice">
+                <img src={img('1579954115545-a95591f28bfc', 700)} alt="" loading="lazy" />
                 <div className="cat-card__body">
-                  <span className="cat-card__ar" lang="ar">عصير على ذوقك</span>
-                  <h2>Compose <strong>ton jus</strong></h2>
+                  <span className="cat-card__ar" lang="ar">سموذي على ذوقك</span>
+                  <h2>Compose <strong>ton smoothie</strong></h2>
                   <span className="cat-card__count">Base, fruits, touche Kidima <Arrow size={18} /></span>
                 </div>
               </Link>

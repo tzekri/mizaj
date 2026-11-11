@@ -17,13 +17,13 @@ import { img, PHOTOS } from '../config';
 /** Idées de départ (codes des ingrédients de départ ; ignorées si un ingrédient a été retiré). */
 const IDEAS: { name: string; size: JuiceSize; codes: string[] }[] = [
   { name: 'Réveil vitaminé', size: 'S33', codes: ['orange', 'mangue', 'gingembre'] },
-  { name: 'Douceur tropicale', size: 'S50', codes: ['ananas', 'mangue', 'banane'] },
-  { name: 'Avocat royal', size: 'S50', codes: ['lait', 'avocat', 'amandes', 'miel'] },
-  { name: 'Fraîcheur menthe', size: 'S33', codes: ['citronnade', 'fraise', 'menthe'] },
+  { name: 'Douceur tropicale', size: 'S50', codes: ['lait-amande', 'mangue', 'banane'] },
+  { name: 'Avocat royal', size: 'S50', codes: ['yaourt', 'avocat', 'amandes', 'miel'] },
+  { name: 'Fraîcheur menthe', size: 'S33', codes: ['yaourt', 'fraise', 'menthe'] },
 ];
 
 const STEP: Record<JuiceCategory, { n: string; title: string; hint: (max: number) => string }> = {
-  BASE: { n: '1', title: 'Choisissez votre base', hint: () => 'Une base, elle fait la moitié du jus' },
+  BASE: { n: '1', title: 'Choisissez votre base', hint: () => 'Une base, elle fait la moitié du smoothie' },
   FRUIT: { n: '2', title: 'Ajoutez des fruits', hint: (max) => `Jusqu’à ${max} fruits` },
   EXTRA: { n: '3', title: 'La touche Kidima', hint: (max) => `Jusqu’à ${max} extras` },
 };
@@ -107,10 +107,10 @@ export default function Juice() {
   return (
     <>
       <PageHero
-        eyebrow="Pressé minute"
-        title="Compose ton jus"
-        subtitle="Fruits pressés à la minute, à ton goût. Compose, obtiens ton code, et récupère ton jus en caisse."
-        photo={img('1600271886742-f049cd451bba', 1920)}
+        eyebrow="Mixé minute"
+        title="Compose ton smoothie"
+        subtitle="Fruits frais mixés à la minute, à ton goût. Compose, obtiens ton code, et récupère ton smoothie en caisse."
+        photo={img('1595981267035-7b04ca84a82d', 1920)}
       />
       <section className="section container juice">
         {!catalog ? (
@@ -173,8 +173,8 @@ export default function Juice() {
               <aside className="juice__preview">
                 <JuiceGlass items={chosen} size={size} label={label} />
                 <label className="juice__name">
-                  Nom de votre jus <span className="optional">(facultatif)</span>
-                  <input value={name} maxLength={40} placeholder="Mon jus du matin" onChange={(e) => setName(e.target.value)} />
+                  Nom de votre smoothie <span className="optional">(facultatif)</span>
+                  <input value={name} maxLength={40} placeholder="Mon smoothie du matin" onChange={(e) => setName(e.target.value)} />
                 </label>
                 <p className="juice__recipe">{label || 'Choisissez une base pour commencer.'}</p>
                 <div className="juice__price">
@@ -189,7 +189,7 @@ export default function Juice() {
                   <button className="btn btn--outline btn--block" disabled={!base} onClick={saveFavorite}>★ Enregistrer en favori</button>
                 ) : (
                   <p className="juice__hint">
-                    <Link to="/abonnement">Créez votre carte Kidima</Link> pour enregistrer vos jus favoris et les recommander en un geste.
+                    <Link to="/abonnement">Créez votre carte Kidima</Link> pour enregistrer vos smoothies favoris et les recommander en un geste.
                   </p>
                 )}
                 {saved && <p className="notice notice--ok">{saved}</p>}
@@ -199,7 +199,7 @@ export default function Juice() {
             {order && (
               <div className="juice__ticket" ref={ticketRef}>
                 <JuiceTicket order={order} />
-                <p className="juice__hint">Montrez ce code au barista : il prépare votre jus et vous réglez en caisse.</p>
+                <p className="juice__hint">Montrez ce code au barista : il prépare votre smoothie et vous réglez en caisse.</p>
               </div>
             )}
           </>

@@ -25,7 +25,7 @@ const emptyItem = (categoryId: number): MenuItemInput => ({
   available: true,
 });
 
-/** Onglet « Menu » de l'administration : prix des jus composés, produits et catégories du menu. */
+/** Onglet « Menu » de l'administration : prix des smoothies composés, produits et catégories du menu. */
 export default function MenuAdmin() {
   return (
     <div className="menu-admin">
@@ -35,7 +35,7 @@ export default function MenuAdmin() {
   );
 }
 
-/** Prix des jus composés : prix fixe par format, ou prix selon les ingrédients (prix de départ + suppléments × coefficient). */
+/** Prix des smoothies composés : prix fixe par format, ou prix selon les ingrédients (prix de départ + suppléments × coefficient). */
 function JuiceFormats() {
   const [formats, setFormats] = useState<JuiceFormat[]>([]);
   const [fixed, setFixed] = useState<boolean | null>(null);
@@ -74,21 +74,21 @@ function JuiceFormats() {
 
   return (
     <>
-      <h2>Prix des jus composés</h2>
-      <div className="seg seg--wrap" role="group" aria-label="Mode de prix des jus">
+      <h2>Prix des smoothies composés</h2>
+      <div className="seg seg--wrap" role="group" aria-label="Mode de prix des smoothies">
         <button className={fixed === true ? 'active' : ''} onClick={() => switchMode(true)}>Prix fixe par format</button>
         <button className={fixed === false ? 'active' : ''} onClick={() => switchMode(false)}>Prix selon les ingrédients</button>
       </div>
       <p className="dash-note">
         {fixed === false
-          ? 'Prix d’un jus = prix du format + suppléments des ingrédients × coefficient. Les suppléments se règlent dans l’onglet Administration, section « Jus composés ».'
-          : 'Le jus coûte le prix du format, quels que soient les fruits choisis. Les suppléments restent enregistrés pour repasser plus tard au prix selon les ingrédients.'}
+          ? 'Prix d’un smoothie = prix du format + suppléments des ingrédients × coefficient. Les suppléments se règlent dans l’onglet Administration, section « Smoothies composés ».'
+          : 'Le smoothie coûte le prix du format, quels que soient les fruits choisis. Les suppléments restent enregistrés pour repasser plus tard au prix selon les ingrédients.'}
       </p>
       <div className="table-wrap">
         <table className="table">
           <thead>
             <tr>
-              <th>Format</th><th>{fixed === false ? 'Prix de départ (DH)' : 'Prix du jus (DH)'}</th>
+              <th>Format</th><th>{fixed === false ? 'Prix de départ (DH)' : 'Prix du smoothie (DH)'}</th>
               {fixed === false && <><th>Coefficient des suppléments</th><th>Exemple : orange + fraise (+5 DH)</th></>}
               <th />
             </tr>

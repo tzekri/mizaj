@@ -37,7 +37,7 @@ function Hero() {
             <em>à la marocaine.</em>
           </h1>
           <p className="k-hero__lead">
-            Espresso, nouss-nouss, atay et jus pressés minute, servis dans nos coffee shops de Lissasfa et Farah Salam. Votre carte d’abonné
+            Espresso, lattes, chocolats et smoothies mixés minute, servis dans nos coffee shops de Lissasfa et Farah Salam. Votre carte d’abonné
             tient dans votre téléphone.
           </p>
           <div className="k-hero__ctas">
@@ -87,11 +87,11 @@ const WAYS = [
   },
   {
     n: '03',
-    to: '/jus',
-    title: 'Compose ton jus',
-    text: 'Une base, deux fruits, une touche : votre jus est pressé à la minute, à votre goût.',
-    cta: 'Composer mon jus',
-    photo: '1613478223719-2ab802602423',
+    to: '/smoothie',
+    title: 'Compose ton smoothie',
+    text: 'Une base, deux fruits, une touche : votre smoothie est mixé à la minute, à votre goût.',
+    cta: 'Composer mon smoothie',
+    photo: '1579954115545-a95591f28bfc',
   },
 ];
 
@@ -208,7 +208,7 @@ function JuiceTeaser() {
   }, []);
   const sample = useMemo(() => {
     const pick = (code: string) => items.find((i) => i.code === code);
-    const chosen = [pick('orange'), pick('mangue'), pick('menthe')].filter(Boolean) as JuiceIngredient[];
+    const chosen = [pick('yaourt'), pick('fraise'), pick('banane')].filter(Boolean) as JuiceIngredient[];
     return chosen.length ? chosen : items.slice(0, 1);
   }, [items]);
   if (items.length === 0) return null;
@@ -220,14 +220,14 @@ function JuiceTeaser() {
         </div>
         <div>
           <p className="eyebrow">Nouveau</p>
-          <h2>Compose ton jus</h2>
-          <p>Choisissez une base, jusqu’à deux fruits et une touche {BRAND.name}. Obtenez votre code, on presse à la minute.</p>
+          <h2>Compose ton smoothie</h2>
+          <p>Choisissez une base, jusqu’à deux fruits et une touche {BRAND.name}. Obtenez votre code, on mixe à la minute.</p>
           <div className="juice-teaser__thumbs">
             {items.filter((i) => i.category !== 'EXTRA').slice(0, 9).map((i) => (
               <span key={i.code} title={i.name}><IngredientThumb item={i} size={46} /></span>
             ))}
           </div>
-          <Link to="/jus" className="btn btn--accent">Composer mon jus</Link>
+          <Link to="/smoothie" className="btn btn--accent">Composer mon smoothie</Link>
         </div>
       </div>
     </section>

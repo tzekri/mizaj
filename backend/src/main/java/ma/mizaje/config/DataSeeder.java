@@ -73,6 +73,7 @@ public class DataSeeder implements ApplicationRunner {
 		}
 		addMissingJuicePhotos();
 		hideRemovedFruits();
+		switchToSmoothieBases();
 		renameLegacyStaffEmails();
 		if (adminEmail.isBlank() || adminPassword.length() < 8) {
 			log.warn("ADMIN_EMAIL / ADMIN_PASSWORD (8 caractères min.) non renseignés : aucun compte administrateur créé.");
@@ -121,9 +122,46 @@ public class DataSeeder implements ApplicationRunner {
 		for (String code : REMOVED_FRUITS) {
 			juiceIngredients.findByCode(code).filter(JuiceIngredient::isAvailable).ifPresent(i -> {
 				i.update(i.getName(), i.getCategory(), i.getPrice(), i.getColor(), false);
-				log.info("Ingrédient retiré du composeur de jus : {}", i.getName());
+				log.info("Ingrédient retiré du composeur : {}", i.getName());
 			});
 		}
+	}
+
+	static final String SMOOTHIE_2026_11 = "juice.smoothie.2026-11";
+	/** Bases des smoothies : code, nom, supplément (DH), couleur. */
+	static final List<Object[]> SMOOTHIE_BASES = List.of(
+			new Object[] {"yaourt", "Yaourt nature", 0, "#f3ede2"},
+			new Object[] {"lait-amande", "Lait d'amande", 3, "#ead9bf"},
+			new Object[] {"orange", "Jus d'orange", 0, "#f7a21b"});
+
+	/**
+	 * Le composeur de jus devient « Compose ton smoothie » (novembre 2026) : trois bases (yaourt, lait d'amande, jus d'orange),
+	 * les autres bases sont masquées (pas supprimées, les anciennes commandes restent lisibles). Une seule fois : l'administrateur
+	 * peut ensuite tout modifier.
+	 */
+	void switchToSmoothieBases() {
+		if (settings.existsById(SMOOTHIE_2026_11)) {
+			return;
+		}
+		settings.save(new AppSetting(SMOOTHIE_2026_11, "done"));
+		List<String> codes = SMOOTHIE_BASES.stream().map(b -> (String) b[0]).toList();
+		for (int k = 0; k < SMOOTHIE_BASES.size(); k++) {
+			Object[] b = SMOOTHIE_BASES.get(k);
+			String code = (String) b[0];
+			JuiceIngredient base = juiceIngredients.findByCode(code).orElse(null);
+			if (base == null) {
+				juiceIngredients.save(new JuiceIngredient(code, (String) b[1], JuiceCategory.BASE, (Integer) b[2], (String) b[3], k));
+				log.info("Base de smoothie ajoutée : {}", b[1]);
+			} else {
+				base.update((String) b[1], JuiceCategory.BASE, base.getPrice(), base.getColor(), true);
+			}
+		}
+		juiceIngredients.findAll().stream()
+				.filter(i -> i.getCategory() == JuiceCategory.BASE && !codes.contains(i.getCode()) && i.isAvailable())
+				.forEach(i -> {
+					i.update(i.getName(), i.getCategory(), i.getPrice(), i.getColor(), false);
+					log.info("Base retirée (smoothies) : {}", i.getName());
+				});
 	}
 
 	static final String PLAN_PRICES_2026_10 = "plans.prices.2026-10";
@@ -204,6 +242,6 @@ public class DataSeeder implements ApplicationRunner {
 		for (Object[] i : all) {
 			juiceIngredients.save(new JuiceIngredient((String) i[0], (String) i[1], (JuiceCategory) i[2], (Integer) i[3], (String) i[4], order++));
 		}
-		log.info("Ingrédients du composeur de jus créés ({}).", all.length);
+		log.info("Ingrédients du composeur créés ({}).", all.length);
 	}
 }

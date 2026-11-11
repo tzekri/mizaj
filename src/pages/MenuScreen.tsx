@@ -12,7 +12,7 @@ const ITEMS_PER_PAGE = 6;
 
 type Slide = { category: MenuCategory; items: MenuItem[]; page: number; pages: number };
 
-/** Catégories choisies dans l'adresse (?categories=hot-coffee,jus) ; aucune : tout le menu. */
+/** Catégories choisies dans l'adresse (?categories=coffee,hot-coffee) ; aucune : tout le menu. */
 const chosen = () =>
   (new URLSearchParams(window.location.search).get('categories') ?? '')
     .split(',')
