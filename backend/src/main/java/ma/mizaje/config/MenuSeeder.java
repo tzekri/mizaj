@@ -55,6 +55,9 @@ public class MenuSeeder implements ApplicationRunner {
 			renameLegacyBrand();
 			updateFormerPrices();
 			applyMenuBoard();
+			applyColdBoard();
+			applyHotBoardPrices();
+			applyOwnPhotos();
 			return;
 		}
 		List<SeedCategory> seed;
@@ -78,6 +81,201 @@ public class MenuSeeder implements ApplicationRunner {
 		log.info("Menu de départ chargé : {} catégories, {} produits.", seed.size(), n);
 		settings.save(new AppSetting(PRICES_2026_10, "done")); // le menu de départ a déjà les nouveaux prix
 		applyMenuBoard();
+		applyColdBoard();
+		applyHotBoardPrices();
+		applyOwnPhotos();
+	}
+
+	/** Drapeau en base : une photo propre à chaque nouvelle boisson (novembre 2026), une seule fois. */
+	static final String OWN_PHOTOS_2026_11 = "menu.own-photos.2026-11";
+
+	/** Nouvelles boissons créées avec la photo d'une boisson proche : nom → {photo empruntée, photo à elle}. */
+	static final Map<String, String[]> OWN_PHOTOS = Map.ofEntries(
+			Map.entry("Double Espresso", new String[] {"1612183515105-8c737ba7585d", "1775134734575-58b2b65f1811"}),
+			Map.entry("Pistachio Latte", new String[] {"1763208387697-fe0a913bfed9", "1766426910014-63a302fa137e"}),
+			Map.entry("Chocolat chaud", new String[] {"1618576230663-9714aecfb99a", "1517578239113-b03992dcdd25"}),
+			Map.entry("Chocolat fondu", new String[] {"1618576230663-9714aecfb99a", "1542990253-0d0f5be5f0ed"}),
+			Map.entry("Ice Ubé Latte", new String[] {"1595977514600-72cbc8376c38", "1542518392-13317b1ee2a2"}),
+			Map.entry("Ice Ubé & Cerise", new String[] {"1595977514600-72cbc8376c38", "1676566352352-40a5e9ae5e9b"}),
+			Map.entry("Ice Strawberry Matcha", new String[] {"1717603545560-28f9da83ecc3", "1751033390130-cdc5a6082089"}),
+			Map.entry("Ice Mango Matcha", new String[] {"1717603545560-28f9da83ecc3", "1749104028327-a33087ea4f47"}),
+			Map.entry("Caramel Latte Frappé", new String[] {"1579888071069-c107a6f79d82", "1637178035575-b0dcbd28a09b"}),
+			Map.entry("Mocha Frappé", new String[] {"1577805947697-89e18249d767", "1696487773677-c0c8061fe3d2"}),
+			Map.entry("Pistachio Frappé", new String[] {"1568901839119-631418a3910d", "1555411093-41f7864ed3a2"}),
+			Map.entry("Caramel Milkshake", new String[] {"1568901839119-631418a3910d", "1553787499-6f9133860278"}),
+			Map.entry("Pina Colada", new String[] {"1613478223719-2ab802602423", "1607446045710-d5a8fd9bc1db"}),
+			Map.entry("Mango Pina Colada", new String[] {"1613478223719-2ab802602423", "1623065422902-30a2d299bbe4"}));
+
+	/** Chaque boisson a sa photo : seulement si elle a encore la photo empruntée (une photo choisie dans l'administration reste). */
+	void applyOwnPhotos() {
+		if (settings.existsById(OWN_PHOTOS_2026_11)) {
+			return;
+		}
+		settings.save(new AppSetting(OWN_PHOTOS_2026_11, "done"));
+		for (MenuItem i : items.findAll()) {
+			String[] p = OWN_PHOTOS.get(i.getName());
+			if (p != null && p[0].equals(i.getPhoto())) {
+				i.update(i.getName(), i.getDescription(), i.getPrice(), i.getIntensity(), i.getVolume(), p[1], i.isFeatured(), i.getTag(),
+						i.isAvailable());
+			}
+		}
+	}
+
+	/** Drapeau en base : prix du tableau des cafés chauds (novembre 2026), une seule fois. */
+	static final String HOT_PRICES_2026_11 = "menu.hot-prices.2026-11";
+
+	/** Prix du tableau des cafés chauds (un seul prix : Intenso ou petit format), par nom. */
+	static final Map<String, Integer> HOT_PRICES = Map.ofEntries(
+			Map.entry("Espresso", 7),
+			Map.entry("Americano", 8),
+			Map.entry("Double Espresso", 14),
+			Map.entry("Latte", 11),
+			Map.entry("Cappuccino", 11),
+			Map.entry("Cortado", 18),
+			Map.entry("Flat White", 20),
+			Map.entry("Mocha", 15),
+			Map.entry("Chocolat chaud", 12),
+			Map.entry("Chocolat fondu", 18),
+			Map.entry("Spanish Latte", 20),
+			Map.entry("Pistachio Latte", 24),
+			Map.entry("Matcha Latte", 28),
+			Map.entry("Ubé Latte", 30));
+
+	/** Cafés chauds aux prix du tableau (demandé par le gérant), une seule fois : un prix changé ensuite dans l'administration reste. */
+	void applyHotBoardPrices() {
+		if (settings.existsById(HOT_PRICES_2026_11)) {
+			return;
+		}
+		settings.save(new AppSetting(HOT_PRICES_2026_11, "done"));
+		for (MenuItem i : items.findAll()) {
+			Integer price = HOT_PRICES.get(i.getName());
+			if (price == null) {
+				continue;
+			}
+			i.update(i.getName(), i.getDescription(), price, i.getIntensity(), i.getVolume(), i.getPhoto(), i.isFeatured(), i.getTag(),
+					i.isAvailable());
+			i.setSecondPrice(null, null);
+			log.info("Prix de {} : {} DH", i.getName(), price);
+		}
+	}
+
+	/** Drapeau en base : boissons froides du 2e tableau (novembre 2026), une seule fois. */
+	static final String COLD_BOARD_2026_11 = "menu.cold-board.2026-11";
+
+	/**
+	 * Boisson froide du tableau. names : nom affiché puis anciens noms ; photo : identifiant Unsplash, ou nom d'un produit
+	 * dont reprendre la photo.
+	 */
+	record ColdItem(List<String> names, int price, String description, String photo) {
+		ColdItem(String name, int price) {
+			this(List.of(name), price, null, null);
+		}
+	}
+
+	/** Catégorie du tableau des boissons froides (créée si elle n'existe pas). */
+	record ColdCategory(String slug, String light, String bold, String arabic, MenuTone tone, String photo, List<ColdItem> items) {
+	}
+
+	static final List<ColdCategory> COLD_BOARD = List.of(
+			new ColdCategory("ice-coffee", "Ice", "Café", "قهوة مثلجة", MenuTone.DARK, "1592663527359-cf6642f54cff", List.of(
+					new ColdItem(List.of("Ice Americano", "Iced Americano"), 14, null, null),
+					new ColdItem(List.of("Ice Caramel Latte", "Iced Caramel Macchiato"), 22, "Espresso, lait froid et caramel beurre salé.", null),
+					new ColdItem(List.of("Ice Latte Signature", "Iced Latte"), 25, "Vanille & coco.", null),
+					new ColdItem(List.of("Ice Spanish Latte", "Iced Spanish Latte"), 24, null, null),
+					new ColdItem(List.of("Ice Mocha"), 24, "Espresso, chocolat et lait froid.", "Cold Brew"))),
+			new ColdCategory("ice-trendy", "Ice", "Trendy", "مشروبات عصرية", MenuTone.ACCENT, "1717603545560-28f9da83ecc3", List.of(
+					new ColdItem(List.of("Ice Ubé Latte"), 30, "Ubé (igname violette) et lait froid.", "Purple Kidima"),
+					new ColdItem(List.of("Ice Ubé & Cerise"), 35, "Ubé, coulis de cerise et lait froid.", "Purple Kidima"),
+					new ColdItem(List.of("Ice Matcha Latte", "Iced Matcha"), 30, null, null),
+					new ColdItem(List.of("Ice Strawberry Matcha"), 35, "Matcha, fraise écrasée et lait froid.", "Iced Matcha"),
+					new ColdItem(List.of("Ice Mango Matcha"), 35, "Matcha, purée de mangue et lait froid.", "Iced Matcha"))),
+			new ColdCategory("frappe", "Frappé", "by Kidima", "فرابيه", MenuTone.CREAM, "1579888071069-c107a6f79d82", List.of(
+					new ColdItem(List.of("Spanish Latte Frappé"), 24, "Café frappé au lait concentré, chantilly.", "Frappé Caramel"),
+					new ColdItem(List.of("Caramel Latte Frappé", "Frappé Caramel"), 24, null, null),
+					new ColdItem(List.of("Mocha Frappé"), 24, "Café frappé au chocolat, chantilly.", "Milkshake Chocolat"),
+					new ColdItem(List.of("Gourmet Belgium Chocolat"), 24, "Chocolat belge frappé, copeaux de chocolat.", "Milkshake Brownie"),
+					new ColdItem(List.of("Pistachio Frappé"), 30, "Frappé à la crème de pistache.", "Milkshake Vanille"))),
+			new ColdCategory("cocktail", "Fresh", "Cocktails", "كوكتيلات", MenuTone.ACCENT, "1654074517750-f854f7c27d62", List.of(
+					new ColdItem(List.of("Fresh"), 20, "Menthe, citron et sprite.", "Citronnade Menthe"),
+					new ColdItem(List.of("Mojito Virgin", "Virgin Mojito"), 19, null, null),
+					new ColdItem(List.of("Mojito Fruités"), 24, "Au choix : fraise, fruits rouges, passion…", "Red Berries"),
+					new ColdItem(List.of("Coco Passion"), 24, "Coco et fruit de la passion.", "Jus d’orange pressé"),
+					new ColdItem(List.of("Pina Colada"), 24, "Ananas et coco.", "Jus d’orange pressé"),
+					new ColdItem(List.of("Mango Pina Colada"), 28, "Mangue, ananas et coco.", "Jus d’orange pressé"),
+					new ColdItem(List.of("Ice Tea", "Ice Tea Pêche"), 24, "Au choix : pêche, citron, fruits rouges.", null))),
+			new ColdCategory("milkshake", "Fresh", "Milkshake", "ميلك شيك", MenuTone.CREAM, "1577805947697-89e18249d767", List.of(
+					new ColdItem(List.of("Vanille Milkshake", "Milkshake Vanille"), 25, null, null),
+					new ColdItem(List.of("Caramel Milkshake"), 25, "Glace vanille, lait et caramel.", "Milkshake Vanille"),
+					new ColdItem(List.of("Chocolat Milkshake", "Milkshake Chocolat"), 25, null, null),
+					new ColdItem(List.of("Fraise Milkshake", "Milkshake Fraise"), 25, null, null))));
+
+	/**
+	 * Boissons froides du 2e tableau : catégories Ice Café, Ice Trendy, Frappé, Cocktails, Milkshake affichées, dans cet ordre
+	 * après les cafés chauds. Les produits déjà en base (masqués) sont réactivés, renommés et prennent le prix du tableau ;
+	 * les autres sont créés. Les produits froids hors tableau restent masqués. Une seule fois.
+	 */
+	void applyColdBoard() {
+		if (settings.existsById(COLD_BOARD_2026_11)) {
+			return;
+		}
+		settings.save(new AppSetting(COLD_BOARD_2026_11, "done"));
+		List<MenuCategory> allCategories = new java.util.ArrayList<>(categories.findAllByOrderBySortOrderAscIdAsc());
+		List<MenuItem> all = new java.util.ArrayList<>(items.findAll());
+		// Photos d'origine, relevées avant les renommages
+		Map<String, String> photos = new java.util.HashMap<>();
+		all.forEach(i -> photos.putIfAbsent(i.getName(), i.getPhoto()));
+		// Après les cafés chauds visibles
+		int order = (int) allCategories.stream().filter(MenuCategory::isVisible).count();
+		java.util.Set<MenuItem> kept = new java.util.HashSet<>();
+		java.util.Set<MenuCategory> coldCategories = new java.util.HashSet<>();
+		for (ColdCategory cc : COLD_BOARD) {
+			MenuCategory c = allCategories.stream().filter(x -> x.getSlug().equals(cc.slug())).findFirst().orElse(null);
+			if (c == null) {
+				c = new MenuCategory(cc.slug(), order);
+				c.update(cc.light(), cc.bold(), cc.arabic(), cc.tone(), cc.photo(), true);
+				c = categories.save(c);
+				allCategories.add(c);
+			}
+			c.update(cc.light(), cc.bold(), cc.arabic(), cc.tone(), c.getPhoto(), true);
+			c.setSortOrder(order++);
+			coldCategories.add(c);
+			for (int k = 0; k < cc.items().size(); k++) {
+				ColdItem ci = cc.items().get(k);
+				MenuItem item = all.stream().filter(i -> ci.names().contains(i.getName())).findFirst().orElse(null);
+				String photo = item != null ? item.getPhoto()
+						: ci.photo() == null ? cc.photo() : photos.getOrDefault(ci.photo(), ci.photo().matches("[0-9a-f-]{10,}") ? ci.photo() : cc.photo());
+				// Un produit encore proposé garde son prix ; un produit masqué ou nouveau prend le prix du tableau
+				int price = item != null && item.isAvailable() ? item.getPrice() : ci.price();
+				String description = ci.description() != null ? ci.description() : item == null ? null : item.getDescription();
+				if (item == null) {
+					item = new MenuItem(c, k);
+					item.update(ci.names().get(0), description, price, null, null, photo, false, null, true);
+					items.save(item);
+					all.add(item);
+					log.info("Menu : {} ajouté ({} DH)", ci.names().get(0), ci.price());
+				}
+				item.update(ci.names().get(0), description, price, null, item.getVolume(), photo, item.isFeatured(), item.getTag(), true);
+				item.setCategory(c);
+				item.setSortOrder(k);
+				kept.add(item);
+			}
+		}
+		// Dans ces catégories, ce qui n'est pas sur le tableau reste masqué
+		for (MenuItem i : all) {
+			if (!kept.contains(i) && coldCategories.contains(i.getCategory()) && i.isAvailable()) {
+				i.update(i.getName(), i.getDescription(), i.getPrice(), i.getIntensity(), i.getVolume(), i.getPhoto(), i.isFeatured(), i.getTag(),
+						false);
+			}
+		}
+		// Un seul prix affiché (Intenso / petit format) : la mention du second prix est retirée des descriptions
+		description(all, "Double Espresso", "Double dose de notre assemblage signature.");
+		description(all, "Chocolat chaud", "Chocolat chaud onctueux au lait.");
+		log.info("Boissons froides du tableau : {} produits dans {} catégories.", kept.size(), COLD_BOARD.size());
+	}
+
+	private static void description(List<MenuItem> all, String name, String description) {
+		all.stream().filter(i -> i.getName().equals(name)).findFirst().ifPresent(i -> i.update(i.getName(), description, i.getPrice(),
+				i.getIntensity(), i.getVolume(), i.getPhoto(), i.isFeatured(), i.getTag(), i.isAvailable()));
 	}
 
 	/** Drapeau en base : menu ramené aux boissons du tableau (novembre 2026), une seule fois. */

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { api, type MenuCategory, type MenuItem } from '../api';
 import { BRAND } from '../config';
-import { menuPhoto } from '../menu';
+import { menuPhoto, priceText } from '../menu';
 
 /** Durée d'affichage d'une page du menu. */
 const SLIDE_MS = 12_000;
@@ -88,7 +88,7 @@ export default function MenuScreen() {
                       {i.tag && <em>{i.tag}</em>}
                     </span>
                     <span className="mscreen__dots" aria-hidden />
-                    <span className="mscreen__price">{i.price} DH</span>
+                    <span className="mscreen__price">{priceText(i)}</span>
                   </div>
                   {(i.description || i.volume) && (
                     <p className="mscreen__desc">{[i.description, i.volume].filter(Boolean).join(' · ')}</p>

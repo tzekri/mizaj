@@ -18,6 +18,8 @@ const emptyItem = (categoryId: number): MenuItemInput => ({
   name: '',
   description: '',
   price: 20,
+  price2: null,
+  priceLabels: '',
   volume: '',
   photo: '',
   featured: false,
@@ -148,7 +150,7 @@ function MenuEditor() {
     }
   }
 
-  const itemInput = (i: MenuItem): MenuItemInput => ({ ...i, description: i.description ?? '', volume: i.volume ?? '', tag: i.tag ?? '' });
+  const itemInput = (i: MenuItem): MenuItemInput => ({ ...i, description: i.description ?? '', volume: i.volume ?? '', tag: i.tag ?? '', priceLabels: i.priceLabels ?? '' });
 
   function savePrice(i: MenuItem, price: number) {
     if (Number.isFinite(price) && price >= 0 && price !== i.price) run(() => api.saveMenuItem({ ...itemInput(i), price }, i.id));
@@ -188,7 +190,7 @@ function MenuEditor() {
       <h2>Menu du coffee shop</h2>
       <p className="dash-note">
         Modifiez un prix directement dans le tableau (validé en quittant la case ou avec Entrée). Les changements sont visibles tout de suite sur le site,
-        et en moins d’une minute sur l’<a href="/menu/ecran" target="_blank" rel="noreferrer">écran menu (TV)</a>.
+        et en moins d’une minute sur les écrans TV : <a href="/menu/tableau" target="_blank" rel="noreferrer">tableau menu</a> (<a href="/menu/tableau?tableau=chauds" target="_blank" rel="noreferrer">cafés chauds</a> · <a href="/menu/tableau?tableau=frais" target="_blank" rel="noreferrer">boissons fraîches</a>) et <a href="/menu/ecran" target="_blank" rel="noreferrer">écran menu</a>. Un 2e prix (S/L, Intenso/Dolce crema) s’affiche à côté du premier.
       </p>
       {error && !editing && <p className="form-error">{error}</p>}
       {menu.map((c, ci) => (
@@ -284,6 +286,17 @@ function ItemFields({ value: f, categories, isNew, onChange }: {
       <h3 className="form__full">{isNew ? 'Nouveau produit' : `Modifier « ${f.name} »`}</h3>
       <label>Nom<input value={f.name} required maxLength={60} onChange={(e) => onChange({ ...f, name: e.target.value })} /></label>
       <label>Prix (DH)<input type="number" min={0} max={5000} value={f.price} required onChange={(e) => onChange({ ...f, price: Number(e.target.value) })} /></label>
+      <label>
+        2e prix (facultatif : grand format, autre variante)
+        <input type="number" min={0} max={5000} value={f.price2 ?? ''}
+          onChange={(e) => onChange({ ...f, price2: e.target.value === '' ? null : Number(e.target.value), priceLabels: e.target.value === '' ? '' : f.priceLabels || 'S|L' })} />
+      </label>
+      {f.price2 != null && (
+        <label>
+          Noms des deux prix (ex. S|L, Intenso|Dolce crema)
+          <input value={f.priceLabels ?? ''} maxLength={40} pattern="[^|]{1,20}\|[^|]{1,20}" onChange={(e) => onChange({ ...f, priceLabels: e.target.value })} />
+        </label>
+      )}
       <label className="form__full">
         Description
         <input value={f.description ?? ''} maxLength={200} onChange={(e) => onChange({ ...f, description: e.target.value })} />

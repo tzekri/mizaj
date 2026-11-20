@@ -3,10 +3,11 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { ApiError, api, customerToken, type OtpStart, type Plan } from '../api';
 import { BRAND, PHOTOS, img } from '../config';
 import { PageHero } from '../components/Layout';
+import { useMenu } from '../menu';
 import { Whatsapp } from '../components/Icons';
 
-/** Prix de référence d'une boisson à l'unité, pour afficher l'économie. */
-const UNIT_PRICE: Record<string, number> = { espresso: 8, 'boisson au lait': 15 };
+/** Boisson du menu servant de prix de référence à l'unité, pour afficher l'économie (prix le plus bas : petit format). */
+const REFERENCE: Record<string, string> = { espresso: 'Espresso', 'boisson au lait': 'Cappuccino' };
 
 const STEPS = [
   { n: '01', title: 'Choisissez', text: 'Sélectionnez votre formule et saisissez votre numéro : votre carte QR est créée dans votre téléphone.' },
@@ -18,6 +19,7 @@ const STEPS = [
 const fmtUnit = (p: Plan) => (p.price / p.drinks).toFixed(p.price % p.drinks ? 1 : 0).replace('.', ',');
 
 export default function Subscribe() {
+  const { menu } = useMenu();
   const [plans, setPlans] = useState<Plan[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [params, setParams] = useSearchParams();
@@ -46,7 +48,7 @@ export default function Subscribe() {
           {error && <p className="form-error">{error}</p>}
           {!plans && !error && <p className="empty">Chargement des formules…</p>}
           {plans?.map((p) => {
-            const ref = UNIT_PRICE[p.unit];
+            const ref = menu?.flatMap((c) => c.items).find((i) => i.name === REFERENCE[p.unit])?.price;
             const saving = ref ? p.drinks * ref - p.price : 0;
             return (
               <button

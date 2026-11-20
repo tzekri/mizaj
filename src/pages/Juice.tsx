@@ -20,6 +20,20 @@ const IDEAS: { name: string; size: JuiceSize; codes: string[] }[] = [
   { name: 'Douceur tropicale', size: 'S50', codes: ['lait-amande', 'mangue', 'banane'] },
   { name: 'Avocat royal', size: 'S50', codes: ['yaourt', 'avocat', 'amandes', 'miel'] },
   { name: 'Fraîcheur menthe', size: 'S33', codes: ['yaourt', 'fraise', 'menthe'] },
+  // Smoothies célèbres
+  { name: 'Fraise-Banane', size: 'S33', codes: ['yaourt', 'fraise', 'banane', 'miel'] },
+  { name: 'Lassi Mangue', size: 'S33', codes: ['yaourt', 'mangue', 'miel', 'fleur-oranger'] },
+  { name: 'Panaché marocain', size: 'S50', codes: ['lait-amande', 'avocat', 'banane', 'amandes', 'fleur-oranger'] },
+  { name: 'Berry Blast', size: 'S33', codes: ['yaourt', 'fruits-rouges', 'banane', 'miel'] },
+  { name: 'Green Détox', size: 'S33', codes: ['lait-amande', 'kiwi', 'avocat', 'menthe', 'citron-vert'] },
+  { name: 'Sunrise Tropical', size: 'S33', codes: ['orange', 'mangue', 'fraise'] },
+  { name: 'Vitamine C', size: 'S33', codes: ['orange', 'kiwi', 'fraise', 'gingembre'] },
+  { name: 'Dattes & Amandes', size: 'S50', codes: ['lait-amande', 'dattes', 'banane', 'amandes', 'miel'] },
+  { name: 'Choco-Banane', size: 'S33', codes: ['lait-amande', 'banane', 'cacao', 'miel'] },
+  { name: 'Peanut Butter Banana', size: 'S50', codes: ['lait-amande', 'banane', 'beurre-cacahuete', 'miel'] },
+  { name: 'Petit-déj’ Avoine', size: 'S50', codes: ['yaourt', 'banane', 'fruits-rouges', 'avoine', 'miel'] },
+  // Pas « Piña Colada » : c'est un cocktail du menu, à un autre prix
+  { name: 'Tropical Ananas', size: 'S33', codes: ['lait-amande', 'ananas', 'banane', 'citron-vert'] },
 ];
 
 const STEP: Record<JuiceCategory, { n: string; title: string; hint: (max: number) => string }> = {

@@ -240,6 +240,9 @@ export type MenuItem = {
   featured: boolean;
   tag?: string;
   available: boolean;
+  /** Second prix (grand format, autre variante) ; priceLabels : noms des deux prix, « S|L ». */
+  price2?: number | null;
+  priceLabels?: string | null;
 };
 export type MenuCategory = {
   id: number;

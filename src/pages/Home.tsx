@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api, type JuiceIngredient, type Plan } from '../api';
 import { BRAND, FRANCHISE_ENABLED, PHOTOS, SHOPS, img } from '../config';
-import { menuPhoto, useMenu } from '../menu';
+import { menuPhoto, priceText, useMenu } from '../menu';
 import { Header } from '../components/Layout';
 import { Arrow, Clock, Pin } from '../components/Icons';
 import { IngredientThumb, JuiceGlass } from '../components/juice';
@@ -157,7 +157,7 @@ function Products() {
               <div className="product__img">
                 <img src={menuPhoto(p.photo, 600)} alt={p.name} loading="lazy" />
                 {p.tag && <span className="product__tag">{p.tag}</span>}
-                <span className="product__price">{p.price} DH</span>
+                <span className="product__price">{priceText(p)}</span>
               </div>
               <h3>{p.name}</h3>
               {p.description && <p>{p.description}</p>}

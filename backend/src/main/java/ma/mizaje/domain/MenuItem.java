@@ -31,6 +31,13 @@ public class MenuItem {
 	@Column(nullable = false)
 	private int price;
 
+	/** Second prix (grand format, autre variante) ; null : un seul prix. */
+	private Integer price2;
+
+	/** Noms des deux prix, séparés par « | » (ex. « S|L », « Intenso|Dolce crema ») ; null : sans nom. */
+	@Column(length = 40)
+	private String priceLabels;
+
 	/** Intensité de 1 à 5 (cafés) ; null : non affichée. */
 	private Integer intensity;
 
@@ -78,12 +85,20 @@ public class MenuItem {
 		this.available = available;
 	}
 
+	/** Second prix et noms des deux prix (« S|L ») ; price2 null : un seul prix. */
+	public void setSecondPrice(Integer price2, String priceLabels) {
+		this.price2 = price2;
+		this.priceLabels = price2 == null ? null : priceLabels;
+	}
+
 	public Long getId() { return id; }
 	public MenuCategory getCategory() { return category; }
 	public void setCategory(MenuCategory category) { this.category = category; }
 	public String getName() { return name; }
 	public String getDescription() { return description; }
 	public int getPrice() { return price; }
+	public Integer getPrice2() { return price2; }
+	public String getPriceLabels() { return priceLabels; }
 	public Integer getIntensity() { return intensity; }
 	public String getVolume() { return volume; }
 	public String getPhoto() { return photo; }

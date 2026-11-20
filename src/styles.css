@@ -1141,3 +1141,52 @@ h1, h2, h3 { line-height: 1.15; margin: 0 0 0.5em; }
   .mscreen__slide { grid-template-columns: 1fr; align-content: start; }
   .mscreen__photo { height: 28vh; }
 }
+
+/* ---------- Tableau menu (TV) : fond beige, bleu foncé et or ---------- */
+.board { position: fixed; inset: 0; overflow: hidden; display: flex; flex-direction: column; padding: 3.5vh 3vw 3vh; color: var(--accent);
+  background: radial-gradient(50vw 40vh at 50% 0%, rgba(255, 255, 255, 0.7), transparent 70%), linear-gradient(180deg, #f7efe2, #ecdfc9); }
+.board::before { content: ''; position: absolute; inset: 1.6vh 1.2vw; border: 0.35vh solid var(--copper); border-radius: 1vh; pointer-events: none; }
+.board::after { content: ''; position: absolute; inset: auto 0 0 0; height: 0.6vh; background: var(--brand-line); }
+.board__head { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; height: 13vh; flex: none; }
+.board__brand { grid-column: 2; display: flex; align-items: center; gap: 1.4vw; }
+.board__brand img { height: 11vh; filter: drop-shadow(0 1vh 2vh rgba(11, 37, 69, 0.25)); }
+.board__name { margin: 0; font-size: 6vh; font-weight: 900; letter-spacing: 0.08em; line-height: 1; color: var(--accent); }
+.board__name span { font-family: var(--arabic); font-weight: 400; letter-spacing: 0; margin-left: 0.4em; color: var(--gold-dark); }
+.board__sub { margin: 0.8vh 0 0; font-size: 1.8vh; font-weight: 700; letter-spacing: 0.35em; color: var(--gold-dark); }
+.board__sub span { font-family: var(--arabic); letter-spacing: 0; }
+.board__slogan { grid-column: 3; justify-self: end; margin: 0 2vw 0 0; position: relative; font-family: var(--arabic); font-size: 4.6vh; color: var(--gold-dark); }
+.board__slogan svg { display: block; width: 100%; height: 2vh; }
+.board__slogan path { fill: none; stroke: var(--copper); stroke-width: 3; stroke-linecap: round; }
+.board__empty { margin: auto; font-size: 3vh; color: var(--muted); }
+
+/* Pastilles de prix */
+.board-price { display: inline-flex; flex-direction: column; align-items: center; gap: 0.3vh; flex: none; }
+.board-price__pill { display: inline-flex; align-items: baseline; border-radius: 999px; padding: 0.35vh 0.6vh; background: var(--accent); color: var(--accent-on-dark); }
+.board-price__pill b { padding: 0 0.8vh; font-size: 2.4vh; font-weight: 900; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.board-price__pill b + b { border-left: 0.25vh solid rgba(242, 193, 78, 0.4); }
+.board-price__pill small { margin-left: 0.25em; font-size: 0.55em; font-weight: 800; }
+.board-price__labels { display: flex; gap: 1.6vh; font-size: 1.25vh; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.board-price__labels i { font-style: normal; }
+
+/* Cafés chauds : vignettes sur deux rangées */
+.board__cards { flex: 1; min-height: 0; display: grid; grid-template-rows: 1fr 1fr; gap: 2.5vh 1.2vw; padding: 2vh 1vw 2vh; align-items: end; animation: ad-in 0.7s ease-out; }
+.board-card { display: flex; flex-direction: column; align-items: center; gap: 0.9vh; text-align: center; min-width: 0; }
+.board-card img { width: 100%; max-width: 19vh; aspect-ratio: 1; object-fit: cover; border-radius: 50%; border: 0.4vh solid var(--copper); box-shadow: 0 1.5vh 3vh rgba(11, 37, 69, 0.22); }
+.board-card h2 { margin: 0.4vh 0 0; font-size: 2.2vh; font-weight: 800; text-transform: uppercase; line-height: 1.1; min-height: 2.2em; display: flex; align-items: center; }
+
+/* Boissons fraîches : une colonne par catégorie */
+.board__sections { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(6, 1fr); grid-auto-rows: minmax(0, 1fr); gap: 3vh 2vw; padding: 1.5vh 1vw 1.5vh; animation: ad-in 0.7s ease-out; }
+.board-sec { grid-column: span 2; min-height: 0; display: flex; flex-direction: column; }
+.board__sections--5 > :nth-child(n + 4) { grid-column: span 3; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto 1fr; column-gap: 1.5vw; }
+.board__sections--5 > :nth-child(n + 4) h2 { grid-column: 1 / -1; }
+.board__sections--5 > :nth-child(n + 4) .board-sec__photos { align-self: center; margin: 0; flex-wrap: wrap; justify-content: center; }
+.board-sec h2 { display: flex; align-items: center; gap: 1vw; margin: 0 0 1.2vh; font-size: 3.1vh; font-weight: 900; text-transform: uppercase; letter-spacing: 0.04em; color: var(--gold-dark); }
+.board-sec h2::after { content: ''; flex: 1; height: 0.3vh; border-radius: 1vh; background: var(--copper); opacity: 0.8; }
+.board-sec ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.7vh; align-content: start; }
+.board-sec li { display: flex; align-items: center; justify-content: space-between; gap: 1vw; font-size: 2.1vh; font-weight: 600; line-height: 1.2; }
+.board-sec__name small { display: block; font-size: 1.3vh; font-weight: 400; color: var(--muted); }
+.board-sec .board-price__pill b { font-size: 2vh; }
+.board-sec__photos { display: flex; gap: 0.6vw; margin-top: auto; padding-top: 1.4vh; min-height: 0; }
+.board-sec__photos img { flex: 1 1 0; min-width: 0; max-width: 8vw; height: 9.5vh; object-fit: cover; border-radius: 1.2vh; border: 0.25vh solid var(--copper); box-shadow: 0 1vh 2vh rgba(11, 37, 69, 0.2); }
+.board__sections--5 > :nth-child(n + 4) .board-sec__photos img { flex: 0 0 calc(33% - 0.6vw); max-width: none; height: 12vh; }
+.board .tv__fullscreen { color: var(--accent); border-color: rgba(11, 37, 69, 0.3); }

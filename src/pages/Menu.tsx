@@ -64,7 +64,6 @@ export default function Menu() {
             </div>
           </>
         )}
-        <p className="menu-note">Lait végétal (avoine, amande) : +4 DH · Shot supplémentaire : +5 DH · Prix TTC.</p>
       </section>
     </>
   );

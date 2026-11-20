@@ -132,6 +132,7 @@ public class MenuService {
 	private static void apply(MenuItem item, ItemRequest req) {
 		item.update(req.name().trim(), blankToNull(req.description()), req.price(), req.intensity(), blankToNull(req.volume()),
 				req.photo().trim(), req.featured(), blankToNull(req.tag()), req.available());
+		item.setSecondPrice(req.price2(), blankToNull(req.priceLabels()));
 	}
 
 	private MenuItem item(long id) {

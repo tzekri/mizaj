@@ -21,12 +21,14 @@ public final class MenuDtos {
 	private MenuDtos() {
 	}
 
+	/** price2 / priceLabels : second prix facultatif et noms des deux prix (« S|L »). */
 	public record MenuItemView(long id, long categoryId, String name, String description, int price, Integer intensity,
-			String volume, String photo, boolean featured, String tag, boolean available) {
+			String volume, String photo, boolean featured, String tag, boolean available, Integer price2, String priceLabels) {
 
 		public static MenuItemView of(MenuItem i) {
 			return new MenuItemView(i.getId(), i.getCategory().getId(), i.getName(), i.getDescription(), i.getPrice(),
-					i.getIntensity(), i.getVolume(), i.getPhoto(), i.isFeatured(), i.getTag(), i.isAvailable());
+					i.getIntensity(), i.getVolume(), i.getPhoto(), i.isFeatured(), i.getTag(), i.isAvailable(), i.getPrice2(),
+					i.getPriceLabels());
 		}
 	}
 
@@ -58,7 +60,9 @@ public final class MenuDtos {
 			@NotBlank @Size(max = 300) @Pattern(regexp = PHOTO, message = PHOTO_MESSAGE) String photo,
 			boolean featured,
 			@Size(max = 30) String tag,
-			boolean available) {
+			boolean available,
+			@Min(0) @Max(5000) Integer price2,
+			@Size(max = 40) @Pattern(regexp = "(|[^|]{1,20}\\|[^|]{1,20})", message = "Noms des deux prix : par exemple « S|L ».") String priceLabels) {
 	}
 
 	/** direction : « up » (remonter) ou « down » (descendre). */

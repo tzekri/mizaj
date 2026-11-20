@@ -74,6 +74,7 @@ public class DataSeeder implements ApplicationRunner {
 		addMissingJuicePhotos();
 		hideRemovedFruits();
 		switchToSmoothieBases();
+		addSmoothieIngredients();
 		renameLegacyStaffEmails();
 		if (adminEmail.isBlank() || adminPassword.length() < 8) {
 			log.warn("ADMIN_EMAIL / ADMIN_PASSWORD (8 caractères min.) non renseignés : aucun compte administrateur créé.");
@@ -162,6 +163,38 @@ public class DataSeeder implements ApplicationRunner {
 					i.update(i.getName(), i.getCategory(), i.getPrice(), i.getColor(), false);
 					log.info("Base retirée (smoothies) : {}", i.getName());
 				});
+	}
+
+	static final String SMOOTHIE_EXTRAS_2026_11 = "juice.smoothie-extras.2026-11";
+	/** Ingrédients des smoothies célèbres : code, nom, type, supplément (DH), couleur. */
+	static final List<Object[]> SMOOTHIE_EXTRAS = List.of(
+			new Object[] {"dattes", "Dattes", JuiceCategory.FRUIT, 4, "#7b4a2a"},
+			new Object[] {"ananas", "Ananas", JuiceCategory.FRUIT, 4, "#f4c542"},
+			new Object[] {"cacao", "Cacao", JuiceCategory.EXTRA, 2, "#4a2c1d"},
+			new Object[] {"beurre-cacahuete", "Beurre de cacahuète", JuiceCategory.EXTRA, 4, "#c58b4c"},
+			new Object[] {"avoine", "Flocons d'avoine", JuiceCategory.EXTRA, 2, "#e4d3a8"});
+
+	/**
+	 * Ingrédients des smoothies célèbres (dattes, cacao, beurre de cacahuète, avoine) ; l'ananas, ancienne base, devient un fruit.
+	 * Une seule fois : l'administrateur peut ensuite les masquer ou changer leur prix.
+	 */
+	void addSmoothieIngredients() {
+		if (settings.existsById(SMOOTHIE_EXTRAS_2026_11)) {
+			return;
+		}
+		settings.save(new AppSetting(SMOOTHIE_EXTRAS_2026_11, "done"));
+		int order = 100;
+		for (Object[] e : SMOOTHIE_EXTRAS) {
+			String code = (String) e[0];
+			JuiceCategory category = (JuiceCategory) e[2];
+			JuiceIngredient existing = juiceIngredients.findByCode(code).orElse(null);
+			if (existing == null) {
+				juiceIngredients.save(new JuiceIngredient(code, (String) e[1], category, (Integer) e[3], (String) e[4], order++));
+				log.info("Ingrédient de smoothie ajouté : {}", e[1]);
+			} else {
+				existing.update(existing.getName(), category, existing.getPrice(), existing.getColor(), true);
+			}
+		}
 	}
 
 	static final String PLAN_PRICES_2026_10 = "plans.prices.2026-10";

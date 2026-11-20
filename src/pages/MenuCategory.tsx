@@ -1,6 +1,6 @@
 import { Link, Navigate, NavLink, useParams } from 'react-router-dom';
 import type { MenuItem } from '../api';
-import { menuPhoto, useMenu } from '../menu';
+import { menuPhoto, prices, priceText, useMenu } from '../menu';
 import { Header, PageHero } from '../components/Layout';
 import { Cup, Arrow } from '../components/Icons';
 
@@ -10,11 +10,14 @@ export function ItemCard({ item }: { item: MenuItem }) {
       <div className="item-card__img">
         <img src={menuPhoto(item.photo, 700)} alt={item.name} loading="lazy" />
         {item.tag && <span className="product__tag">{item.tag}</span>}
-        <span className="item-card__price">{item.price} DH</span>
+        <span className="item-card__price">{priceText(item)}</span>
       </div>
       <div className="item-card__body">
         <h3>{item.name}</h3>
         {item.description && <p>{item.description}</p>}
+        {item.price2 != null && item.priceLabels && (
+          <p className="item-card__prices">{prices(item).map((p) => `${p.label} ${p.price} DH`).join(' · ')}</p>
+        )}
         {(item.intensity || item.volume) && (
           <div className="item-card__meta">
             {item.intensity ? (

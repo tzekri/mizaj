@@ -61,4 +61,23 @@ class DataSeederTest {
 		assertFalse(carotte.isAvailable()); // ancienne base masquée
 		assertTrue(fraise.isAvailable()); // les fruits restent
 	}
+
+	@Test
+	void famousSmoothiesIngredientsAreAddedAndPineappleBecomesAFruit() {
+		JuiceIngredientRepository ingredients = mock(JuiceIngredientRepository.class);
+		JuiceIngredient ananas = new JuiceIngredient("ananas", "Ananas", JuiceCategory.BASE, 4, "#f4c542", 3);
+		ananas.update("Ananas", JuiceCategory.BASE, 4, "#f4c542", false); // base masquée par le passage aux smoothies
+		when(ingredients.findByCode(any())).thenReturn(Optional.empty());
+		when(ingredients.findByCode("ananas")).thenReturn(Optional.of(ananas));
+		List<JuiceIngredient> created = new ArrayList<>();
+		when(ingredients.save(any(JuiceIngredient.class))).thenAnswer(i -> {
+			created.add(i.getArgument(0));
+			return i.getArgument(0);
+		});
+		new DataSeeder(mock(StaffUserRepository.class), mock(PlanRepository.class), ingredients, mock(PasswordEncoder.class),
+				mock(AppSettingRepository.class), "admin@kidima.ma", "x", false).addSmoothieIngredients();
+		assertEquals(List.of("Dattes", "Cacao", "Beurre de cacahuète", "Flocons d'avoine"), created.stream().map(JuiceIngredient::getName).toList());
+		assertEquals(JuiceCategory.FRUIT, ananas.getCategory());
+		assertTrue(ananas.isAvailable());
+	}
 }
