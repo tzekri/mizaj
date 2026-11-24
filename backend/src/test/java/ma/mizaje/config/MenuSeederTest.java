@@ -193,4 +193,18 @@ class MenuSeederTest {
 		assertEquals("1517578239113-b03992dcdd25", chocolat.getPhoto());
 		assertEquals("https://exemple.ma/fondu.jpg", fondu.getPhoto());
 	}
+
+	@Test
+	void coldDrinksStillOfferedAtTheirOldPriceTakeTheBoardPrice() {
+		MenuItemRepository items = mock(MenuItemRepository.class);
+		MenuCategory ice = category("ice-coffee", 2);
+		MenuItem signature = item(ice, "Ice Latte Signature", null, 14); // resté proposé en ligne à son ancien prix
+		MenuItem spanish = item(ice, "Ice Spanish Latte", null, 22);
+		MenuItem espresso = item(ice, "Espresso", null, 7);
+		when(items.findAll()).thenReturn(List.of(signature, spanish, espresso));
+		new MenuSeeder(mock(MenuCategoryRepository.class), items, new ObjectMapper(), mock(AppSettingRepository.class)).applyColdBoardPrices();
+		assertEquals(25, signature.getPrice());
+		assertEquals(24, spanish.getPrice());
+		assertEquals(7, espresso.getPrice());
+	}
 }

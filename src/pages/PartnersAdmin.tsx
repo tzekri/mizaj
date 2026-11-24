@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState, type ChangeEvent, type FormEvent } fr
 import { ApiError, api, type Partner, type PartnerInput } from '../api';
 import { SHOPS } from '../config';
 import AdSlide from '../components/AdSlide';
+import { shrink } from '../images';
 
 const EMPTY: PartnerInput = { name: '', offer: '', details: '', shops: [], startsOn: null, endsOn: null, active: true };
 
@@ -31,24 +32,6 @@ const toInput = (p: Partner): PartnerInput => ({
   endsOn: p.endsOn ?? null,
   active: p.active,
 });
-
-/** Réduit la photo (1600 px de large au plus, JPEG) : légère pour la base de données et rapide à afficher sur la TV. */
-function shrink(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => {
-      const scale = Math.min(1, 1600 / img.width);
-      const canvas = document.createElement('canvas');
-      canvas.width = Math.round(img.width * scale);
-      canvas.height = Math.round(img.height * scale);
-      canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height);
-      URL.revokeObjectURL(img.src);
-      resolve(canvas.toDataURL('image/jpeg', 0.85));
-    };
-    img.onerror = () => reject(new Error('Image illisible : choisissez une photo JPEG, PNG ou WebP.'));
-    img.src = URL.createObjectURL(file);
-  });
-}
 
 /** Onglet « Partenaires » : pubs des commerces partenaires diffusées sur l'écran géant entre deux parties du défi. */
 export default function PartnersAdmin() {

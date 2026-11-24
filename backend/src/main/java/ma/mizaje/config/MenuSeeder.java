@@ -58,6 +58,7 @@ public class MenuSeeder implements ApplicationRunner {
 			applyColdBoard();
 			applyHotBoardPrices();
 			applyOwnPhotos();
+			applyColdBoardPrices();
 			return;
 		}
 		List<SeedCategory> seed;
@@ -84,6 +85,32 @@ public class MenuSeeder implements ApplicationRunner {
 		applyColdBoard();
 		applyHotBoardPrices();
 		applyOwnPhotos();
+		applyColdBoardPrices();
+	}
+
+	/** Drapeau en base : prix du tableau imposés aux boissons froides (novembre 2026), une seule fois. */
+	static final String COLD_PRICES_2026_11 = "menu.cold-prices.2026-11";
+
+	/**
+	 * Boissons froides aux prix du tableau, même celles qui étaient encore proposées à leur ancien prix (le gérant veut les mêmes
+	 * prix partout). Une seule fois : un prix changé ensuite dans l'administration reste.
+	 */
+	void applyColdBoardPrices() {
+		if (settings.existsById(COLD_PRICES_2026_11)) {
+			return;
+		}
+		settings.save(new AppSetting(COLD_PRICES_2026_11, "done"));
+		Map<String, Integer> prices = new java.util.HashMap<>();
+		COLD_BOARD.forEach(c -> c.items().forEach(ci -> prices.put(ci.names().get(0), ci.price())));
+		for (MenuItem i : items.findAll()) {
+			Integer price = prices.get(i.getName());
+			if (price != null && price != i.getPrice()) {
+				log.info("Prix de {} : {} → {} DH", i.getName(), i.getPrice(), price);
+				i.update(i.getName(), i.getDescription(), price, i.getIntensity(), i.getVolume(), i.getPhoto(), i.isFeatured(), i.getTag(),
+						i.isAvailable());
+				i.setSecondPrice(null, null);
+			}
+		}
 	}
 
 	/** Drapeau en base : une photo propre à chaque nouvelle boisson (novembre 2026), une seule fois. */

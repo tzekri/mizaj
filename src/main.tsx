@@ -8,6 +8,7 @@ import Menu from './pages/Menu';
 import MenuCategory from './pages/MenuCategory';
 import MenuScreen from './pages/MenuScreen';
 import MenuBoard from './pages/MenuBoard';
+import WeeklyAdPage from './pages/WeeklyAdPage';
 import Shops from './pages/Shops';
 import Franchise from './pages/Franchise';
 import Chrono from './pages/Chrono';
@@ -24,7 +25,7 @@ import './styles.css';
 function SiteChrome({ children }: { children: ReactNode }) {
   const { pathname } = useLocation();
   // Écrans TV (défi, menu) : plein écran, sans pied de page ni boutons flottants
-  return pathname.startsWith('/defi/ecran') || pathname.startsWith('/menu/ecran') || pathname.startsWith('/menu/tableau') ? null : <>{children}</>;
+  return pathname.startsWith('/defi/ecran') || pathname.startsWith('/menu/ecran') || pathname.startsWith('/menu/tableau') || pathname.startsWith('/promo') ? null : <>{children}</>;
 }
 
 function ScrollTop() {
@@ -45,6 +46,7 @@ createRoot(document.getElementById('root')!).render(
           <Route path="/menu" element={<Menu />} />
           <Route path="/menu/ecran" element={<MenuScreen />} />
           <Route path="/menu/tableau" element={<MenuBoard />} />
+          <Route path="/promo" element={<WeeklyAdPage />} />
           <Route path="/menu/:slug" element={<MenuCategory />} />
           <Route path="/nos-cafes" element={<Shops />} />
           {FRANCHISE_ENABLED && <Route path="/franchise" element={<Franchise />} />}

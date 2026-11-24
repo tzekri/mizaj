@@ -6,11 +6,9 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import ma.mizaje.domain.Partner;
 import ma.mizaje.domain.PartnerDisplay;
@@ -34,8 +32,6 @@ public class PartnerService {
 
 	/** Une même TV ne compte pas deux fois la même pub à moins de 5 secondes d'écart (page rechargée, double envoi). */
 	static final long MIN_GAP_MS = 5_000;
-	static final int MAX_IMAGE_BYTES = 2_500_000;
-	private static final Pattern DATA_URL = Pattern.compile("^data:(image/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=\\s]+)$");
 	private static final Pattern SHOP_NAME = Pattern.compile("[\\p{L}0-9 '’-]{1,60}");
 
 	private final PartnerRepository partners;
@@ -161,21 +157,10 @@ public class PartnerService {
 			p.setImageType(null, now);
 			return;
 		}
-		Matcher m = DATA_URL.matcher(dataUrl);
-		if (!m.matches()) {
-			throw ApiException.badRequest("Image non reconnue : utilisez une photo JPEG, PNG ou WebP.");
-		}
-		byte[] data;
-		try {
-			data = Base64.getMimeDecoder().decode(m.group(2));
-		} catch (IllegalArgumentException e) {
-			throw ApiException.badRequest("Image illisible.");
-		}
-		if (data.length > MAX_IMAGE_BYTES) {
-			throw ApiException.badRequest("Image trop lourde (2,5 Mo au maximum).");
-		}
-		pictures.findById(p.getId()).ifPresentOrElse(pic -> pic.setData(data), () -> pictures.save(new PartnerPicture(p.getId(), data)));
-		p.setImageType(m.group(1), now);
+		DataImages.Decoded image = DataImages.decode(dataUrl);
+		pictures.findById(p.getId()).ifPresentOrElse(pic -> pic.setData(image.data()),
+				() -> pictures.save(new PartnerPicture(p.getId(), image.data())));
+		p.setImageType(image.type(), now);
 	}
 
 	private PartnerView view(Partner p) {

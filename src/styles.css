@@ -1190,3 +1190,28 @@ h1, h2, h3 { line-height: 1.15; margin: 0 0 0.5em; }
 .board-sec__photos img { flex: 1 1 0; min-width: 0; max-width: 8vw; height: 9.5vh; object-fit: cover; border-radius: 1.2vh; border: 0.25vh solid var(--copper); box-shadow: 0 1vh 2vh rgba(11, 37, 69, 0.2); }
 .board__sections--5 > :nth-child(n + 4) .board-sec__photos img { flex: 0 0 calc(33% - 0.6vw); max-width: none; height: 12vh; }
 .board .tv__fullscreen { color: var(--accent); border-color: rgba(11, 37, 69, 0.3); }
+
+/* ---------- Pub de la semaine (/promo) ---------- */
+.promo { position: fixed; inset: 0; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2vh; background: var(--bg-dark); color: var(--white); }
+/* Fond : l'affiche elle-même, floutée, pour remplir l'écran quel que soit son format */
+.promo__bg { position: absolute; inset: -5%; width: 110%; height: 110%; object-fit: cover; filter: blur(40px) brightness(0.55); }
+.promo__poster { position: relative; max-width: 96vw; max-height: 94vh; object-fit: contain; border-radius: 1.4vh;
+  box-shadow: 0 3vh 8vh rgba(0, 0, 0, 0.55); animation: ad-in 0.8s ease-out; }
+.promo--caption .promo__poster { max-height: 86vh; }
+.promo__caption { position: relative; margin: 0; padding: 0 4vw; text-align: center; font-weight: 600; font-size: clamp(1rem, 2.2vh, 1.6rem);
+  text-shadow: 0 0.3vh 1vh rgba(0, 0, 0, 0.7); }
+.promo__empty { position: relative; text-align: center; }
+.promo__empty img { width: 14vh; margin: 0 auto 2vh; }
+.promo__empty p { margin: 0; font-size: clamp(1.1rem, 3vh, 2.2rem); color: var(--accent-on-dark); }
+.promo .tv__fullscreen { z-index: 1; }
+
+.weekly-admin__list { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; margin: 18px 0; }
+.weekly-ad { background: var(--white); border-radius: 16px; overflow: hidden; box-shadow: 0 1px 0 rgba(16, 40, 74, 0.06), 0 6px 20px rgba(16, 40, 74, 0.05); display: flex; flex-direction: column; }
+.weekly-ad--current { outline: 3px solid var(--green); }
+.weekly-ad__img { aspect-ratio: 4 / 5; background: var(--bg-cream); display: grid; place-items: center; color: var(--muted); }
+.weekly-ad__img img { width: 100%; height: 100%; object-fit: cover; }
+.weekly-ad__body { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.weekly-ad__body h3 { margin: 0; font-size: 1.05rem; }
+.weekly-ad__body small { color: var(--muted); }
+.weekly-ad__actions { margin-top: auto; display: flex; gap: 12px; flex-wrap: wrap; }
+.weekly-form__preview { max-width: 220px; border-radius: 12px; box-shadow: var(--shadow); }

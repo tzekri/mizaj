@@ -29,6 +29,7 @@ import Dashboard from './Dashboard';
 import MenuAdmin from './MenuAdmin';
 import ChronoAdmin from './ChronoAdmin';
 import PartnersAdmin from './PartnersAdmin';
+import WeeklyAdsAdmin from './WeeklyAdsAdmin';
 import { IngredientThumb, JuiceGlass } from '../components/juice';
 
 /** Codes des smoothies (préfixe d'origine « JUS » gardé : les codes déjà émis restent valables) ; « MIZAJ-JUS: » : codes générés des premières versions (ancien nom « Mizaj »). */
@@ -39,7 +40,7 @@ import { Header } from '../components/Layout';
 
 export default function Barista() {
   const [session, setSession] = useState<StaffSession | null>(staffSession.get());
-  const [tab, setTab] = useState<'counter' | 'dashboard' | 'admin' | 'menu' | 'partners'>('counter');
+  const [tab, setTab] = useState<'counter' | 'dashboard' | 'admin' | 'menu' | 'partners' | 'weekly'>('counter');
 
   const logout = useCallback(() => {
     staffSession.set(null);
@@ -67,6 +68,7 @@ export default function Barista() {
                     <button className={tab === 'counter' ? 'active' : ''} onClick={() => setTab('counter')}>Comptoir</button>
                     <button className={tab === 'dashboard' ? 'active' : ''} onClick={() => setTab('dashboard')}>Tableau de bord</button>
                     <button className={tab === 'menu' ? 'active' : ''} onClick={() => setTab('menu')}>Menu & prix</button>
+                    <button className={tab === 'weekly' ? 'active' : ''} onClick={() => setTab('weekly')}>Pub de la semaine</button>
                     <button className={tab === 'partners' ? 'active' : ''} onClick={() => setTab('partners')}>Partenaires</button>
                     <button className={tab === 'admin' ? 'active' : ''} onClick={() => setTab('admin')}>Administration</button>
                   </div>
@@ -78,6 +80,7 @@ export default function Barista() {
             {tab === 'dashboard' && <Dashboard onAuthError={logout} />}
             {tab === 'menu' && <MenuAdmin />}
             {tab === 'partners' && <PartnersAdmin />}
+            {tab === 'weekly' && <WeeklyAdsAdmin />}
             {tab === 'admin' && <Admin onAuthError={logout} />}
           </>
         )}

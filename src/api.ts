@@ -143,6 +143,23 @@ export type PartnerInput = {
   image?: string;
 };
 
+// --- Pub de la semaine (page /promo) ---
+
+export type WeeklyAdPublic = { id: number; title: string; description?: string; image: string; endsOn: string };
+/** status : CURRENT (affichée), OVERLAP (en cours mais une plus récente passe avant), SCHEDULED, ENDED, PAUSED, NO_IMAGE. */
+export type WeeklyAd = {
+  id: number;
+  title: string;
+  description?: string;
+  startsOn: string;
+  endsOn: string;
+  active: boolean;
+  status: 'CURRENT' | 'OVERLAP' | 'SCHEDULED' | 'ENDED' | 'PAUSED' | 'NO_IMAGE';
+  image?: string;
+};
+/** image : absente pour garder l'affiche actuelle, sinon « data URL ». */
+export type WeeklyAdInput = { title: string; description?: string; startsOn: string; endsOn: string; active: boolean; image?: string };
+
 // --- Défi « 10 secondes » ---
 
 export type ChronoInfo = { enabled: boolean; prize: string; attemptsPerDay: number; remaining: number; validityDays: number };
@@ -456,6 +473,11 @@ export const api = {
     request<ChronoPrize>('POST', `/api/staff/chrono/${encodeURIComponent(code)}/redeem`, undefined, staffSession.get()?.token),
   chronoSettings: () => request<ChronoSettings>('GET', '/api/admin/chrono', undefined, staffSession.get()?.token),
   saveChronoSettings: (s: ChronoSettings) => request<ChronoSettings>('PUT', '/api/admin/chrono', s, staffSession.get()?.token),
+  weeklyAd: () => request<WeeklyAdPublic | null>('GET', '/api/public/weekly-ad'),
+  weeklyAds: () => request<WeeklyAd[]>('GET', '/api/admin/weekly-ads', undefined, staffSession.get()?.token),
+  createWeeklyAd: (a: WeeklyAdInput) => request<WeeklyAd>('POST', '/api/admin/weekly-ads', a, staffSession.get()?.token),
+  updateWeeklyAd: (id: number, a: WeeklyAdInput) => request<WeeklyAd>('PUT', `/api/admin/weekly-ads/${id}`, a, staffSession.get()?.token),
+  deleteWeeklyAd: (id: number) => request<void>('DELETE', `/api/admin/weekly-ads/${id}`, undefined, staffSession.get()?.token),
   ads: (shop?: string | null) => request<Ad[]>('GET', `/api/public/partners/ads${shop ? `?shop=${encodeURIComponent(shop)}` : ''}`),
   adShown: (id: number, shop: string | null, screen: string) =>
     request<void>('POST', `/api/public/partners/${id}/shown?screen=${encodeURIComponent(screen)}${shop ? `&shop=${encodeURIComponent(shop)}` : ''}`),
