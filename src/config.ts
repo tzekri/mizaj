@@ -3,6 +3,9 @@
 /** Partie franchise (page, liens, encart d'accueil) : masquée pour le moment, passer à true pour la réafficher. */
 export const FRANCHISE_ENABLED = false;
 
+/** Adresse officielle du site : celle des liens partagés et des QR codes. */
+export const SITE_URL = 'https://kidima.ma';
+
 export const BRAND = {
   name: 'Kidima',
   tagline: 'Le café à la marocaine',

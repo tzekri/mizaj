@@ -30,6 +30,7 @@ import MenuAdmin from './MenuAdmin';
 import ChronoAdmin from './ChronoAdmin';
 import PartnersAdmin from './PartnersAdmin';
 import WeeklyAdsAdmin from './WeeklyAdsAdmin';
+import LinksAdmin from './LinksAdmin';
 import { IngredientThumb, JuiceGlass } from '../components/juice';
 
 /** Codes des smoothies (préfixe d'origine « JUS » gardé : les codes déjà émis restent valables) ; « MIZAJ-JUS: » : codes générés des premières versions (ancien nom « Mizaj »). */
@@ -40,12 +41,14 @@ import { Header } from '../components/Layout';
 
 export default function Barista() {
   const [session, setSession] = useState<StaffSession | null>(staffSession.get());
-  const [tab, setTab] = useState<'counter' | 'dashboard' | 'admin' | 'menu' | 'partners' | 'weekly'>('counter');
+  const [tab, setTab] = useState<'counter' | 'dashboard' | 'admin' | 'menu' | 'partners' | 'weekly' | 'links'>('counter');
 
   const logout = useCallback(() => {
     staffSession.set(null);
     setSession(null);
+    setTab('counter');
   }, []);
+  const admin = session?.role === 'ADMIN';
 
   return (
     <>
@@ -63,25 +66,29 @@ export default function Barista() {
                 <h1>{session.name}{session.shop ? ` · ${session.shop}` : ''}</h1>
               </div>
               <div className="barista__bar-actions">
-                {session.role === 'ADMIN' && (
-                  <div className="seg">
-                    <button className={tab === 'counter' ? 'active' : ''} onClick={() => setTab('counter')}>Comptoir</button>
-                    <button className={tab === 'dashboard' ? 'active' : ''} onClick={() => setTab('dashboard')}>Tableau de bord</button>
-                    <button className={tab === 'menu' ? 'active' : ''} onClick={() => setTab('menu')}>Menu & prix</button>
-                    <button className={tab === 'weekly' ? 'active' : ''} onClick={() => setTab('weekly')}>Pub de la semaine</button>
-                    <button className={tab === 'partners' ? 'active' : ''} onClick={() => setTab('partners')}>Partenaires</button>
-                    <button className={tab === 'admin' ? 'active' : ''} onClick={() => setTab('admin')}>Administration</button>
-                  </div>
-                )}
+                <div className="seg">
+                  <button className={tab === 'counter' ? 'active' : ''} onClick={() => setTab('counter')}>Comptoir</button>
+                  {admin && (
+                    <>
+                      <button className={tab === 'dashboard' ? 'active' : ''} onClick={() => setTab('dashboard')}>Tableau de bord</button>
+                      <button className={tab === 'menu' ? 'active' : ''} onClick={() => setTab('menu')}>Menu & prix</button>
+                      <button className={tab === 'weekly' ? 'active' : ''} onClick={() => setTab('weekly')}>Pub de la semaine</button>
+                      <button className={tab === 'partners' ? 'active' : ''} onClick={() => setTab('partners')}>Partenaires</button>
+                    </>
+                  )}
+                  <button className={tab === 'links' ? 'active' : ''} onClick={() => setTab('links')}>Liens & QR</button>
+                  {admin && <button className={tab === 'admin' ? 'active' : ''} onClick={() => setTab('admin')}>Administration</button>}
+                </div>
                 <button className="btn btn--outline btn--sm" onClick={logout}>Déconnexion</button>
               </div>
             </div>
-            {tab === 'counter' && <Counter onAuthError={logout} />}
-            {tab === 'dashboard' && <Dashboard onAuthError={logout} />}
-            {tab === 'menu' && <MenuAdmin />}
-            {tab === 'partners' && <PartnersAdmin />}
-            {tab === 'weekly' && <WeeklyAdsAdmin />}
-            {tab === 'admin' && <Admin onAuthError={logout} />}
+            {(tab === 'counter' || (!admin && tab !== 'links')) && <Counter onAuthError={logout} />}
+            {admin && tab === 'dashboard' && <Dashboard onAuthError={logout} />}
+            {admin && tab === 'menu' && <MenuAdmin />}
+            {admin && tab === 'partners' && <PartnersAdmin />}
+            {admin && tab === 'weekly' && <WeeklyAdsAdmin />}
+            {tab === 'links' && <LinksAdmin />}
+            {admin && tab === 'admin' && <Admin onAuthError={logout} />}
           </>
         )}
       </section>

@@ -1,14 +1,14 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import QRCode from 'qrcode';
 import { api, type Plan } from '../api';
-import { BRAND } from '../config';
+import { BRAND, SITE_URL } from '../config';
 import { Header } from '../components/Layout';
 import { Whatsapp } from '../components/Icons';
 import LedDisplay from '../components/LedDisplay';
 
 /**
  * Affiche à imprimer pour la caisse : QR code vers la page Abonnement.
- * Le lien part de l'adresse du site ouvert (localhost en dev, domaine Render/réel en production).
+ * Le lien part de l'adresse officielle du site (SITE_URL), modifiable sur la page.
  */
 export default function Poster() {
   const [plans, setPlans] = useState<Plan[]>([]);
@@ -105,7 +105,7 @@ type PosterPageProps = {
 
 /** Page d'affiche : outils (lien, impression, QR en PNG, partage WhatsApp) et affiche A4. */
 function PosterPage({ path, title, file, qrAlt, share, top, cta, steps }: PosterPageProps) {
-  const [url, setUrl] = useState(`${window.location.origin}${path}`);
+  const [url, setUrl] = useState(`${SITE_URL}${path}`);
   const [qr, setQr] = useState('');
 
   useEffect(() => {
