@@ -3,10 +3,10 @@ import QRCode from 'qrcode';
 import { SHOPS, SITE_URL } from '../config';
 import { tvLink } from './PartnersAdmin';
 
-type UsefulLink = { path: string; title: string; text: string; file: string };
+export type UsefulLink = { path: string; title: string; text: string; file: string };
 type Group = { title: string; note: string; links: UsefulLink[] };
 
-const GROUPS: Group[] = [
+export const GROUPS: Group[] = [
   {
     title: 'Pour les clients',
     note: 'À partager sur WhatsApp, Instagram, ou en QR code sur les tables et en caisse.',
@@ -71,7 +71,10 @@ export default function LinksAdmin() {
       {GROUPS.map((g) => (
         <section key={g.title} className="links-admin__group">
           <h3>{g.title}</h3>
-          <p className="dash-note">{g.note}</p>
+          <p className="dash-note">
+            {g.note}
+            {g === GROUPS[0] && <> · <a href="/qr" target="_blank" rel="noreferrer">Planche de QR codes clients à imprimer</a></>}
+          </p>
           <div className="links-admin__grid">
             {g.links.map((l) => (
               <LinkCard key={l.file} link={l} url={`${base}${l.path}`} />

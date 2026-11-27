@@ -19,6 +19,7 @@ import MyCard from './pages/MyCard';
 import Barista from './pages/Barista';
 import Poster, { ChronoPoster } from './pages/Poster';
 import Juice from './pages/Juice';
+import QrSheet from './pages/QrSheet';
 import './styles.css';
 
 /** Pied de page et boutons flottants, sauf sur l'écran géant du défi (TV en plein écran). */
@@ -55,6 +56,7 @@ createRoot(document.getElementById('root')!).render(
           <Route path="/barista" element={<Barista />} />
           <Route path="/affiche" element={<Poster />} />
           <Route path="/affiche/defi" element={<ChronoPoster />} />
+          <Route path="/qr" element={<QrSheet />} />
           <Route path="/smoothie" element={<Juice />} />
           {/* Ancienne adresse (jus) : liens et QR déjà partagés */}
           <Route path="/jus" element={<Navigate to="/smoothie" replace />} />
